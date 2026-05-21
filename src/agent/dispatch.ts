@@ -103,7 +103,7 @@ export function buildPlanningPrompt(prompt: string, maxSubtasks: number): string
     "  ]",
     "}",
     "```",
-    `Constraints: each subtask should be 1-5 files. Total subtasks <= ${maxSubtasks}. depends_on is a list of subtask IDs that must complete first. auto_fix defaults to true when --auto-fix-verify is enabled.`,
+    `Constraints: each subtask should be 1-8 files. Total subtasks <= ${maxSubtasks}. depends_on is a list of subtask IDs that must complete first. auto_fix defaults to true when --auto-fix-verify is enabled.`,
     "",
     "User prompt:",
     prompt,
@@ -167,7 +167,7 @@ export function normalizePlan(plan: DispatchPlan, maxSubtasks: number): Dispatch
     ids.add(task.id);
     const files = Array.isArray(task.files) ? task.files.map(String) : [];
     const dependsOn = Array.isArray(task.depends_on) ? task.depends_on.map(String) : [];
-    if (files.length > 5) throw new Error(`dispatch subtask ${task.id} touches more than 5 files`);
+    if (files.length > 8) throw new Error(`dispatch subtask ${task.id} touches more than 8 files`);
     const tdd = typeof task.tdd === "boolean" ? task.tdd : undefined;
     const autoFix = typeof task.auto_fix === "boolean" ? task.auto_fix : undefined;
     return { id: task.id, title: task.title, files, depends_on: dependsOn, ...(tdd !== undefined ? { tdd } : {}), ...(autoFix !== undefined ? { auto_fix: autoFix } : {}) };
