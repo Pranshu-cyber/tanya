@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install zsh (Ubuntu)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepublish gate
+        run: npm run prepublishOnly
+
+      - name: Detect dry-run tag
+        id: release_mode
+        run: |
+          if [[ "$GITHUB_REF_NAME" == *"-dry-run"* ]]; then
+            echo "dry_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve npm publish metadata
+        id: npm_meta
+        run: |
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          npm_tag="latest"
+          if [[ "$package_version" == *"-"* ]]; then
+            npm_tag="beta"
+          fi
+          if npm view "$package_name@$package_version" version >/dev/null 2>&1; then
+            already_published="true"
+          else
+            already_published="false"
+          fi
+          echo "package_name=$package_name" >> "$GITHUB_OUTPUT"
+          echo "package_version=$package_version" >> "$GITHUB_OUTPUT"
+          echo "npm_tag=$npm_tag" >> "$GITHUB_OUTPUT"
+          echo "already_published=$already_published" >> "$GITHUB_OUTPUT"
+
+      - name: Publish package
+        if: steps.npm_meta.outputs.already_published != 'true'
+        run: |
+          if [[ "${{ steps.release_mode.outputs.dry_run }}" == "true" ]]; then
+            npm publish --access public --dry-run --tag "${{ steps.npm_meta.outputs.npm_tag }}"
+          else
+            npm publish --access public --tag "${{ steps.npm_meta.outputs.npm_tag }}"
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip npm publish
+        if: steps.npm_meta.outputs.already_published == 'true'
+        run: echo "${{ steps.npm_meta.outputs.package_name }}@${{ steps.npm_meta.outputs.package_version }} is already published; skipping npm publish."
+
+      - name: Build release notes
+        if: steps.release_mode.outputs.dry_run != 'true'
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v version="$version" '
+            $0 == "## [" version "]" || $0 ~ "^## \\[" version "\\] - " { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [[ ! -s release-notes.md ]]; then
+            cp CHANGELOG.md release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        if: steps.release_mode.outputs.dry_run != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          prerelease: ${{ contains(github.ref_name, '-') }}   # auto-mark beta tags

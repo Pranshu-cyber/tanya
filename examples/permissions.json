@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "mode": "ask",
+  "alwaysAllow": [
+    "read_file:.*",
+    "list_files:.*",
+    "run_shell:.*\"script\":\"git status.*"
+  ],
+  "alwaysDeny": [
+    "run_shell:.*rm -rf.*",
+    "write_file:.*\\.production\\.ts"
+  ],
+  "alwaysAsk": [
+    "run_shell:.*npm install.*",
+    "apply_patch:.*"
+  ],
+  "pathRules": [
+    { "glob": "src/**", "action": "allow" },
+    { "glob": "../**", "action": "deny" }
+  ],
+  "spendRules": [
+    {
+      "type": "spend",
+      "scope": "turn",
+      "max_usd": 0.05,
+      "action": "ask"
+    },
+    {
+      "type": "spend",
+      "scope": "run",
+      "max_tokens": 100000,
+      "action": "deny"
+    }
+  ]
+}

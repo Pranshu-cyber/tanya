@@ -1,0 +1,159 @@
+{
+  "suite": "mvp",
+  "suiteVersion": "2026-05",
+  "tanyaVersion": "0.16.0-beta.0",
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "generatedAt": "2026-05-17T02:08:48.408Z",
+  "totalCostUsd": 0.7767033000000001,
+  "costPerPass": 0.08630036666666668,
+  "tokensPerPass": 287561.22222222225,
+  "reasoningShare": 0,
+  "runs": [
+    {
+      "taskId": "mvp-01",
+      "status": "passed",
+      "durationMs": 38523,
+      "tokensUsed": {
+        "input": 163166,
+        "output": 2098,
+        "reasoning": 0,
+        "system_prompt": 4906,
+        "repo_map": 0
+      },
+      "costUsd": 0.04636262,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "mvp-02",
+      "status": "passed",
+      "durationMs": 61227,
+      "tokensUsed": {
+        "input": 258965,
+        "output": 4472,
+        "reasoning": 0,
+        "system_prompt": 4906,
+        "repo_map": 0
+      },
+      "costUsd": 0.07483975,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "mvp-03",
+      "status": "passed",
+      "durationMs": 42918,
+      "tokensUsed": {
+        "input": 195275,
+        "output": 2674,
+        "reasoning": 0,
+        "system_prompt": 4908,
+        "repo_map": 0
+      },
+      "costUsd": 0.05566565000000001,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/README.md b/README.md\nindex 1c70089..cc8f643 100644\n--- a/README.md\n+++ b/README.md\n@@ -1,3 +1,49 @@\n-# MVP 03 Fixture\n+# Hacker News Top 10 Scraper\n \n-Empty workspace for a Hacker News top-stories scraper.\n+Scrapes today's top 10 stories from [news.ycombinator.com](https://news.ycombinator.com/) into `stories.json`.\n+\n+## Requirements\n+\n+- Python 3.10+\n+- `requests` >= 2.31.0\n+- `beautifulsoup4` >= 4.12.0\n+\n+## Setup\n+\n+```bash\n+pip install -r requirements.txt\n+```\n+\n+## Usage\n+\n+```bash\n+python hn_top.py\n+```\n+\n+Output is written to `stories.json`:\n+\n+```json\n+{\n+  \"fetched_at\": \"2025-03-15\",\n+  \"source\": \"live\",\n+  \"stories\": [\n+    {\"title\": \"...\", \"url\": \"...\"},\n+    ...\n+  ]\n+}\n+```\n+\n+## Live vs. Mock Behavior\n+\n+| Mode | Trigger | Data |\n+|------|---------|------|\n+| **Live** | Network available, HN responds | Real top ~30 stories from the HN front page; the script keeps the first 10. |\n+| **Mock** | Both live attempts fail (network down, timeout, HTTP error, etc.) | Deterministic set of 10 placeholder stories with `example.com` and `news.ycombinator.com/item?id=...` URLs. |\n+\n+The `source` field in `stories.json` indicates which mode was used.\n+\n+## Limitations\n+\n+- The live scrape uses the HTML front page only (no official HN API). If HN changes its HTML structure, the CSS selector `tr.athing` / `td.title .titleline > a` may need updating.\n+- No caching or rate-limiting protection is implemented.\n+- Mock data is static and does not reflect real current stories.\n"
+    },
+    {
+      "taskId": "mvp-04",
+      "status": "passed",
+      "durationMs": 446239,
+      "tokensUsed": {
+        "input": 481790,
+        "output": 67023,
+        "reasoning": 0,
+        "system_prompt": 4907,
+        "repo_map": 0
+      },
+      "costUsd": 0.2038086,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "mvp-05",
+      "status": "passed",
+      "durationMs": 36833,
+      "tokensUsed": {
+        "input": 141899,
+        "output": 2946,
+        "reasoning": 0,
+        "system_prompt": 4906,
+        "repo_map": 0
+      },
+      "costUsd": 0.041553330000000006,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "mvp-06",
+      "status": "passed",
+      "durationMs": 42632,
+      "tokensUsed": {
+        "input": 122407,
+        "output": 1214,
+        "reasoning": 0,
+        "system_prompt": 4918,
+        "repo_map": 0
+      },
+      "costUsd": 0.034385290000000006,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/README.md b/README.md\nindex 44387a6..c346745 100644\n--- a/README.md\n+++ b/README.md\n@@ -1,3 +1,14 @@\n # MVP 06 Fixture\n \n Convert `data/input.json` into `output.csv` with selected columns.\n+\n+## Usage\n+\n+```bash\n+pip install -r requirements.txt\n+python convert.py\n+```\n+\n+## Output\n+\n+`output.csv` contains columns: `id`, `name`, `email`, `plan`.\n"
+    },
+    {
+      "taskId": "mvp-07",
+      "status": "failed",
+      "durationMs": 43264,
+      "tokensUsed": {
+        "input": 177516,
+        "output": 3486,
+        "reasoning": 0,
+        "system_prompt": 4906,
+        "repo_map": 0
+      },
+      "costUsd": 0.051763920000000005,
+      "verifierVerdict": "failed",
+      "error": "failed verification: cargo init --name prime-cli . -> failed (Command failed to start.)"
+    },
+    {
+      "taskId": "mvp-08",
+      "status": "passed",
+      "durationMs": 31600,
+      "tokensUsed": {
+        "input": 110917,
+        "output": 1439,
+        "reasoning": 0,
+        "system_prompt": 4914,
+        "repo_map": 0
+      },
+      "costUsd": 0.03153049,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "mvp-09",
+      "status": "passed",
+      "durationMs": 17001,
+      "tokensUsed": {
+        "input": 84768,
+        "output": 1096,
+        "reasoning": 0,
+        "system_prompt": 4919,
+        "repo_map": 0
+      },
+      "costUsd": 0.02409296,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/stats.py b/stats.py\nindex 03e160b..ce820eb 100644\n--- a/stats.py\n+++ b/stats.py\n@@ -1,8 +1,9 @@\n def average(values):\n     total = 0\n     count = 0\n-    for index in range(len(values) - 1):\n-        value = values[index]\n+    for value in values:\n+        if value is None:\n+            continue\n         total += value\n         count += 1\n     return total / count\n"
+    },
+    {
+      "taskId": "mvp-10",
+      "status": "passed",
+      "durationMs": 110411,
+      "tokensUsed": {
+        "input": 757457,
+        "output": 7443,
+        "reasoning": 0,
+        "system_prompt": 4916,
+        "repo_map": 0
+      },
+      "costUsd": 0.21270069000000003,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/package.json b/package.json\nindex 85f52f7..bffd38b 100644\n--- a/package.json\n+++ b/package.json\n@@ -3,13 +3,13 @@\n   \"version\": \"1.0.0\",\n   \"description\": \"Slash-command-style CLI with init/add/list/remove subcommands\",\n   \"type\": \"module\",\n-  \"main\": \"dist/index.js\",\n+  \"main\": \"src/index.js\",\n   \"bin\": {\n-    \"mvp10\": \"./dist/index.js\"\n+    \"mvp10\": \"./src/index.js\"\n   },\n   \"scripts\": {\n     \"build\": \"tsc\",\n-    \"start\": \"node dist/index.js\",\n+    \"start\": \"node src/index.js\",\n     \"prepublishOnly\": \"npm run build\"\n   },\n   \"dependencies\": {\ndiff --git a/tsconfig.json b/tsconfig.json\nindex 704aa6c..6e84520 100644\n--- a/tsconfig.json\n+++ b/tsconfig.json\n@@ -3,7 +3,7 @@\n     \"target\": \"ES2022\",\n     \"module\": \"NodeNext\",\n     \"moduleResolution\": \"NodeNext\",\n-    \"outDir\": \"dist\",\n+    \"outDir\": \"src\",\n     \"rootDir\": \"src\",\n     \"strict\": true,\n     \"esModuleInterop\": true,\n@@ -14,5 +14,5 @@\n     \"sourceMap\": true\n   },\n   \"include\": [\"src/**/*\"],\n-  \"exclude\": [\"node_modules\", \"dist\"]\n+  \"exclude\": [\"node_modules\"]\n }\n"
+    }
+  ]
+}

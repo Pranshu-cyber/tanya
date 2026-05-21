@@ -1,0 +1,6 @@
+[
+  { "id": 1, "name": "Ada Lovelace", "email": "ada@example.com", "plan": "pro", "last_login": "2026-05-01" },
+  { "id": 2, "name": "Grace Hopper", "email": "grace@example.com", "plan": "team", "last_login": "2026-05-02" },
+  { "id": 3, "name": "Katherine Johnson", "email": "katherine@example.com", "plan": "free", "last_login": "2026-05-03" },
+  { "id": 4, "name": "Margaret Hamilton", "email": "margaret@example.com", "plan": "pro", "last_login": "2026-05-04" }
+]

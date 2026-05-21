@@ -1,0 +1,168 @@
+{
+  "capturedAt": "2026-05-16",
+  "mode": "bypass",
+  "results": [
+    {
+      "profileId": "cosmohq.ios.foundation",
+      "title": "Fundações - iOS",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "cosmohq.android.foundation",
+      "title": "Fundações - Android",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "cosmohq.android.splash",
+      "title": "Splash Screen - Android",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "cosmohq.apple.app-icon",
+      "title": "App Icon - Apple",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "cosmohq.backend.api-foundation",
+      "title": "Backend API Foundation",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.low.search-replace",
+      "title": "Low - Targeted Search Replace",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.low.new-helper",
+      "title": "Low - New Helper File",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.low.config-update",
+      "title": "Low - Config Update",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.low.readme-update",
+      "title": "Low - README Update",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.low.package-script",
+      "title": "Low - Package Script",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.service-module",
+      "title": "Medium - Service Module",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.test-harness",
+      "title": "Medium - Test Harness",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.artifact-component",
+      "title": "Medium - Artifact Component",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.artifact-service",
+      "title": "Medium - Artifact Service",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.dirty-worktree",
+      "title": "Medium - Dirty Worktree",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.report-repair",
+      "title": "Medium - Report Repair",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.multi-file",
+      "title": "Medium - Multi-File Feature",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.package-manager",
+      "title": "Medium - Package Manager Script",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.context-aware",
+      "title": "Medium - Context-Aware Edit",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.existing-tests",
+      "title": "Medium - Existing Tests",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.dependency-install",
+      "title": "Medium - Dependency Install",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.framework-migration",
+      "title": "Medium - Framework Migration",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.failing-test-repair",
+      "title": "Medium - Failing Test Repair",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.frontend-smoke",
+      "title": "Medium - Frontend Smoke",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.run-log-history",
+      "title": "Medium - Usage Metrics Run Log",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.streaming-long-tool",
+      "title": "Medium - Streaming Long Tool",
+      "passed": true,
+      "problems": []
+    },
+    {
+      "profileId": "tanya.medium.compaction-boundary",
+      "title": "Medium - Compaction Boundary",
+      "passed": true,
+      "problems": []
+    }
+  ]
+}

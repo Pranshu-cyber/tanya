@@ -1,0 +1,14 @@
+{
+  "task": {
+    "kind": "coding",
+    "title": "Add a health endpoint"
+  },
+  "expected_report": {
+    "verification": true
+  },
+  "verification": [
+    {
+      "command": "npm test"
+    }
+  ]
+}

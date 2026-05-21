@@ -1,0 +1,27 @@
+{
+  "suite": "tanya-native",
+  "suiteVersion": "2026-05",
+  "tanyaVersion": "0.15.0-beta.0",
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "generatedAt": "2026-05-16T00:00:00.000Z",
+  "runs": [
+    {
+      "taskId": "placeholder",
+      "status": "passed",
+      "durationMs": 0,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0,
+        "reasoning": 0,
+        "system_prompt": 0
+      },
+      "costUsd": 0,
+      "verifierVerdict": "passed"
+    }
+  ],
+  "totalCostUsd": 0,
+  "costPerPass": 0,
+  "tokensPerPass": 0,
+  "reasoningShare": 0
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "routes": [
+    {
+      "match": "planning",
+      "provider": "deepseek",
+      "model": "deepseek-chat",
+      "fallback": {
+        "provider": "qwen",
+        "model": "qwen3-coder-plus"
+      }
+    },
+    {
+      "match": "synthesis",
+      "provider": "deepseek",
+      "model": "deepseek-reasoner",
+      "fallback": {
+        "provider": "openai",
+        "model": "gpt-4.1-mini"
+      }
+    }
+  ],
+  "defaults": {
+    "provider": "deepseek",
+    "model": "deepseek-chat"
+  }
+}

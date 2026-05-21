@@ -1,0 +1,72 @@
+{
+  "name": "@matheuskrumenauer/tanya",
+  "version": "0.17.0-beta.2",
+  "description": "A live, tool-using AI CLI for DeepSeek and OpenAI-compatible providers.",
+  "type": "module",
+  "bin": {
+    "tanya": "dist/cli.js",
+    "tania": "dist/cli.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matheusjkweber/tanya.git"
+  },
+  "bugs": {
+    "url": "https://github.com/matheusjkweber/tanya/issues"
+  },
+  "homepage": "https://github.com/matheusjkweber/tanya#readme",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.ts",
+    "link:local": "npm run build && npm link",
+    "smoke:examples": "node scripts/smoke-examples.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "coding-agent",
+    "deepseek",
+    "openai-compatible",
+    "tools",
+    "agent",
+    "llm"
+  ],
+  "author": "Matheus Weber",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "commander": "^14.0.3",
+    "dotenv": "^17.4.2",
+    "ink": "^5.2.1",
+    "js-yaml": "^4.1.1",
+    "react": "^18.3.1",
+    "sharp": "^0.34.5",
+    "tsx": "^4.21.0",
+    "ws": "^8.20.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.19.25",
+    "@types/react": "^18.3.28",
+    "@types/ws": "^8.18.1",
+    "ink-testing-library": "^4.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
+  }
+}

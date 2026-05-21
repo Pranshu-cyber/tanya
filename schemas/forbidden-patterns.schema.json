@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tanya.local/schemas/forbidden-patterns.schema.json",
+  "title": "Tanya project-level forbidden patterns",
+  "description": "Schema for .tania/forbidden-patterns.json. Each pattern is a regex that fails the post-write gate when matched in a file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["patterns"],
+  "properties": {
+    "patterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pattern" }
+    }
+  },
+  "$defs": {
+    "pattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "pattern", "filePattern", "message"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "Stable kebab-case identifier used in validation issues."
+        },
+        "pattern": {
+          "type": "string",
+          "description": "Regex (without delimiters) tested against the file's full text content."
+        },
+        "flags": {
+          "type": "string",
+          "pattern": "^[gimsuy]*$",
+          "description": "Optional regex flags for `pattern`."
+        },
+        "filePattern": {
+          "type": "string",
+          "description": "Regex matched against the relative file path. Patterns only run on files that match."
+        },
+        "filePatternFlags": {
+          "type": "string",
+          "pattern": "^[gimsuy]*$"
+        },
+        "excludeFilePattern": {
+          "type": "string",
+          "description": "Regex matched against the relative file path. Patterns are skipped on files that match."
+        },
+        "excludeFilePatternFlags": {
+          "type": "string",
+          "pattern": "^[gimsuy]*$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable message shown when the pattern fires. Be specific about why this is forbidden and what to do instead."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning"],
+          "default": "error"
+        }
+      }
+    }
+  }
+}

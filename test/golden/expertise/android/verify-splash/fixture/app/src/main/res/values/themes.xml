@@ -1,0 +1,1 @@
+<resources><style name="Theme.Fixture.Splash" parent="Theme.SplashScreen"><item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item></style></resources>

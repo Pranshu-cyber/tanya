@@ -1,0 +1,436 @@
+{
+  "suite": "eco-30",
+  "suiteVersion": "2026-05",
+  "tanyaVersion": "0.17.0-beta.2",
+  "provider": "deepseek",
+  "model": "deepseek-v4-pro",
+  "generatedAt": "2026-05-21T02:00:57.114Z",
+  "totalCostUsd": 1.5221224199999996,
+  "costPerPass": 0.05248697999999999,
+  "tokensPerPass": 116252.96551724138,
+  "reasoningShare": 0.020127332309802404,
+  "runs": [
+    {
+      "taskId": "eco-01-long-file-read-dedup",
+      "status": "passed",
+      "durationMs": 112729,
+      "tokensUsed": {
+        "input": 104926,
+        "output": 2730,
+        "reasoning": 3748,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.05127867,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-02-large-tool-result-truncation",
+      "status": "passed",
+      "durationMs": 132915,
+      "tokensUsed": {
+        "input": 179602,
+        "output": 3360,
+        "reasoning": 3301,
+        "system_prompt": 4943,
+        "repo_map": 0
+      },
+      "costUsd": 0.08392194,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-03-reasoning-heavy-planning",
+      "status": "passed",
+      "durationMs": 170528,
+      "tokensUsed": {
+        "input": 139536,
+        "output": 3074,
+        "reasoning": 2839,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.06584247,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-04-system-prompt-budget",
+      "status": "passed",
+      "durationMs": 115913,
+      "tokensUsed": {
+        "input": 198937,
+        "output": 2276,
+        "reasoning": 2146,
+        "system_prompt": 4932,
+        "repo_map": 0
+      },
+      "costUsd": 0.090384735,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-05-repo-map-targeting",
+      "status": "passed",
+      "durationMs": 42301,
+      "tokensUsed": {
+        "input": 48216,
+        "output": 1085,
+        "reasoning": 1318,
+        "system_prompt": 4935,
+        "repo_map": 0
+      },
+      "costUsd": 0.02306457,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-06-fuzzy-edit-recovery",
+      "status": "passed",
+      "durationMs": 113410,
+      "tokensUsed": {
+        "input": 148498,
+        "output": 3063,
+        "reasoning": 3621,
+        "system_prompt": 4933,
+        "repo_map": 0
+      },
+      "costUsd": 0.07041171,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-07-long-file-read-dedup",
+      "status": "passed",
+      "durationMs": 82259,
+      "tokensUsed": {
+        "input": 89416,
+        "output": 2338,
+        "reasoning": 3242,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.04375056,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-08-large-tool-result-truncation",
+      "status": "passed",
+      "durationMs": 89439,
+      "tokensUsed": {
+        "input": 107091,
+        "output": 2081,
+        "reasoning": 2248,
+        "system_prompt": 4943,
+        "repo_map": 0
+      },
+      "costUsd": 0.05035081500000001,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-09-reasoning-heavy-planning",
+      "status": "passed",
+      "durationMs": 84929,
+      "tokensUsed": {
+        "input": 62339,
+        "output": 2113,
+        "reasoning": 3184,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.031725855,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-10-system-prompt-budget",
+      "status": "passed",
+      "durationMs": 45735,
+      "tokensUsed": {
+        "input": 85101,
+        "output": 907,
+        "reasoning": 559,
+        "system_prompt": 4932,
+        "repo_map": 0
+      },
+      "costUsd": 0.038294354999999995,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-11-repo-map-targeting",
+      "status": "passed",
+      "durationMs": 38467,
+      "tokensUsed": {
+        "input": 48046,
+        "output": 931,
+        "reasoning": 1184,
+        "system_prompt": 4935,
+        "repo_map": 0
+      },
+      "costUsd": 0.02274006,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-12-fuzzy-edit-recovery",
+      "status": "passed",
+      "durationMs": 64518,
+      "tokensUsed": {
+        "input": 87425,
+        "output": 1591,
+        "reasoning": 1612,
+        "system_prompt": 4933,
+        "repo_map": 0
+      },
+      "costUsd": 0.040816485,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-13-long-file-read-dedup",
+      "status": "passed",
+      "durationMs": 106620,
+      "tokensUsed": {
+        "input": 62879,
+        "output": 2243,
+        "reasoning": 3756,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.032571495,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-14-large-tool-result-truncation",
+      "status": "passed",
+      "durationMs": 67306,
+      "tokensUsed": {
+        "input": 62480,
+        "output": 1537,
+        "reasoning": 2021,
+        "system_prompt": 4943,
+        "repo_map": 0
+      },
+      "costUsd": 0.03027426,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-15-reasoning-heavy-planning",
+      "status": "passed",
+      "durationMs": 79891,
+      "tokensUsed": {
+        "input": 48380,
+        "output": 1763,
+        "reasoning": 2356,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.02462883,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-16-system-prompt-budget",
+      "status": "passed",
+      "durationMs": 37949,
+      "tokensUsed": {
+        "input": 71537,
+        "output": 669,
+        "reasoning": 301,
+        "system_prompt": 4932,
+        "repo_map": 0
+      },
+      "costUsd": 0.031962495,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-17-repo-map-targeting",
+      "status": "passed",
+      "durationMs": 46259,
+      "tokensUsed": {
+        "input": 47909,
+        "output": 876,
+        "reasoning": 882,
+        "system_prompt": 4935,
+        "repo_map": 0
+      },
+      "costUsd": 0.022369875,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-18-fuzzy-edit-recovery",
+      "status": "passed",
+      "durationMs": 93176,
+      "tokensUsed": {
+        "input": 112691,
+        "output": 1722,
+        "reasoning": 1736,
+        "system_prompt": 4933,
+        "repo_map": 0
+      },
+      "costUsd": 0.052029044999999996,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-19-long-file-read-dedup",
+      "status": "timeout",
+      "durationMs": 600211,
+      "tokensUsed": {
+        "input": 0,
+        "output": 0
+      },
+      "costUsd": 0,
+      "verifierVerdict": "failed",
+      "error": "eval task timeout"
+    },
+    {
+      "taskId": "eco-20-large-tool-result-truncation",
+      "status": "passed",
+      "durationMs": 126619,
+      "tokensUsed": {
+        "input": 123130,
+        "output": 2691,
+        "reasoning": 2691,
+        "system_prompt": 4943,
+        "repo_map": 0
+      },
+      "costUsd": 0.05824389,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-21-reasoning-heavy-planning",
+      "status": "passed",
+      "durationMs": 193137,
+      "tokensUsed": {
+        "input": 330152,
+        "output": 3847,
+        "reasoning": 4210,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.15062571,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-22-system-prompt-budget",
+      "status": "passed",
+      "durationMs": 37126,
+      "tokensUsed": {
+        "input": 71706,
+        "output": 658,
+        "reasoning": 518,
+        "system_prompt": 4932,
+        "repo_map": 0
+      },
+      "costUsd": 0.032215230000000004,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-23-repo-map-targeting",
+      "status": "passed",
+      "durationMs": 39292,
+      "tokensUsed": {
+        "input": 47927,
+        "output": 852,
+        "reasoning": 904,
+        "system_prompt": 4935,
+        "repo_map": 0
+      },
+      "costUsd": 0.022375964999999998,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-24-fuzzy-edit-recovery",
+      "status": "passed",
+      "durationMs": 89891,
+      "tokensUsed": {
+        "input": 100604,
+        "output": 2119,
+        "reasoning": 2012,
+        "system_prompt": 4933,
+        "repo_map": 0
+      },
+      "costUsd": 0.04735671,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-25-long-file-read-dedup",
+      "status": "passed",
+      "durationMs": 222547,
+      "tokensUsed": {
+        "input": 231454,
+        "output": 5384,
+        "reasoning": 6367,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.11090586,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/src/index.ts b/src/index.ts\nindex 6aa819c..0f2c9a4 100644\n--- a/src/index.ts\n+++ b/src/index.ts\n@@ -1 +1,100 @@\n-export const status = 'pending';\n+import { readFile, stat } from 'node:fs/promises';\n+\n+// ---------------------------------------------------------------------------\n+// FileReadCache — avoids resending unchanged file content on repeated reads.\n+// ---------------------------------------------------------------------------\n+\n+interface CacheEntry {\n+  content: string;\n+  mtimeMs: number;\n+  size: number;\n+}\n+\n+export class FileReadCache {\n+  private cache = new Map<string, CacheEntry>();\n+\n+  // -----------------------------------------------------------------------\n+  // readFile\n+  //\n+  // Reads a UTF-8 file.  If the file was already read in this session and\n+  // neither its mtime nor its size has changed, the cached content is\n+  // returned immediately (fromCache = true) without re-reading from disk.\n+  //\n+  // Pass { force: true } to bypass the cache and always re-read.\n+  // Pass { maxChars } to truncate the returned content (applied to the\n+  // cached copy as well so truncation is consistent).\n+  // -----------------------------------------------------------------------\n+  async readFile(\n+    path: string,\n+    options?: { force?: boolean; maxChars?: number },\n+  ): Promise<{ content: string; fromCache: boolean }> {\n+    // --- cache hit path ---------------------------------------------------\n+    if (!options?.force) {\n+      const cached = this.cache.get(path);\n+      if (cached) {\n+        try {\n+          const st = await stat(path);\n+          if (st.mtimeMs === cached.mtimeMs && st.size === cached.size) {\n+            const content = this.truncate(cached.content, options?.maxChars);\n+            return { content, fromCache: true };\n+          }\n+        } catch {\n+          // File disappeared since last read — evict and fall through.\n+          this.cache.delete(path);\n+        }\n+      }\n+    }\n+\n+    // --- cache miss path --------------------------------------------------\n+    const raw = await readFile(path, 'utf-8');\n+    const st = await stat(path);\n+\n+    const content = this.truncate(raw, options?.maxChars);\n+    // Always store the *full* content so truncation can vary across calls.\n+    this.cache.set(path, { content: raw, mtimeMs: st.mtimeMs, size: st.size });\n+\n+    return { content, fromCache: false };\n+  }\n+\n+  // -----------------------------------------------------------------------\n+  // invalidate\n+  //\n+  // Evict a single file from the cache, or clear the whole cache when\n+  // called with no argument.\n+  // -----------------------------------------------------------------------\n+  invalidate(path?: string): void {\n+    if (path) {\n+      this.cache.delete(path);\n+    } else {\n+      this.cache.clear();\n+    }\n+  }\n+\n+  // -----------------------------------------------------------------------\n+  // size — number of cached files (useful for inspection / debug).\n+  // -----------------------------------------------------------------------\n+  get size(): number {\n+    return this.cache.size;\n+  }\n+\n+  // -----------------------------------------------------------------------\n+  // Private helpers\n+  // -----------------------------------------------------------------------\n+  private truncate(content: string, maxChars?: number): string {\n+    if (maxChars !== undefined && content.length > maxChars) {\n+      return content.slice(0, maxChars);\n+    }\n+    return content;\n+  }\n+}\n+\n+// ---------------------------------------------------------------------------\n+// Module-level singleton — convenient default for callers that don't need\n+// multiple isolated caches.\n+// ---------------------------------------------------------------------------\n+export const defaultCache = new FileReadCache();\n+\n+// ---------------------------------------------------------------------------\n+// Status export (kept for backward compat).\n+// ---------------------------------------------------------------------------\n+export const status: string = 'ready';\n"
+    },
+    {
+      "taskId": "eco-26-large-tool-result-truncation",
+      "status": "passed",
+      "durationMs": 159235,
+      "tokensUsed": {
+        "input": 236824,
+        "output": 3585,
+        "reasoning": 3475,
+        "system_prompt": 4943,
+        "repo_map": 0
+      },
+      "costUsd": 0.10916064,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-27-reasoning-heavy-planning",
+      "status": "passed",
+      "durationMs": 109870,
+      "tokensUsed": {
+        "input": 136448,
+        "output": 2793,
+        "reasoning": 2845,
+        "system_prompt": 4937,
+        "repo_map": 0
+      },
+      "costUsd": 0.06425994,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/src/index.ts b/src/index.ts\nindex 6aa819c..319a9f3 100644\n--- a/src/index.ts\n+++ b/src/index.ts\n@@ -1 +1,3 @@\n-export const status = 'pending';\n+import { resolveStatus } from './lib';\n+\n+export const status = resolveStatus();\n"
+    },
+    {
+      "taskId": "eco-28-system-prompt-budget",
+      "status": "passed",
+      "durationMs": 61181,
+      "tokensUsed": {
+        "input": 125716,
+        "output": 1013,
+        "reasoning": 678,
+        "system_prompt": 4932,
+        "repo_map": 0
+      },
+      "costUsd": 0.05615763,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/src/index.ts b/src/index.ts\nindex 6aa819c..e6449c3 100644\n--- a/src/index.ts\n+++ b/src/index.ts\n@@ -1 +1 @@\n-export const status = 'pending';\n+export const status = 'complete';\n"
+    },
+    {
+      "taskId": "eco-29-repo-map-targeting",
+      "status": "passed",
+      "durationMs": 29171,
+      "tokensUsed": {
+        "input": 47800,
+        "output": 721,
+        "reasoning": 831,
+        "system_prompt": 4935,
+        "repo_map": 0
+      },
+      "costUsd": 0.02214324,
+      "verifierVerdict": "passed"
+    },
+    {
+      "taskId": "eco-30-fuzzy-edit-recovery",
+      "status": "passed",
+      "durationMs": 72641,
+      "tokensUsed": {
+        "input": 86770,
+        "output": 1918,
+        "reasoning": 3271,
+        "system_prompt": 4933,
+        "repo_map": 0
+      },
+      "costUsd": 0.04225938,
+      "verifierVerdict": "passed",
+      "diff": "diff --git a/src/index.ts b/src/index.ts\nindex 6aa819c..61a9e19 100644\n--- a/src/index.ts\n+++ b/src/index.ts\n@@ -1 +1 @@\n-export const status = 'pending';\n+export const status = 'ready';\n"
+    }
+  ]
+}
