@@ -36,4 +36,4 @@ Reference apps keep StoreKit configs for sandbox testing even when RevenueCat is
 - `find . -name "*.storekit" -print`
 
 ## Canonical sources
-- `~/workspaces/reference-apps/finance-sample/app/minhasfinancas.premium.storekit`
+- `~/workspaces/reference-apps/finance-sample/app/finance-sample.premium.storekit`

@@ -1,7 +1,7 @@
 # Implement Android RevenueCat Paywall
 
 ## Workspace
-Android app: cosmohq-project/CosmoFinancas/cosmofinancas-android/
+Android app: fixture/app/
 
 ## Intent
 Implementar

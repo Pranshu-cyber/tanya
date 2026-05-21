@@ -1,3 +1,3 @@
-package com.cosmohq.cosmofinancas.domain.subscription
+package com.example.app.domain.subscription
 import com.revenuecat.purchases.Purchases
 class SubscriptionManager

@@ -2,7 +2,7 @@
 
 | # | Criterion | Check |
 |---|-----------|-------|
-| 1 | Uses domain SubscriptionManager | rg "SubscriptionManager" "app/src/main/java/com/cosmohq/cosmofinancas" matches |
+| 1 | Uses domain SubscriptionManager | rg "SubscriptionManager" "app/src/main/java/com/example/app" matches |
 | 2 | Configures RevenueCat SDK | rg "Purchases\\.configure" "app/src/main/java" matches |
 | 3 | Checks backend premium before SDK entitlement flow | rg "backendPremium" "app/src/main/java" matches |
 | 4 | Restore action is visible | rg "Restore" "app/src/main/java" matches |

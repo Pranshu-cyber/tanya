@@ -1,7 +1,7 @@
 # Verify iOS Splash Order
 
 ## Workspace
-iOS app: cosmohq-project/CosmoFinancas/CosmoFinancas/MinhasFinancas/
+iOS app: fixture/app/
 
 ## Intent
 Analisar

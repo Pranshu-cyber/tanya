@@ -1,7 +1,7 @@
 # Add Landing Pricing Section
 
 ## Workspace
-Landing site: cosmohq-project/CosmoFinancas/cosmofinancas-site/
+Landing site: fixture/site/
 
 ## Intent
 Implementar

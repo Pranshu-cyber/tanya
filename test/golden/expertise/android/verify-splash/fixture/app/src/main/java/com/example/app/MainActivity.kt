@@ -1,2 +1,2 @@
-package com.cosmohq.cosmofinancas
+package com.example.app
 fun install() { installSplashScreen() }

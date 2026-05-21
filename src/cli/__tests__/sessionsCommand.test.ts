@@ -18,7 +18,7 @@ describe("sessions command formatting", () => {
         cwd: "/tmp/project",
         provider: "deepseek",
         model: "deepseek-chat",
-        label: "Lets work with CosmoRemote, can you get context from obsidian?",
+        label: "Add a /search endpoint to the notes API and run the tests",
         turnCount: 12,
         path: "/tmp/project/.tania/sessions/20260517-214851-abc123.json",
         scope: "project",
@@ -27,7 +27,7 @@ describe("sessions command formatting", () => {
 
     expect(formatSessionList(sessions, 100)).toMatchInlineSnapshot(`
       "ID                       AGE        TURNS  LABEL
-      20260517-214851-abc123   3 min ago     12 Lets work with CosmoRemote, can you get context from o...
+      20260517-214851-abc123   3 min ago     12 Add a /search endpoint to the notes API and run the tests
       "
     `);
   });

@@ -39,4 +39,4 @@ Reference apps check backend premium first, links the RevenueCat user after logi
 
 ## Canonical sources
 - `~/workspaces/reference-apps/finance-sample/app/Services/SubscriptionManager.swift`
-- `~/workspaces/reference-apps/finance-sample/app/minhasfinancas.premium.storekit`
+- `~/workspaces/reference-apps/finance-sample/app/finance-sample.premium.storekit`

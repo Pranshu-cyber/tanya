@@ -1,7 +1,7 @@
 # Implement RevenueCat Paywall
 
 ## Workspace
-iOS app: cosmohq-project/CosmoFinancas/CosmoFinancas/MinhasFinancas/
+iOS app: fixture/app/
 
 ## Intent
 Implementar

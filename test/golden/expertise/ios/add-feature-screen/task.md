@@ -1,7 +1,7 @@
 # Add Settings Feature Screen
 
 ## Workspace
-iOS app: cosmohq-project/CosmoFinancas/CosmoFinancas/MinhasFinancas/
+iOS app: fixture/app/
 
 ## Intent
 Implementar

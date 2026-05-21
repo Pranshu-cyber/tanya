@@ -40,4 +40,4 @@ Root state lives in the app struct. Platform layout differences are gated while 
 - `rg -n "NavigationStack|NavigationSplitView|fullScreenCover|accessibilityLabel|modelContainer" .`
 
 ## Canonical sources
-- `~/workspaces/reference-apps/finance-sample/app/MinhasFinancasApp.swift`
+- `~/workspaces/reference-apps/finance-sample/app/FinanceSampleApp.swift`
