@@ -1,6 +1,12 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { TanyaRunContext } from "../../context/runContext";
+import { loadValidatorRules } from "./rules/load";
+import type {
+  BackendSetupEnvironmentRule,
+  ValidatorRuleIssue,
+  ValidatorRulePattern,
+} from "./rules/types";
 
 export type ValidationIssue = {
   id: string;
@@ -294,6 +300,90 @@ export function isExplicitPlaceholderText(text: string): boolean {
   return /(?:\bexample\b|\bplaceholder\b|\bchange[\s_-]*me\b|\breplace[\s_-]*me\b|\bchangeme\b|\breplaceme\b|\byour[\s_-]+[a-z0-9_-]+|(?:^|[^a-z0-9])(?:REPLACE|CHANGE)_+[A-Z0-9_]+|xxxx|dummy|test[_-]?only|<[^>]+>)/i.test(text);
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function issueFromRule(issue: ValidatorRuleIssue): ValidationIssue {
+  return {
+    id: issue.id,
+    severity: issue.severity,
+    message: issue.message,
+    ...(issue.files ? { files: issue.files } : {}),
+  };
+}
+
+function rulePatternMatches(text: string, pattern: ValidatorRulePattern): boolean {
+  try {
+    return new RegExp(pattern.pattern, pattern.flags).test(text);
+  } catch {
+    return false;
+  }
+}
+
+function envValue(env: string, key: string): string {
+  const match = env.match(new RegExp(`^${escapeRegExp(key)}\\s*=\\s*["']?([^"'\\n#]+)`, "m"));
+  return match?.[1]?.trim() ?? "";
+}
+
+async function docTextForRule(
+  workspace: string,
+  rule: BackendSetupEnvironmentRule,
+  fileCache: Map<string, string | null>,
+): Promise<string> {
+  const files = rule.docsFiles?.length ? rule.docsFiles : [rule.envFile ?? ".env.example"];
+  const contents = await Promise.all(files.map(async (file) => {
+    if (!fileCache.has(file)) fileCache.set(file, await readWorkspaceFile(workspace, file));
+    return fileCache.get(file) ?? "";
+  }));
+  return contents.join("\n");
+}
+
+async function validateBackendSetupEnvironmentRule(
+  workspace: string,
+  rule: BackendSetupEnvironmentRule,
+  fileCache: Map<string, string | null>,
+): Promise<ValidationIssue[]> {
+  const issues: ValidationIssue[] = [];
+  const envFile = rule.envFile ?? ".env.example";
+  if (!fileCache.has(envFile)) fileCache.set(envFile, await readWorkspaceFile(workspace, envFile));
+  const env = fileCache.get(envFile);
+  if (env == null) return issues;
+
+  for (const requirement of rule.requiredEnv ?? []) {
+    const value = envValue(env, requirement.name);
+    if (!value) {
+      issues.push(issueFromRule(requirement.missingIssue));
+      continue;
+    }
+    for (const forbidden of requirement.forbiddenValues ?? []) {
+      if (rulePatternMatches(value, forbidden)) {
+        issues.push(issueFromRule(forbidden));
+      }
+    }
+    const placeholder = requirement.placeholder;
+    if (placeholder) {
+      const explicitPlaceholderOk = placeholder.acceptedExplicitPlaceholder !== false && isExplicitPlaceholderText(value);
+      const allowedPatternOk = (placeholder.allowedPatterns ?? []).some((pattern) => rulePatternMatches(value, pattern));
+      if (!explicitPlaceholderOk && !allowedPatternOk) {
+        issues.push(issueFromRule(placeholder.unclearIssue));
+      }
+    }
+  }
+
+  const docs = await docTextForRule(workspace, rule, fileCache);
+  for (const requirement of rule.documentation ?? []) {
+    const allMatched = (requirement.all ?? []).every((pattern) => rulePatternMatches(docs, pattern));
+    const anyMatched = (requirement.any ?? []).length === 0 ||
+      (requirement.any ?? []).some((pattern) => rulePatternMatches(docs, pattern));
+    if (!allMatched || !anyMatched) {
+      issues.push(issueFromRule(requirement.issue));
+    }
+  }
+
+  return issues;
+}
+
 function looksLikeSecretLine(line: string): boolean {
   const match = line.match(/\b[A-Za-z0-9_-]*(?:api[_-]?key|secret|token|password|private[_-]?key|client[_-]?secret|database_url)[A-Za-z0-9_-]*\b\s*[:=]\s*["']?([^"',}\s]+)/i);
   if (!match) return false;
@@ -577,8 +667,6 @@ export async function validateBackendHealthApi(workspace: string, manifest: Vali
 export async function validateBackendSetupEnvironment(workspace: string): Promise<ValidationIssue[]> {
   const issues: ValidationIssue[] = [];
   const env = await readWorkspaceFile(workspace, ".env.example");
-  const readme = await readWorkspaceFile(workspace, "README.md") ?? "";
-  const docs = `${env ?? ""}\n${readme}`;
 
   if (!env) {
     return [{
@@ -589,43 +677,9 @@ export async function validateBackendSetupEnvironment(workspace: string): Promis
     }];
   }
 
-  for (const key of ["DATABASE_URL", "DIRECT_URL"]) {
-    const match = env.match(new RegExp(`^${key}\\s*=\\s*[\"']?([^\"'\\n#]+)`, "m"));
-    const value = match?.[1]?.trim() ?? "";
-    if (!value) {
-      issues.push({
-        id: "backend-setup-postgres-placeholder-missing",
-        severity: "error",
-        message: `${key} must be present in .env.example as a placeholder.`,
-        files: [".env.example"],
-      });
-      continue;
-    }
-    if (/postgres(?:ql)?:\/\/[^"'\s]*localhost|postgres(?:ql)?:\/\/[^"'\s]*127\.0\.0\.1|postgres(?:ql)?:\/\/postgres:postgres@/i.test(value)) {
-      issues.push({
-        id: "backend-setup-postgres-localhost-hardcoded",
-        severity: "error",
-        message: `${key} must use a placeholder-only value, not a concrete localhost PostgreSQL URL.`,
-        files: [".env.example"],
-      });
-    }
-    if (!isExplicitPlaceholderText(value) && !/(?:\bcosmohq\b|\bazure\b)/i.test(value)) {
-      issues.push({
-        id: "backend-setup-postgres-placeholder-unclear",
-        severity: "warning",
-        message: `${key} should be clearly marked as a placeholder in .env.example.`,
-        files: [".env.example"],
-      });
-    }
-  }
-
-  if (!/CosmoHQ Deploy/i.test(docs) || !/Azure PostgreSQL/i.test(docs) || !/DATABASE_URL/i.test(docs) || !/DIRECT_URL/i.test(docs) || !/(seed|mock|test-account)/i.test(docs)) {
-    issues.push({
-      id: "backend-setup-deploy-provisioning-note-missing",
-      severity: "error",
-      message: "Backend setup must document that CosmoHQ Deploy provisions Azure PostgreSQL and DATABASE_URL/DIRECT_URL before seed/mock/test-account actions.",
-      files: [".env.example", "README.md"],
-    });
+  const fileCache = new Map<string, string | null>([[".env.example", env]]);
+  for (const rule of loadValidatorRules().filter((item): item is BackendSetupEnvironmentRule => item.kind === "backend_setup_environment")) {
+    issues.push(...await validateBackendSetupEnvironmentRule(workspace, rule, fileCache));
   }
 
   return issues;

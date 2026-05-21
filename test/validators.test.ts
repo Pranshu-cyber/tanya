@@ -1,8 +1,12 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { validateCodingTask } from "../src/agent/validators";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("coding validators", () => {
   it("flags forbidden files and likely secret leaks", async () => {
@@ -630,6 +634,59 @@ describe("coding validators", () => {
 
     expect(result.issues.map((issue) => issue.id)).not.toContain("backend-setup-postgres-localhost-hardcoded");
     expect(result.issues.map((issue) => issue.id)).not.toContain("backend-setup-deploy-provisioning-note-missing");
+  });
+
+  it("loads discovered backend setup validator rules from integrations", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-validators-discovered-rule-workspace-"));
+    const integrationsRoot = mkdtempSync(join(tmpdir(), "tanya-validators-discovered-rule-integrations-"));
+    vi.stubEnv("TANYA_INTEGRATIONS_DIR", integrationsRoot);
+    mkdirSync(join(integrationsRoot, "acme", "validators"), { recursive: true });
+    writeFileSync(join(integrationsRoot, "acme", "validators", "backend-setup.json"), JSON.stringify({
+      version: 1,
+      rules: [
+        {
+          kind: "backend_setup_environment",
+          id: "acme.backendSetupEnvironment",
+          docsFiles: [".env.example", "README.md"],
+          documentation: [
+            {
+              all: [{ pattern: "ACME Managed Postgres", flags: "i" }],
+              issue: {
+                id: "acme-backend-setup-note-missing",
+                severity: "error",
+                message: "Backend setup must document ACME Managed Postgres ownership.",
+                files: [".env.example", "README.md"],
+              },
+            },
+          ],
+        },
+      ],
+    }));
+    writeFileSync(join(cwd, ".env.example"), [
+      "# CosmoHQ Deploy provisions Azure PostgreSQL.",
+      "# Set DATABASE_URL and DIRECT_URL before seed:mock-data and seed:test-account actions.",
+      'DATABASE_URL="replace-me-cosmohq-deploy-azure-postgresql-url"',
+      'DIRECT_URL="replace-me-cosmohq-deploy-azure-postgresql-direct-url"',
+    ].join("\n"));
+
+    const result = await validateCodingTask(cwd, {
+      changedFiles: ["package.json"],
+      verification: ["Verification: npm run typecheck -> passed"],
+    }, {
+      task: { kind: "coding", title: "Setup Environment - Backend" },
+      expected_report: { verification: true },
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "acme-backend-setup-note-missing", severity: "error" }),
+    ]));
+  });
+
+  it("keeps core validators free of extracted product rule literals", () => {
+    const source = readFileSync(join(process.cwd(), "src/agent/validators/core.ts"), "utf8");
+
+    expect(source).not.toMatch(/cosmohq|CosmoHQ/);
   });
 
   it("validates a passing iOS splash task", async () => {
