@@ -10,7 +10,7 @@ describe("run context", () => {
       verification: { commands: ["npm test"] },
       languages: ["swift"],
       frameworks: ["swiftdata"],
-      stack: "ios-cosmohq",
+      stack: "ios-reference",
       expected_report: { modified_files: true },
       metadata: { caller: "opaque" },
     });
@@ -21,7 +21,7 @@ describe("run context", () => {
     expect(context.verification?.commands).toEqual(["npm test"]);
     expect(context.languages).toEqual(["swift"]);
     expect(context.frameworks).toEqual(["swiftdata"]);
-    expect(context.stack).toBe("ios-cosmohq");
+    expect(context.stack).toBe("ios-reference");
   });
 
   it("renders without product-specific assumptions", () => {

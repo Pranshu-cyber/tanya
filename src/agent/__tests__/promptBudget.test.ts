@@ -32,7 +32,7 @@ describe("runner prompt budget events", () => {
       runContext: {
         languages: ["typescript"],
         frameworks: ["nextjs"],
-        stack: "nextjs-cosmohq",
+        stack: "nextjs-reference",
       },
     });
 

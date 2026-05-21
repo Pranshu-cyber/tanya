@@ -363,7 +363,7 @@ budget defaults, and UX modes.
 
 `--verify` adds required verification commands to the run context. Tanya must run and report each exact command before finishing the coding task.
 
-`tanya benchmark run --all` currently exercises 27 executable low-to-medium regression fixtures: targeted edits, new files, dependency/lockfile updates, framework-style migrations, failing-test repair, frontend smoke checks, artifact/context reuse, streaming long-tool execution, compaction-boundary recovery, run-history logging, dirty worktrees, report repair, and the CosmoHQ mobile/backend smoke profiles.
+`tanya benchmark run --all` currently exercises 23 executable low-to-medium regression fixtures: targeted edits, new files, dependency/lockfile updates, framework-style migrations, failing-test repair, frontend smoke checks, artifact/context reuse, streaming long-tool execution, compaction-boundary recovery, run-history logging, dirty worktrees, and report repair.
 
 By default, `tanya run` also performs an independent post-check after the agent finishes. If the workspace has a `typecheck` script, Tanya reruns that exact script with the local package manager (`npm`, `pnpm`, `yarn`, or `bun`). If not, it falls back to `npx tsc --noEmit --pretty false` when a `tsconfig` is present. If the workspace has a `test` script, Tanya reruns that as well unless the run already reported a passing test verification.
 
@@ -429,7 +429,7 @@ See [docs/token-economy.md](./docs/token-economy.md) for the full model, cache l
 ## Benchmarks
 
 Tanya includes an eval harness for verifier-stress suites, SWE-bench-Lite
-adapters, sanitized CosmoHQ fixtures, and the `eco-30` token-economy bench.
+adapters, integration-provided suites, and the `eco-30` token-economy bench.
 
 ```bash
 tanya eval --suite tanya-native --dry-run

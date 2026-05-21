@@ -438,16 +438,11 @@ function activeStackReason(
   if (
     languageHintMatches(languages, ["go", "swift", "kotlin", "typescript", "ts"]) ||
     stackHintMatches(stack, [
-      "go-backend-cosmohq",
       "backend-go-huma",
       "backend-go-house",
-      "ios-cosmohq",
       "ios",
       "macos",
-      "android-cosmohq",
       "android",
-      "nextjs-cosmohq",
-      "landing-cosmohq",
       "landing",
       "web",
     ]) ||
@@ -533,7 +528,7 @@ function implicitReason(packPath: string, ctx: SkillPackContext, signals: Worksp
       if (frameworkHintMatches(frameworks, ["storekit2", "storekit"])) return "hint";
       return signals.ios && !signals.revenueCatIos ? "workspace" : null;
     case "framework/jetpack-compose":
-      if (frameworkHintMatches(frameworks, ["jetpack-compose", "compose"]) || languageHintMatches(languages, ["kotlin"]) || stackHintMatches(stack, ["android", "android-cosmohq"])) return "hint";
+      if (frameworkHintMatches(frameworks, ["jetpack-compose", "compose"]) || languageHintMatches(languages, ["kotlin"]) || stackHintMatches(stack, ["android"])) return "hint";
       return signals.android ? "workspace" : null;
     case "framework/room-hilt":
       if (frameworkHintMatches(frameworks, ["room-hilt", "room", "hilt"])) return "hint";
@@ -553,18 +548,6 @@ function implicitReason(packPath: string, ctx: SkillPackContext, signals: Worksp
     case "framework/shadcn-ui":
       if (frameworkHintMatches(frameworks, ["shadcn-ui", "shadcn"])) return "hint";
       return signals.shadcn ? "workspace" : null;
-    case "stack/go-backend-cosmohq":
-      if (stackHintMatches(stack, ["go-backend-cosmohq", "backend-go-huma", "backend-go-house"]) || languageHintMatches(languages, ["go"])) return "hint";
-      return signals.go ? "workspace" : null;
-    case "stack/ios-cosmohq":
-      if (stackHintMatches(stack, ["ios-cosmohq", "ios", "macos"]) || languageHintMatches(languages, ["swift"])) return "hint";
-      return signals.ios ? "workspace" : null;
-    case "stack/android-cosmohq":
-      if (stackHintMatches(stack, ["android-cosmohq", "android"]) || languageHintMatches(languages, ["kotlin"])) return "hint";
-      return signals.android ? "workspace" : null;
-    case "stack/nextjs-cosmohq":
-      if (stackHintMatches(stack, ["nextjs-cosmohq", "landing-cosmohq", "landing", "web"]) || languageHintMatches(languages, ["typescript", "ts"])) return "hint";
-      return signals.next ? "workspace" : null;
     case "platform-ops/fastlane-apple":
       if (frameworkHintMatches(frameworks, ["fastlane-apple"])) return "hint";
       return signals.fastlane && (signals.ios || !signals.android) ? "workspace" : null;

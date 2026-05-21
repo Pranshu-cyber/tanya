@@ -37,12 +37,12 @@ describe("lite system prompt", () => {
     const full = buildSystemPrompt(root, {
       languages: ["typescript"],
       frameworks: ["nextjs"],
-      stack: "nextjs-cosmohq",
+      stack: "nextjs-reference",
     }, historyBlock, "Refactor a Next.js page component");
     const lite = buildSystemPrompt(root, {
       languages: ["typescript"],
       frameworks: ["nextjs"],
-      stack: "nextjs-cosmohq",
+      stack: "nextjs-reference",
     }, historyBlock, "Refactor a Next.js page component", { lite: true });
 
     expect(Math.ceil(lite.length / 4)).toBeLessThanOrEqual(Math.floor(Math.ceil(full.length / 4) * 0.4));
@@ -94,7 +94,7 @@ describe("lite system prompt", () => {
     const prompt = buildSystemPrompt(root, {
       languages: ["typescript"],
       frameworks: ["nextjs"],
-      stack: "nextjs-cosmohq",
+      stack: "nextjs-reference",
     }, "", "Build a Next.js settings page", {
       contextWindow: 32_000,
       promptBudgetRatio: 0.25,

@@ -18,14 +18,14 @@ Use this for Android AAB builds, Play internal-track uploads, metadata uploads, 
 - Build release AABs with Gradle bundle release.
 - Upload with `upload_to_play_store`/supply to the internal track by default.
 - Service account JSON lives at `fastlane/play-store-key.json` or env-driven path; never commit it.
-- Default is no Gemfile for Android. Use Homebrew/system Fastlane unless `COSMOHQ_ANDROID_FASTLANE_USE_BUNDLE=1`.
+- Default is no Gemfile for Android. Use Homebrew/system Fastlane unless the workspace explicitly opts into a bundled Fastlane setup.
 - Do not edit managed signing scripts; local signing is the upload key, Play App Signing handles distribution.
 - Clean generated AAB/APK build artifacts after successful upload unless `keep_artifacts` is true.
 - Metadata lanes skip binary upload; deploy lanes build then upload.
 
 ## Common pitfalls
 - Committed service account: Play credentials must stay outside git.
-- Managed signing edits: `cosmohq-release-signing.gradle` is centrally owned.
+- Managed signing edits: centrally owned release-signing Gradle scripts should not be edited by app tasks.
 - Stale bundle: delete old outputs before release builds when automation does not clean.
 
 ## House style

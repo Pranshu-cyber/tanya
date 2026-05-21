@@ -42,9 +42,12 @@ provider rate limits are observed.
 
 - `tanya-native`: fast verifier-stress suite for nightly CI.
 - `swe-bench-lite`: pinned SWE-bench-Lite adapter.
-- `cosmohq`: sanitized app-creator fixtures.
 - `eco-30`: token-economy suite with cost-per-task gates.
 - `verifier-self-test`: known-correct and known-incorrect verifier outputs.
+
+Additional JSON suites can be loaded from integrations. See
+[`docs/integrations.md`](./integrations.md) for the `integrations/<name>/suites/`
+layout and `TANYA_INTEGRATIONS_DIR`.
 
 ## Cost Regression Gate
 

@@ -20,7 +20,7 @@ describe("record_metrics_dashboard_handoff", () => {
           platform: "macos",
           emitSite: "NetworkProxyView.onAppear",
           file: "DemoApp/Features/Tools/NetworkProxy/NetworkProxyView.swift",
-          properties: ["cosmohq_app", "cosmohq_environment", "event_category:proxy", "event_level:info"],
+          properties: ["app_id", "environment", "event_category:proxy", "event_level:info"],
         },
       ],
       unresolvedGaps: [],

@@ -29,7 +29,7 @@ describe("integration discovery", () => {
 
   it("discovers entries under multiple integrations", () => {
     const root = makeTempRoot();
-    const android = write(root, "cosmohq/skills/android-cosmohq.md");
+    const android = write(root, "reference/skills/android-reference.md");
     const profile = write(root, "acme/skills/profile.md");
     const directory = join(root, "acme", "skills", "nested-pack");
     mkdirSync(directory, { recursive: true });
@@ -37,7 +37,7 @@ describe("integration discovery", () => {
     expect(discoverIntegrationEntries("skills", { root })).toEqual([
       { integration: "acme", kind: "skills", path: directory },
       { integration: "acme", kind: "skills", path: profile },
-      { integration: "cosmohq", kind: "skills", path: android },
+      { integration: "reference", kind: "skills", path: android },
     ]);
   });
 
@@ -65,7 +65,7 @@ describe("integration discovery", () => {
 
   it("skips integrations that are missing the requested kind", () => {
     const root = makeTempRoot();
-    write(root, "cosmohq/suites/main.json");
+    write(root, "reference/suites/main.json");
     const validator = write(root, "acme/validators/rules.json");
 
     expect(discoverIntegrationEntries("validators", { root })).toEqual([

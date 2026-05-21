@@ -43,22 +43,17 @@ describe("golden task memory", () => {
 
   it("defines built-in reference-app regression profiles without making Tanya app-specific", () => {
     expect(BUILT_IN_GOLDEN_TASK_PROFILES.map((profile) => profile.id)).toEqual(expect.arrayContaining([
-      "cosmohq.ios.foundation",
-      "cosmohq.android.splash",
-      "cosmohq.backend.api-foundation",
+      "tanya.low.search-replace",
+      "tanya.medium.artifact-component",
+      "tanya.medium.streaming-long-tool",
     ]));
     expect(BUILT_IN_GOLDEN_TASK_PROFILES.every((profile) => profile.requiredCapabilities.length > 0)).toBe(true);
   });
 
   it("runs executable golden task fixtures through the Tanya tool loop", async () => {
     const executableProfileIds = goldenRunnableProfiles().map((profile) => profile.id);
-    expect(executableProfileIds.length).toBeGreaterThanOrEqual(25);
+    expect(executableProfileIds.length).toBeGreaterThanOrEqual(20);
     expect(executableProfileIds).toEqual(expect.arrayContaining([
-      "cosmohq.android.foundation",
-      "cosmohq.android.splash",
-      "cosmohq.ios.foundation",
-      "cosmohq.apple.app-icon",
-      "cosmohq.backend.api-foundation",
       "tanya.low.search-replace",
       "tanya.medium.artifact-component",
       "tanya.medium.report-repair",
@@ -72,20 +67,10 @@ describe("golden task memory", () => {
       "tanya.medium.edit-block-fuzzy",
     ]));
 
-    const result = await runGoldenTask("cosmohq.android.splash");
+    const result = await runGoldenTask("tanya.low.new-helper");
     expect(result.passed).toBe(true);
     expect(result.finalText).toContain("Tanya structured report:");
-    expect(result.finalText).toContain("Artifact reused: artifacts/android/SplashScreenPattern.kt");
-  });
-
-  it("runs Android foundation and backend API foundation golden fixtures", async () => {
-    const android = await runGoldenTask("cosmohq.android.foundation");
-    expect(android.passed).toBe(true);
-    expect(android.finalText).toContain("Artifact reused: artifacts/android/RoomSetup.kt");
-
-    const backend = await runGoldenTask("cosmohq.backend.api-foundation");
-    expect(backend.passed).toBe(true);
-    expect(backend.finalText).toContain("Artifact reused: artifacts/backend/JwtAuthRoutes.ts");
+    expect(result.finalText).toContain("Modified: src/newHelper.ts");
   });
 
   it("runs generic low-to-medium benchmark fixtures", async () => {

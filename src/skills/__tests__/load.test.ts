@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { loadSkillPacks, loadSkillPacksFromRoot } from "../load";
 import type { SkillPackContext } from "../types";
 
@@ -47,6 +47,10 @@ function baseContext(workspace: string, overrides: Partial<SkillPackContext> = {
     ...overrides,
   };
 }
+
+beforeEach(() => {
+  vi.stubEnv("TANYA_INTEGRATIONS_DIR", join(makeTempRoot("tanya-skills-integrations-missing-"), "missing"));
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -175,7 +179,9 @@ describe("loadSkillPacks", () => {
     write(skillsRoot, "lang/swift.md", pack("Swift", "lang/swift"));
     write(skillsRoot, "framework/swiftdata.md", pack("SwiftData", "framework/swiftdata"));
     write(skillsRoot, "framework/storekit2.md", pack("StoreKit 2", "framework/storekit2"));
-    write(skillsRoot, "stack/ios-cosmohq.md", pack("iOS Reference", "stack/ios-cosmohq"));
+    write(skillsRoot, "stack/ios-reference.md", pack("iOS Reference", "stack/ios-reference", {
+      loadWhen: "  - kind: workspace.has\n    path: Package.swift",
+    }));
 
     const loaded = loadSkillPacksFromRoot(baseContext(workspace), skillsRoot);
 
@@ -183,7 +189,7 @@ describe("loadSkillPacks", () => {
       "framework/storekit2",
       "framework/swiftdata",
       "lang/swift",
-      "stack/ios-cosmohq",
+      "stack/ios-reference",
     ]);
     expect(loaded.every((skill) => skill.reason === "workspace")).toBe(true);
   });
@@ -193,7 +199,9 @@ describe("loadSkillPacks", () => {
     write(skillsRoot, "lang/go.md", pack("Go", "lang/go"));
     write(skillsRoot, "framework/chi-pgx.md", pack("chi pgx", "framework/chi-pgx"));
     write(skillsRoot, "framework/huma-sqlc.md", pack("Huma sqlc", "framework/huma-sqlc"));
-    write(skillsRoot, "stack/go-backend-cosmohq.md", pack("Go Backend", "stack/go-backend-cosmohq"));
+    write(skillsRoot, "stack/go-backend-reference.md", pack("Go Backend", "stack/go-backend-reference", {
+      loadWhen: "  - kind: workspace.has\n    path: go.mod",
+    }));
 
     const houseWorkspace = makeTempRoot("tanya-skills-go-house-");
     write(houseWorkspace, "go.mod", "module example.com/house\n");
@@ -207,12 +215,12 @@ describe("loadSkillPacks", () => {
     expect(loadSkillPacksFromRoot(baseContext(houseWorkspace), skillsRoot).map((skill) => skill.slug).sort()).toEqual([
       "framework/chi-pgx",
       "lang/go",
-      "stack/go-backend-cosmohq",
+      "stack/go-backend-reference",
     ]);
     expect(loadSkillPacksFromRoot(baseContext(humaWorkspace), skillsRoot).map((skill) => skill.slug).sort()).toEqual([
       "framework/huma-sqlc",
       "lang/go",
-      "stack/go-backend-cosmohq",
+      "stack/go-backend-reference",
     ]);
   });
 
@@ -235,10 +243,9 @@ describe("loadSkillPacks", () => {
       "framework/chi-pgx",
       "framework/goose-migrations",
       "framework/service-tokens",
-      "stack/go-backend-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/huma-sqlc");
-    for (const slug of ["lang/go", "framework/chi-pgx", "framework/goose-migrations", "framework/service-tokens", "stack/go-backend-cosmohq"]) {
+    for (const slug of ["lang/go", "framework/chi-pgx", "framework/goose-migrations", "framework/service-tokens"]) {
       expect(loaded.find((skill) => skill.slug === slug)?.reason).toBe("workspace");
     }
   });
@@ -254,7 +261,6 @@ describe("loadSkillPacks", () => {
     expect(slugs).toEqual(expect.arrayContaining([
       "lang/go",
       "framework/huma-sqlc",
-      "stack/go-backend-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/chi-pgx");
   });
@@ -273,7 +279,6 @@ describe("loadSkillPacks", () => {
       "framework/chi-pgx",
       "framework/huma-sqlc",
       "framework/goose-migrations",
-      "stack/go-backend-cosmohq",
     ]));
   });
 
@@ -290,7 +295,6 @@ describe("loadSkillPacks", () => {
       "framework/swiftui",
       "framework/swiftdata",
       "framework/revenuecat-ios",
-      "stack/ios-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/storekit2");
   });
@@ -307,7 +311,6 @@ describe("loadSkillPacks", () => {
       "framework/swiftui",
       "framework/swiftdata",
       "framework/storekit2",
-      "stack/ios-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/revenuecat-ios");
   });
@@ -322,7 +325,6 @@ describe("loadSkillPacks", () => {
       "lang/swift",
       "framework/swiftui",
       "framework/storekit2",
-      "stack/ios-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/swiftdata");
     expect(slugs).not.toContain("framework/revenuecat-ios");
@@ -344,7 +346,6 @@ describe("loadSkillPacks", () => {
       "framework/room-hilt",
       "framework/retrofit-okhttp",
       "framework/revenuecat-android",
-      "stack/android-cosmohq",
     ]));
   });
 
@@ -357,7 +358,6 @@ describe("loadSkillPacks", () => {
     expect(slugs).toEqual(expect.arrayContaining([
       "lang/kotlin",
       "framework/jetpack-compose",
-      "stack/android-cosmohq",
     ]));
   });
 
@@ -372,7 +372,6 @@ describe("loadSkillPacks", () => {
     expect(slugs).toEqual(expect.arrayContaining([
       "lang/kotlin",
       "framework/jetpack-compose",
-      "stack/android-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/room-hilt");
     expect(slugs).not.toContain("framework/retrofit-okhttp");
@@ -393,7 +392,6 @@ describe("loadSkillPacks", () => {
       "framework/nextjs-app-router",
       "framework/tailwind-v4",
       "framework/shadcn-ui",
-      "stack/nextjs-cosmohq",
     ]));
   });
 
@@ -430,7 +428,6 @@ describe("loadSkillPacks", () => {
       "lang/typescript",
       "framework/nextjs-app-router",
       "framework/tailwind-v4",
-      "stack/nextjs-cosmohq",
     ]));
     expect(slugs).not.toContain("framework/shadcn-ui");
   });
@@ -443,7 +440,7 @@ describe("loadSkillPacks", () => {
 
     expect(slugs).not.toContain("lang/typescript");
     expect(slugs).not.toContain("framework/nextjs-app-router");
-    expect(slugs).not.toContain("stack/nextjs-cosmohq");
+    expect(slugs).not.toContain("stack/nextjs-reference");
   });
 
   it("loads all domain packs when an Apple stack matches", () => {
@@ -567,7 +564,9 @@ describe("loadSkillPacks", () => {
     const skillsRoot = makeTempRoot("tanya-skills-root-");
     write(skillsRoot, "lang/kotlin.md", pack("Kotlin", "lang/kotlin"));
     write(skillsRoot, "framework/jetpack-compose.md", pack("Jetpack Compose", "framework/jetpack-compose"));
-    write(skillsRoot, "stack/android-cosmohq.md", pack("Android", "stack/android-cosmohq"));
+    write(skillsRoot, "stack/android-reference.md", pack("Android", "stack/android-reference", {
+      loadWhen: "  - kind: hint.language\n    value: kotlin",
+    }));
 
     const loaded = loadSkillPacksFromRoot(baseContext(workspace, {
       hints: {
@@ -578,7 +577,7 @@ describe("loadSkillPacks", () => {
     expect(loaded).toEqual(expect.arrayContaining([
       expect.objectContaining({ slug: "lang/kotlin", reason: "hint" }),
       expect.objectContaining({ slug: "framework/jetpack-compose", reason: "hint" }),
-      expect.objectContaining({ slug: "stack/android-cosmohq", reason: "hint" }),
+      expect.objectContaining({ slug: "stack/android-reference", reason: "hint" }),
     ]));
   });
 
@@ -588,14 +587,18 @@ describe("loadSkillPacks", () => {
     const largeBody = "x".repeat(12_000);
     write(workspace, "go.mod", "module example.com/budget\n");
     write(skillsRoot, "failure-modes/analyze-mode.md", pack("Analyze", "failure-modes/analyze-mode", { priority: 0, body: largeBody }));
-    write(skillsRoot, "stack/go-backend-cosmohq.md", pack("Go Backend", "stack/go-backend-cosmohq", { priority: 3, body: largeBody }));
+    write(skillsRoot, "stack/go-backend-reference.md", pack("Go Backend", "stack/go-backend-reference", {
+      priority: 3,
+      body: largeBody,
+      loadWhen: "  - kind: workspace.has\n    path: go.mod",
+    }));
     write(skillsRoot, "domain/auth-jwt.md", pack("Auth JWT", "domain/auth-jwt", { priority: 10, body: largeBody }));
 
     const loaded = loadSkillPacksFromRoot(baseContext(workspace), skillsRoot);
 
     expect(loaded.map((skill) => skill.slug)).toEqual([
       "failure-modes/analyze-mode",
-      "stack/go-backend-cosmohq",
+      "stack/go-backend-reference",
     ]);
   });
 });

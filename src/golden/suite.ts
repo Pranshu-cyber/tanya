@@ -10,7 +10,7 @@ export async function runGoldenSuiteCommand(workspace: string, action: string, j
   if (action === "run") {
     const profiles = options.all
       ? goldenRunnableProfiles()
-      : [options.profile ?? "cosmohq.android.splash"]
+      : [options.profile ?? "tanya.low.search-replace"]
         .map((profileId) => loadGoldenTaskProfiles().find((profile) => profile.id === profileId))
         .filter((profile): profile is NonNullable<typeof profile> => !!profile);
     if (profiles.length === 0) {

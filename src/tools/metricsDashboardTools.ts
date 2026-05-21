@@ -19,7 +19,7 @@ function asOptionalString(input: unknown, key: string): string | undefined {
 
 export const recordMetricsDashboardHandoffTool: TanyaTool = {
   name: "record_metrics_dashboard_handoff",
-  description: "Record a structured handoff after app analytics events are implemented so CosmoHQ can regenerate/provision dashboards next.",
+  description: "Record a structured handoff after app analytics events are implemented so an external dashboard system can regenerate/provision dashboards next.",
   definition: {
     type: "function",
     function: {
@@ -64,7 +64,7 @@ export const recordMetricsDashboardHandoffTool: TanyaTool = {
               additionalProperties: true,
             },
           },
-          nextStep: { type: "string", description: "What CosmoHQ should do after this app-code run." },
+          nextStep: { type: "string", description: "What the dashboard owner should do after this app-code run." },
           outputPath: { type: "string", description: "Optional workspace-relative output path. Default .tania/metrics-dashboard-handoff.json." },
         },
         required: ["appName", "implementedEvents", "changedFiles", "verification"],
@@ -81,7 +81,7 @@ export const recordMetricsDashboardHandoffTool: TanyaTool = {
       unresolvedGaps: asOptionalArray(input, "unresolvedGaps"),
       changedFiles: asOptionalArray(input, "changedFiles"),
       verification: asOptionalArray(input, "verification"),
-      nextStep: asOptionalString(input, "nextStep") ?? "Regenerate and provision the CosmoHQ Metrics Dashboard from the updated app instrumentation.",
+      nextStep: asOptionalString(input, "nextStep") ?? "Regenerate and provision the metrics dashboard from the updated app instrumentation.",
       createdAt: new Date().toISOString(),
     };
 

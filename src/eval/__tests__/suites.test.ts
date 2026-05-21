@@ -29,11 +29,11 @@ describe("eval suite ingestion", () => {
   it("loads the three M8 suites with valid shapes", () => {
     vi.stubEnv("TANYA_INTEGRATIONS_DIR", join(makeTempRoot(), "missing"));
 
-    expect(listEvalSuites()).toEqual(["swe-bench-lite", "tanya-native", "cosmohq", "eco-30", "mvp", "verifier-self-test"]);
+    expect(listEvalSuites()).toEqual(["swe-bench-lite", "tanya-native", "eco-30", "mvp", "verifier-self-test"]);
     for (const name of listEvalSuites()) {
       const suite = loadEvalSuite(name);
       expect(validateEvalSuite(suite).ok).toBe(true);
-      const minimumTaskCount = name === "cosmohq" || name === "mvp" ? 10 : name === "verifier-self-test" ? 4 : 20;
+      const minimumTaskCount = name === "mvp" ? 10 : name === "verifier-self-test" ? 4 : 20;
       expect(suite.tasks.length).toBeGreaterThanOrEqual(minimumTaskCount);
     }
   });

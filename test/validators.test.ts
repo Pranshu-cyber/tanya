@@ -1,8 +1,77 @@
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { validateCodingTask } from "../src/agent/validators";
+
+const noIntegrationsDir = join(tmpdir(), "tanya-no-integrations-for-validator-tests");
+
+function stubBackendSetupValidatorRule(): void {
+  const integrationsRoot = mkdtempSync(join(tmpdir(), "tanya-validators-backend-rule-integrations-"));
+  vi.stubEnv("TANYA_INTEGRATIONS_DIR", integrationsRoot);
+  mkdirSync(join(integrationsRoot, "acme", "validators"), { recursive: true });
+  const localhostPattern = "postgres(?:ql)?://[^\"'\\s]*localhost|postgres(?:ql)?://[^\"'\\s]*127\\.0\\.0\\.1|postgres(?:ql)?://postgres:postgres@";
+  writeFileSync(join(integrationsRoot, "acme", "validators", "backend-setup.json"), JSON.stringify({
+    version: 1,
+    rules: [
+      {
+        kind: "backend_setup_environment",
+        id: "acme.backendSetupEnvironment",
+        envFile: ".env.example",
+        docsFiles: [".env.example", "README.md"],
+        requiredEnv: ["DATABASE_URL", "DIRECT_URL"].map((name) => ({
+          name,
+          missingIssue: {
+            id: "backend-setup-postgres-placeholder-missing",
+            severity: "error",
+            message: `${name} must be present in .env.example as a placeholder.`,
+            files: [".env.example"],
+          },
+          forbiddenValues: [
+            {
+              pattern: localhostPattern,
+              flags: "i",
+              id: "backend-setup-postgres-localhost-hardcoded",
+              severity: "error",
+              message: `${name} must use a placeholder-only value, not a concrete localhost PostgreSQL URL.`,
+              files: [".env.example"],
+            },
+          ],
+          placeholder: {
+            acceptedExplicitPlaceholder: true,
+            allowedPatterns: [{ pattern: "(?:\\bacme\\b|\\bmanaged\\b)", flags: "i" }],
+            unclearIssue: {
+              id: "backend-setup-postgres-placeholder-unclear",
+              severity: "warning",
+              message: `${name} should be clearly marked as a placeholder in .env.example.`,
+              files: [".env.example"],
+            },
+          },
+        })),
+        documentation: [
+          {
+            all: [
+              { pattern: "Managed PostgreSQL", flags: "i" },
+              { pattern: "DATABASE_URL", flags: "i" },
+              { pattern: "DIRECT_URL", flags: "i" },
+              { pattern: "(seed|mock|test-account)", flags: "i" },
+            ],
+            issue: {
+              id: "backend-setup-deploy-provisioning-note-missing",
+              severity: "error",
+              message: "Backend setup must document managed PostgreSQL provisioning and DATABASE_URL/DIRECT_URL before seed/mock/test-account actions.",
+              files: [".env.example", "README.md"],
+            },
+          },
+        ],
+      },
+    ],
+  }));
+}
+
+beforeEach(() => {
+  vi.stubEnv("TANYA_INTEGRATIONS_DIR", noIntegrationsDir);
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -574,6 +643,7 @@ describe("coding validators", () => {
   });
 
   it("rejects backend setup env examples with concrete localhost postgres URLs", async () => {
+    stubBackendSetupValidatorRule();
     const cwd = mkdtempSync(join(tmpdir(), "tanya-validators-backend-setup-env-"));
     writeFileSync(join(cwd, ".env.example"), [
       'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/app_db"',
@@ -594,6 +664,7 @@ describe("coding validators", () => {
   });
 
   it("detects backend setup env violations from a full reference prompt when task title is generic", async () => {
+    stubBackendSetupValidatorRule();
     const cwd = mkdtempSync(join(tmpdir(), "tanya-validators-backend-setup-cosmo-prompt-"));
     writeFileSync(join(cwd, ".env.example"), [
       'DATABASE_URL="postgresql://postgres:postgres@localhost:5432/cosa_nostra"',
@@ -616,12 +687,13 @@ describe("coding validators", () => {
   });
 
   it("accepts backend setup env examples with deploy-owned postgres placeholders", async () => {
+    stubBackendSetupValidatorRule();
     const cwd = mkdtempSync(join(tmpdir(), "tanya-validators-backend-setup-env-ok-"));
     writeFileSync(join(cwd, ".env.example"), [
-      "# CosmoHQ Deploy provisions Azure PostgreSQL.",
+      "# ACME Deploy provisions Managed PostgreSQL.",
       "# Set DATABASE_URL and DIRECT_URL before seed:mock-data and seed:test-account actions.",
-      'DATABASE_URL="replace-me-cosmohq-deploy-azure-postgresql-url"',
-      'DIRECT_URL="replace-me-cosmohq-deploy-azure-postgresql-direct-url"',
+      'DATABASE_URL="replace-me-acme-managed-postgresql-url"',
+      'DIRECT_URL="replace-me-acme-managed-postgresql-direct-url"',
     ].join("\n"));
 
     const result = await validateCodingTask(cwd, {
@@ -663,10 +735,10 @@ describe("coding validators", () => {
       ],
     }));
     writeFileSync(join(cwd, ".env.example"), [
-      "# CosmoHQ Deploy provisions Azure PostgreSQL.",
+      "# Managed Postgres is provisioned by deploy automation.",
       "# Set DATABASE_URL and DIRECT_URL before seed:mock-data and seed:test-account actions.",
-      'DATABASE_URL="replace-me-cosmohq-deploy-azure-postgresql-url"',
-      'DIRECT_URL="replace-me-cosmohq-deploy-azure-postgresql-direct-url"',
+      'DATABASE_URL="replace-me-acme-managed-postgres-url"',
+      'DIRECT_URL="replace-me-acme-managed-postgres-direct-url"',
     ].join("\n"));
 
     const result = await validateCodingTask(cwd, {

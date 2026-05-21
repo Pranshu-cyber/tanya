@@ -218,62 +218,6 @@ export const GENERIC_BENCHMARK_PROFILES: GoldenTaskProfile[] = [
 ];
 
 export const BUILT_IN_GOLDEN_TASK_PROFILES: GoldenTaskProfile[] = [
-  {
-    id: "cosmohq.ios.setup-environment",
-    title: "Setup Environment - iOS",
-    platform: "ios",
-    purpose: "Verify Fastlane/SwiftLint/project setup without false artifact or changed-file failures.",
-    requiredCapabilities: ["artifact provenance", "xcodebuild verification", "commit reporting"],
-  },
-  {
-    id: "cosmohq.android.setup-environment",
-    title: "Setup Environment - Android",
-    platform: "android",
-    purpose: "Verify Gradle/Fastlane setup while preserving local SDK boundaries.",
-    requiredCapabilities: ["Gradle verification", "local.properties protection", "commit reporting"],
-  },
-  {
-    id: "cosmohq.ios.foundation",
-    title: "Fundações - iOS",
-    platform: "ios",
-    purpose: "Create theme, SwiftData models, navigation, base UI states, and dark-mode support.",
-    requiredCapabilities: ["iOS foundation validator", "artifact mapping", "font fallback policy", "xcodebuild verification"],
-  },
-  {
-    id: "cosmohq.android.foundation",
-    title: "Fundações - Android",
-    platform: "android",
-    purpose: "Create/preserve Material 3 theme, Room, Navigation Compose, and base composables.",
-    requiredCapabilities: ["create_android_foundation", "preserve existing files", "ktlint/Gradle verification"],
-  },
-  {
-    id: "cosmohq.ios.splash",
-    title: "Splash Screen - iOS",
-    platform: "ios",
-    purpose: "Create a brand-compliant splash screen and SplashIcon asset without over-scoping other iOS foundation validators.",
-    requiredCapabilities: ["create_ios_splash", "iOS splash validator", "artifact provenance"],
-  },
-  {
-    id: "cosmohq.android.splash",
-    title: "Splash Screen - Android",
-    platform: "android",
-    purpose: "Create or verify native AndroidX splash resources and Compose runtime splash.",
-    requiredCapabilities: ["Android splash validator", "zero-change verification reporting", "Gradle verification"],
-  },
-  {
-    id: "cosmohq.apple.app-icon",
-    title: "App Icon - Apple",
-    platform: "ios",
-    purpose: "Generate iOS/iPad/macOS AppIcon slots and verify Contents.json programmatically.",
-    requiredCapabilities: ["create_apple_app_icon_set", "programmatic Contents.json parse", "asset validation"],
-  },
-  {
-    id: "cosmohq.backend.api-foundation",
-    title: "Backend API Foundation",
-    platform: "backend",
-    purpose: "Implement backend API contracts while keeping brand/api_features route parity.",
-    requiredCapabilities: ["API contract validation", "Prisma validation", "typecheck/test verification"],
-  },
   ...GENERIC_BENCHMARK_PROFILES,
 ];
 

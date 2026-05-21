@@ -829,10 +829,10 @@ async function backendApiFoundationFixture(profile: GoldenTaskProfile): Promise<
         toolCall("write-env", "write_file", {
           path: ".env.example",
           content: [
-            "# CosmoHQ Deploy provisions Azure PostgreSQL.",
+            "# Managed deploy provisions PostgreSQL.",
             "# Set DATABASE_URL and DIRECT_URL before seed:mock-data and seed:test-account actions.",
-            "DATABASE_URL=\"replace-me-cosmohq-deploy-azure-postgresql-url\"",
-            "DIRECT_URL=\"replace-me-cosmohq-deploy-azure-postgresql-direct-url\"",
+            "DATABASE_URL=\"replace-me-managed-postgresql-url\"",
+            "DIRECT_URL=\"replace-me-managed-postgresql-direct-url\"",
             "",
           ].join("\n"),
         }),
@@ -868,11 +868,6 @@ async function backendApiFoundationFixture(profile: GoldenTaskProfile): Promise<
 
 export function goldenRunnableProfiles(): GoldenTaskProfile[] {
   const runnable = new Set([
-    "cosmohq.android.foundation",
-    "cosmohq.android.splash",
-    "cosmohq.ios.foundation",
-    "cosmohq.apple.app-icon",
-    "cosmohq.backend.api-foundation",
     "tanya.medium.streaming-long-tool",
     "tanya.medium.compaction-boundary",
     "tanya.medium.edit-block-fuzzy",
@@ -886,11 +881,6 @@ async function createFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixt
   if (profile.id === "tanya.medium.compaction-boundary") return compactionBoundaryFixture(profile);
   if (profile.id === "tanya.medium.edit-block-fuzzy") return editBlockFuzzyFixture(profile);
   if (profile.id in GENERIC_BENCHMARK_SPECS) return genericBenchmarkFixture(profile);
-  if (profile.id === "cosmohq.android.foundation") return androidFoundationFixture(profile);
-  if (profile.id === "cosmohq.android.splash") return androidSplashFixture(profile);
-  if (profile.id === "cosmohq.ios.foundation") return iosFoundationFixture(profile);
-  if (profile.id === "cosmohq.apple.app-icon") return appleAppIconFixture(profile);
-  if (profile.id === "cosmohq.backend.api-foundation") return backendApiFoundationFixture(profile);
   throw new Error(`Golden profile is not executable yet: ${profile.id}`);
 }
 

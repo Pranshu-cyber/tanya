@@ -37,7 +37,6 @@ Mapped packs:
 - `framework/goose-migrations`
 - `framework/service-tokens`
 - `framework/huma-sqlc`
-- `stack/go-backend-cosmohq`
 - Domain packs such as auth, API contract, LGPD, Stripe, and deployment ops when
   a backend stack is detected.
 
@@ -56,7 +55,6 @@ Mapped packs:
 - `framework/swiftdata`
 - `framework/revenuecat-ios`
 - `framework/storekit2`
-- `stack/ios-cosmohq`
 - `platform-ops/apple-signing`
 - `platform-ops/fastlane-apple`
 - Mobile domain packs for Apple sign-in, deep links, push, splash/icon, auth,
@@ -76,7 +74,6 @@ Mapped packs:
 - `framework/room-hilt`
 - `framework/retrofit-okhttp`
 - `framework/revenuecat-android`
-- `stack/android-cosmohq`
 - `platform-ops/fastlane-android`
 - Mobile domain packs for Google sign-in, deep links, push, splash/icon,
   RevenueCat, API contracts, and LGPD.
@@ -93,7 +90,6 @@ Mapped packs:
 - `framework/nextjs15`
 - `framework/tailwind-v4`
 - `framework/shadcn-ui`
-- `stack/landing-cosmohq`
 - Domain packs for Google sign-in, email/password auth, Stripe, API contracts,
   and LGPD when a web stack is detected.
 
@@ -111,6 +107,10 @@ Domain packs represent product capabilities that cut across stacks: auth,
 sign-in providers, RevenueCat, Stripe, deep links, push notifications, splash/icon,
 API contracts, and LGPD. They should load when a stack pack is present and the
 domain is relevant to the detected or hinted stack.
+
+Integration-specific stack packs can be added through `integrations/<name>/skills/`
+when a product needs house rules beyond the generic language/framework/domain
+packs.
 
 ### Platform Operations
 

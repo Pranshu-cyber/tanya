@@ -1,9 +1,6 @@
-import { cosmohqValidatorRuleFile } from "./cosmohq";
 import type { ValidatorRuleFile } from "./types";
 
-export const builtInValidatorRuleFiles: ValidatorRuleFile[] = [
-  cosmohqValidatorRuleFile,
-];
+export const builtInValidatorRuleFiles: ValidatorRuleFile[] = [];
 
 export type {
   BackendSetupEnvironmentRule,

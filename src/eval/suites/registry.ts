@@ -1,6 +1,5 @@
 import { estimateRunCost } from "../../memory/runLogs";
 import type { EvalSuite } from "../schemas";
-import { cosmohqSuite } from "./cosmohq";
 import { eco30Suite } from "./eco30";
 import { mvpSuite } from "./mvp";
 import { sweBenchLiteSuite } from "./sweBenchLite";
@@ -8,12 +7,11 @@ import { tanyaNativeSuite } from "./tanya-native";
 import { verifierSelfTestSuite } from "./verifierSelfTest";
 import { loadIntegrationEvalSuites } from "./integrations";
 
-export type EvalSuiteName = "swe-bench-lite" | "tanya-native" | "cosmohq" | "eco-30" | "mvp" | "verifier-self-test";
+export type EvalSuiteName = "swe-bench-lite" | "tanya-native" | "eco-30" | "mvp" | "verifier-self-test";
 
 const suiteLoaders: Record<EvalSuiteName, () => EvalSuite> = {
   "swe-bench-lite": sweBenchLiteSuite,
   "tanya-native": tanyaNativeSuite,
-  cosmohq: cosmohqSuite,
   "eco-30": eco30Suite,
   mvp: mvpSuite,
   "verifier-self-test": verifierSelfTestSuite,
