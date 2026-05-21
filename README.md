@@ -560,7 +560,7 @@ To make variants, override terminal copy with repeated `--line` flags:
 tanya video one-terminal-simctl \
   --output-dir assets/video \
   --basename install-failure \
-  --line '$ xcrun simctl install booted CosmoKit.app' \
+  --line '$ xcrun simctl install booted DemoApp.app' \
   --line 'error: unable to find a booted simulator' \
   --line '$ xcrun simctl io booted screenshot out.png' \
   --line 'xcrun: error: selected device is not available'

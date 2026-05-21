@@ -43,5 +43,5 @@ Generated prompt hardening requires entitlement evidence, permission request evi
 - `rg -n "deeplink|didReceive|onMessageReceived" .`
 
 ## Canonical sources
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00016_harden_push_notifications_ios_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00016_harden_push_notifications_ios_prompts.sql
 - ~/workspaces/reference-apps/finance-sample/app/Services/KeychainService.swift

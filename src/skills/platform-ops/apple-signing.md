@@ -39,4 +39,4 @@ Mac artifacts document sandbox entitlement choices. Release checks require both 
 
 ## Canonical sources
 - ~/workspaces/reference-platform/artifacts/macos/MacAppSetup.swift
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00011_backfill_verify_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00011_backfill_verify_prompts.sql

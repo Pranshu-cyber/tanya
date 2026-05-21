@@ -41,5 +41,5 @@ Use this for deploying generated Go backends, backend release pipelines, migrati
 - `rg -n "\"/healthz\"|\"/readyz\"" .`
 
 ## Canonical sources
-- ~/workspaces/appcreator/api/pkg/deploy/go_appservice.go
+- ~/workspaces/reference-appgen/api/pkg/deploy/go_appservice.go
 - ~/workspaces/reference-platform-v3/api/internal/http/wizard_coding.go

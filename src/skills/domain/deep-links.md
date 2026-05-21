@@ -34,7 +34,7 @@ Use this for iOS Universal Links, custom URL schemes, Android App Links, notific
 - Missing `applinks:`: entitlements must include the prefix.
 
 ## House style
-Appcreator hardens generated prompts to verify entitlements, manifest filters, handlers, and well-known hosting instead of trusting route names.
+Harden generated prompts to verify entitlements, manifest filters, handlers, and well-known hosting instead of trusting route names.
 
 ## Verification commands
 - `rg -n "applinks:|apple-app-site-association|CFBundleURLTypes|onOpenURL" .`
@@ -42,5 +42,5 @@ Appcreator hardens generated prompts to verify entitlements, manifest filters, h
 - `curl -I https://<domain>/.well-known/apple-app-site-association`
 
 ## Canonical sources
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00017_harden_deep_links_ios_prompts.sql
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00018_harden_deep_links_android_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00017_harden_deep_links_ios_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00018_harden_deep_links_android_prompts.sql

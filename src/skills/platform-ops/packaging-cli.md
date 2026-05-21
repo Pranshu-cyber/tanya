@@ -44,5 +44,5 @@ The V1 wizard has Homebrew endpoints for bridge build, npm publish, tap creation
 - `rg -n "homebrew|npm-publish|create-tap|update-formula" .`
 
 ## Canonical sources
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00011_backfill_verify_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00011_backfill_verify_prompts.sql
 - ~/workspaces/reference-platform-v3/api/internal/v1wizard/homebrew.go

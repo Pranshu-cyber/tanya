@@ -13,18 +13,18 @@ describe("record_metrics_dashboard_handoff", () => {
   it("writes a structured handoff inside the workspace", async () => {
     const workspace = await mkdtemp(join(tmpdir(), "tania-metrics-handoff-"));
     const result = await recordMetricsDashboardHandoffTool.run({
-      appName: "CosmoKit",
+      appName: "DemoApp",
       implementedEvents: [
         {
           event: "proxy_tool_opened",
           platform: "macos",
           emitSite: "NetworkProxyView.onAppear",
-          file: "CosmoKit/Features/Tools/NetworkProxy/NetworkProxyView.swift",
+          file: "DemoApp/Features/Tools/NetworkProxy/NetworkProxyView.swift",
           properties: ["cosmohq_app", "cosmohq_environment", "event_category:proxy", "event_level:info"],
         },
       ],
       unresolvedGaps: [],
-      changedFiles: ["CosmoKit/Core/Observability/ObservabilityEvent.swift"],
+      changedFiles: ["DemoApp/Core/Observability/ObservabilityEvent.swift"],
       verification: [{ command: "xcodebuild -list", result: "exit 0" }],
     }, { workspace });
 
@@ -33,7 +33,7 @@ describe("record_metrics_dashboard_handoff", () => {
 
     const raw = await readFile(join(workspace, ".tania/metrics-dashboard-handoff.json"), "utf8");
     const payload = JSON.parse(raw);
-    expect(payload.appName).toBe("CosmoKit");
+    expect(payload.appName).toBe("DemoApp");
     expect(payload.implementedEvents).toHaveLength(1);
     expect(payload.nextStep).toContain("Regenerate and provision");
   });

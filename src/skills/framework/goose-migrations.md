@@ -36,4 +36,4 @@ Reference packages can coexist inside host binaries by using package-specific go
 ## Canonical sources
 - `~/workspaces/reference-chat/api/pkg/cosmochat/migrate.go`
 - `~/workspaces/reference-chat/api/pkg/cosmochat/migrations/00001_init_schema.sql`
-- `~/workspaces/appcreator/api/pkg/appcreator/migrations/00001_create_appcreator_schema.sql`
+- `~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00001_create_reference-appgen_schema.sql`

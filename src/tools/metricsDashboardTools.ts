@@ -28,7 +28,7 @@ export const recordMetricsDashboardHandoffTool: TanyaTool = {
       parameters: {
         type: "object",
         properties: {
-          appName: { type: "string", description: "App name, for example CosmoKit." },
+          appName: { type: "string", description: "App name, for example DemoApp." },
           implementedEvents: {
             type: "array",
             description: "Implemented tracking events with emit-site details.",

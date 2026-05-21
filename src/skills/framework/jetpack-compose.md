@@ -20,9 +20,9 @@ Use this for Android screens, navigation, branded UI, charts, onboarding, paywal
 
 ## Core rules
 - Use Material 3 `MaterialTheme` for color, typography, and shapes.
-- Extend Material with `CosmoExtendedColors`: `income`, `expense`, `transfer`, `warning`, `info`, `cardBackground`, `groupedBackground`, `separator`.
-- Expose colors through `staticCompositionLocalOf<CosmoExtendedColors>` named `LocalCosmoColors`.
-- Wrap the root with `CompositionLocalProvider(LocalCosmoColors provides cosmoColors)` inside `MaterialTheme`.
+- Extend Material with `AppExtendedColors`: `income`, `expense`, `transfer`, `warning`, `info`, `cardBackground`, `groupedBackground`, `separator`.
+- Expose colors through `staticCompositionLocalOf<AppExtendedColors>` named `LocalAppColors`.
+- Wrap the root with `CompositionLocalProvider(LocalAppColors provides appColors)` inside `MaterialTheme`.
 - Composables receive `uiState: XUiState` and callbacks. Reusable child composables do not read ViewModels.
 - Hoist state to the lowest common ancestor.
 - Use `NavHost` and `NavController`; inject ViewModels per destination with `hilt-navigation-compose`.
@@ -38,10 +38,10 @@ Use this for Android screens, navigation, branded UI, charts, onboarding, paywal
 - LAZY-MISUSE: unbounded nested columns cause measurement crashes.
 
 ## House style
-Reference apps use `FinanceSampleTheme`, Material 3, `LocalCosmoColors`, Navigation, Hilt, Vico charts, and branded components.
+Reference apps use `FinanceSampleTheme`, Material 3, `LocalAppColors`, Navigation, Hilt, Vico charts, and branded components.
 
 ## Verification commands
-- `rg -n "CosmoExtendedColors|LocalCosmoColors|CompositionLocalProvider|MaterialTheme" app/src/main/java`
+- `rg -n "AppExtendedColors|LocalAppColors|CompositionLocalProvider|MaterialTheme" app/src/main/java`
 - `rg -n "NavHost|hiltViewModel|LazyColumn|key =" app/src/main/java`
 - `rg -n "println\\(|BrandedComponents|PrimaryCTAButton|vico" app/src/main/java app/build.gradle.kts`
 

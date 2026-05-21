@@ -31,4 +31,4 @@ Reference services can be standalone binaries or embedded packages; host service
 ## Canonical sources
 - `~/workspaces/reference-chat/api/cmd/cosmochat/main.go`
 - `~/workspaces/reference-platform-v3/api/cmd/service/main.go`
-- `~/workspaces/appcreator/api/cmd/server/main.go`
+- `~/workspaces/reference-appgen/api/cmd/server/main.go`

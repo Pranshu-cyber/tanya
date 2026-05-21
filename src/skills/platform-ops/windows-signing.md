@@ -32,7 +32,7 @@ Use this for Windows binary signing, installer signing, SmartScreen posture, or 
 - Unsigned winget asset: winget rejects unsigned Windows installers.
 
 ## House style
-Appcreator packaging prompts require cert-type rationale, timestamped signing, CI secret checks, and clean-VM verification evidence.
+Packaging prompts require cert-type rationale, timestamped signing, CI secret checks, and clean-VM verification evidence.
 
 ## Verification commands
 - `rg -n "osslsigncode|signtool|WINDOWS_CERT|timestamp|KeyLocker|Key Vault" .`
@@ -40,4 +40,4 @@ Appcreator packaging prompts require cert-type rationale, timestamped signing, C
 - `signtool verify /pa /v <signed.exe>`
 
 ## Canonical sources
-- ~/workspaces/appcreator/api/pkg/appcreator/migrations/00011_backfill_verify_prompts.sql
+- ~/workspaces/reference-appgen/api/pkg/reference-appgen/migrations/00011_backfill_verify_prompts.sql
