@@ -1,0 +1,143 @@
+name: Nightly Release Gate
+
+# Decides whether to cut a release. Runs nightly; releases only when enough
+# has accumulated on main. Bumping + tagging here triggers release.yml
+# (tag-driven), which does the actual npm publish + GitHub Release.
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Release even if the commit/time threshold is not met"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-release
+  cancel-in-progress: false
+
+env:
+  # Release when EITHER condition holds:
+  COMMIT_THRESHOLD: 5   # >= this many commits since the last release, OR
+  DAYS_THRESHOLD: 7     # >= this many days since the last release (with >=1 new commit)
+
+jobs:
+  gate-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Evaluate release gate
+        id: gate
+        run: |
+          last_tag="$(git tag --list 'v*.*.*' --sort=-creatordate | head -n1)"
+          if [ -z "$last_tag" ]; then
+            baseline="$(git rev-list --max-parents=0 HEAD | head -n1)"
+            echo "No prior release tag; baselining from the root commit."
+          else
+            baseline="$last_tag"
+            echo "Last release tag: $last_tag"
+          fi
+
+          commits_since="$(git rev-list --count "${baseline}..HEAD")"
+          baseline_epoch="$(git log -1 --format=%ct "$baseline")"
+          days_since=$(( ( $(date +%s) - baseline_epoch ) / 86400 ))
+          echo "Commits since baseline: $commits_since | Days since: $days_since"
+
+          force="${{ github.event.inputs.force }}"
+          should_release="false"
+          if [ "$force" = "true" ]; then
+            should_release="true"
+            echo "Forced via workflow_dispatch."
+          elif [ "$commits_since" -ge "$COMMIT_THRESHOLD" ]; then
+            should_release="true"
+            echo "Commit threshold met ($commits_since >= $COMMIT_THRESHOLD)."
+          elif [ "$commits_since" -ge 1 ] && [ "$days_since" -ge "$DAYS_THRESHOLD" ]; then
+            should_release="true"
+            echo "Time threshold met ($days_since days >= $DAYS_THRESHOLD, $commits_since commit(s))."
+          else
+            echo "Gate not met — no release tonight."
+          fi
+
+          echo "should_release=$should_release" >> "$GITHUB_OUTPUT"
+          echo "baseline=$baseline" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node
+        if: steps.gate.outputs.should_release == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.gate.outputs.should_release == 'true'
+        run: npm ci
+
+      - name: Install shell runtime
+        if: steps.gate.outputs.should_release == 'true'
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      - name: Verify build before tagging
+        if: steps.gate.outputs.should_release == 'true'
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+
+      - name: Determine version bump
+        if: steps.gate.outputs.should_release == 'true'
+        id: bump
+        run: |
+          # Default to a prerelease bump (the project is on a -beta line).
+          # A [minor] or [major] marker in any commit subject since the last
+          # release overrides it.
+          bump="prerelease"
+          subjects="$(git log --format=%s '${{ steps.gate.outputs.baseline }}..HEAD')"
+          if echo "$subjects" | grep -qiE '\[major\]'; then
+            bump="major"
+          elif echo "$subjects" | grep -qiE '\[minor\]'; then
+            bump="minor"
+          elif echo "$subjects" | grep -qiE '\[patch\]'; then
+            bump="patch"
+          fi
+          echo "Bump type: $bump"
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+
+      - name: Bump version + changelog, tag, push
+        if: steps.gate.outputs.should_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          npm version "${{ steps.bump.outputs.bump }}" --no-git-tag-version --preid beta
+          new_version="$(node -p "require('./package.json').version")"
+          echo "New version: $new_version"
+
+          # Prepend a changelog section built from commit subjects since baseline.
+          notes="$(git log --format='- %s' '${{ steps.gate.outputs.baseline }}..HEAD' | grep -v '^- release: ')"
+          {
+            head -n1 CHANGELOG.md
+            echo ""
+            echo "## [$new_version] - $(date +%Y-%m-%d)"
+            echo ""
+            echo "### Changes"
+            echo ""
+            echo "$notes"
+            echo ""
+            tail -n +2 CHANGELOG.md
+          } > CHANGELOG.new.md
+          mv CHANGELOG.new.md CHANGELOG.md
+
+          git add package.json package-lock.json CHANGELOG.md
+          git commit -m "release: v$new_version [skip ci]"
+          git tag "v$new_version"
+          git push origin HEAD --tags
+          echo "Tagged v$new_version — release.yml will publish it."
