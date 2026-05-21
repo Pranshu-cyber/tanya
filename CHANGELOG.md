@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-05-21
+
 ### Added
 
 - Full-screen Claude-Code-style TUI for the interactive `tanya` chat REPL
