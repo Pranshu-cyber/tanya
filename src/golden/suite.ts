@@ -1,5 +1,5 @@
 import { buildGoldenTaskSummary, readGoldenTaskMemory, validateGoldenTaskSummary } from "../memory/goldenTasks";
-import { BUILT_IN_GOLDEN_TASK_PROFILES } from "./profiles";
+import { BUILT_IN_GOLDEN_TASK_PROFILES, loadGoldenTaskProfiles } from "./profiles";
 import { goldenRunnableProfiles, runGoldenTask } from "./run";
 
 export async function runGoldenSuiteCommand(workspace: string, action: string, json = false, options: { profile?: string; all?: boolean } = {}): Promise<number> {
@@ -11,7 +11,7 @@ export async function runGoldenSuiteCommand(workspace: string, action: string, j
     const profiles = options.all
       ? goldenRunnableProfiles()
       : [options.profile ?? "cosmohq.android.splash"]
-        .map((profileId) => BUILT_IN_GOLDEN_TASK_PROFILES.find((profile) => profile.id === profileId))
+        .map((profileId) => loadGoldenTaskProfiles().find((profile) => profile.id === profileId))
         .filter((profile): profile is NonNullable<typeof profile> => !!profile);
     if (profiles.length === 0) {
       const message = `No executable golden profile matched ${options.profile ?? "(default)"}.`;
@@ -42,19 +42,26 @@ export async function runGoldenSuiteCommand(workspace: string, action: string, j
   }
 
   if (json) {
+    const profiles = loadGoldenTaskProfiles();
     console.log(JSON.stringify({
       summary,
       problems,
-      profiles: action === "profiles" ? BUILT_IN_GOLDEN_TASK_PROFILES : undefined,
+      profiles: action === "profiles" ? profiles : undefined,
       executableProfiles: action === "profiles" ? goldenRunnableProfiles().map((profile) => profile.id) : undefined,
     }, null, 2));
     return action === "validate" && problems.length > 0 ? 1 : 0;
   }
 
   if (action === "profiles") {
-    console.log(`Built-in golden task profiles: ${BUILT_IN_GOLDEN_TASK_PROFILES.length}`);
-    for (const profile of BUILT_IN_GOLDEN_TASK_PROFILES) {
-      const executable = goldenRunnableProfiles().some((item) => item.id === profile.id) ? " executable" : "";
+    const profiles = loadGoldenTaskProfiles();
+    if (profiles.length === BUILT_IN_GOLDEN_TASK_PROFILES.length) {
+      console.log(`Built-in golden task profiles: ${BUILT_IN_GOLDEN_TASK_PROFILES.length}`);
+    } else {
+      console.log(`Golden task profiles: ${profiles.length} (${BUILT_IN_GOLDEN_TASK_PROFILES.length} built-in, ${profiles.length - BUILT_IN_GOLDEN_TASK_PROFILES.length} integration)`);
+    }
+    const runnable = goldenRunnableProfiles();
+    for (const profile of profiles) {
+      const executable = runnable.some((item) => item.id === profile.id) ? " executable" : "";
       console.log(`${profile.id} [${profile.platform}${executable}] ${profile.title}`);
       console.log(`  ${profile.purpose}`);
       console.log(`  capabilities: ${profile.requiredCapabilities.join(", ")}`);

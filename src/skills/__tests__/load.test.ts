@@ -49,6 +49,7 @@ function baseContext(workspace: string, overrides: Partial<SkillPackContext> = {
 }
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   for (const root of tempRoots.splice(0)) {
     rmSync(root, { recursive: true, force: true });
   }
@@ -57,6 +58,7 @@ afterEach(() => {
 describe("loadSkillPacks", () => {
   it("loads the production skills tree without requiring a matching workspace", () => {
     const workspace = makeTempRoot("tanya-skills-empty-workspace-");
+    vi.stubEnv("TANYA_INTEGRATIONS_DIR", join(makeTempRoot("tanya-skills-integrations-"), "missing"));
 
     const loaded = loadSkillPacks(baseContext(workspace));
 
@@ -70,6 +72,29 @@ describe("loadSkillPacks", () => {
       "failure-modes/verify-mode",
     ]);
     expect(loaded.every((skill) => skill.reason === "always")).toBe(true);
+  });
+
+  it("loads integration skill packs alongside bundled packs", () => {
+    const workspace = makeTempRoot("tanya-skills-integration-workspace-");
+    const integrationsRoot = makeTempRoot("tanya-skills-integrations-");
+    write(integrationsRoot, "acme/skills/acme-always.md", pack("Acme Always", "integration/acme-always", {
+      loadWhen: "  - kind: always",
+      priority: 4,
+      body: "Integration body.",
+    }));
+    vi.stubEnv("TANYA_INTEGRATIONS_DIR", integrationsRoot);
+
+    const loaded = loadSkillPacks(baseContext(workspace));
+
+    expect(loaded.map((skill) => skill.slug)).toEqual(expect.arrayContaining([
+      "failure-modes/analyze-mode",
+      "integration/acme-always",
+    ]));
+    expect(loaded.find((skill) => skill.slug === "integration/acme-always")).toMatchObject({
+      title: "Acme Always",
+      content: "# Acme Always\n\nIntegration body.",
+      reason: "always",
+    });
   });
 
   it("loads failure-mode packs as always, even without matching frontmatter", () => {

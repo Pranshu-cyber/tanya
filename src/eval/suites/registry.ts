@@ -6,6 +6,7 @@ import { mvpSuite } from "./mvp";
 import { sweBenchLiteSuite } from "./sweBenchLite";
 import { tanyaNativeSuite } from "./tanya-native";
 import { verifierSelfTestSuite } from "./verifierSelfTest";
+import { loadIntegrationEvalSuites } from "./integrations";
 
 export type EvalSuiteName = "swe-bench-lite" | "tanya-native" | "cosmohq" | "eco-30" | "mvp" | "verifier-self-test";
 
@@ -26,16 +27,26 @@ export type EvalDryRun = {
   model: string;
 };
 
-export function listEvalSuites(): EvalSuiteName[] {
+function builtInSuiteNames(): EvalSuiteName[] {
   return Object.keys(suiteLoaders) as EvalSuiteName[];
+}
+
+export function listEvalSuites(): string[] {
+  const names = new Set<string>(builtInSuiteNames());
+  for (const suite of loadIntegrationEvalSuites()) {
+    if (!names.has(suite.name)) names.add(suite.name);
+  }
+  return [...names];
 }
 
 export function loadEvalSuite(name: string): EvalSuite {
   const loader = suiteLoaders[name as EvalSuiteName];
-  if (!loader) {
-    throw new Error(`Unknown eval suite "${name}". Available: ${listEvalSuites().join(", ")}`);
-  }
-  return loader();
+  if (loader) return loader();
+
+  const suite = loadIntegrationEvalSuites().find((candidate) => candidate.name === name);
+  if (suite) return suite;
+
+  throw new Error(`Unknown eval suite "${name}". Available: ${listEvalSuites().join(", ")}`);
 }
 
 export function dryRunEvalSuite(suite: EvalSuite, provider: string | undefined, model: string): EvalDryRun {

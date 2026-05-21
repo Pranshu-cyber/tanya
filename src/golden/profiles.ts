@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { discoverIntegrationEntries } from "../integrations/discovery";
+
 export type GoldenTaskProfile = {
   id: string;
   title: string;
@@ -5,6 +8,50 @@ export type GoldenTaskProfile = {
   purpose: string;
   requiredCapabilities: string[];
 };
+
+export type IntegrationGoldenProfilesFile =
+  | GoldenTaskProfile
+  | GoldenTaskProfile[]
+  | { profiles: GoldenTaskProfile[] };
+
+const profilePlatforms = new Set<GoldenTaskProfile["platform"]>(["ios", "android", "backend", "cross-platform"]);
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === "string");
+}
+
+function isGoldenTaskProfile(value: unknown): value is GoldenTaskProfile {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const profile = value as Record<string, unknown>;
+  return typeof profile.id === "string" &&
+    typeof profile.title === "string" &&
+    typeof profile.platform === "string" &&
+    profilePlatforms.has(profile.platform as GoldenTaskProfile["platform"]) &&
+    typeof profile.purpose === "string" &&
+    isStringArray(profile.requiredCapabilities);
+}
+
+function readJson(path: string): unknown {
+  try {
+    return JSON.parse(readFileSync(path, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
+function parseIntegrationGoldenProfiles(path: string): GoldenTaskProfile[] {
+  const parsed = readJson(path);
+  const profiles = Array.isArray(parsed)
+    ? parsed
+    : parsed && typeof parsed === "object" && Array.isArray((parsed as { profiles?: unknown }).profiles)
+      ? (parsed as { profiles: unknown[] }).profiles
+      : [parsed];
+  const valid = profiles.filter(isGoldenTaskProfile);
+  if (valid.length !== profiles.length) {
+    console.warn(`[golden] Skipping invalid integration profile data: ${path}`);
+  }
+  return valid;
+}
 
 export const GENERIC_BENCHMARK_PROFILES: GoldenTaskProfile[] = [
   {
@@ -229,3 +276,20 @@ export const BUILT_IN_GOLDEN_TASK_PROFILES: GoldenTaskProfile[] = [
   },
   ...GENERIC_BENCHMARK_PROFILES,
 ];
+
+export function loadIntegrationGoldenTaskProfiles(): GoldenTaskProfile[] {
+  return discoverIntegrationEntries("golden")
+    .filter((entry) => entry.path.toLowerCase().endsWith(".json"))
+    .flatMap((entry) => parseIntegrationGoldenProfiles(entry.path));
+}
+
+export function loadGoldenTaskProfiles(): GoldenTaskProfile[] {
+  const seen = new Set(BUILT_IN_GOLDEN_TASK_PROFILES.map((profile) => profile.id));
+  const profiles = [...BUILT_IN_GOLDEN_TASK_PROFILES];
+  for (const profile of loadIntegrationGoldenTaskProfiles()) {
+    if (seen.has(profile.id)) continue;
+    seen.add(profile.id);
+    profiles.push(profile);
+  }
+  return profiles;
+}
