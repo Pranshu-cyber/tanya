@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createCosmoSink } from "../cosmo";
 import { createJsonlSink } from "../jsonl";
 import type { TanyaEvent } from "../types";
 
@@ -36,17 +35,4 @@ describe("live status sink invariance", () => {
     expect(output).not.toContain("\x1b");
   });
 
-  it("keeps Cosmo bridge output byte-stable for live-status event fixtures", () => {
-    const output = render(createCosmoSink, events);
-    expect(output).toBe([
-      "__E:{\"t\":\"status\",\"message\":\"Model routed: planning -> deepseek/deepseek-chat\",\"key\":\"tanya:model-routed:planning:deepseek:deepseek-chat\",\"stepType\":\"planning\",\"provider\":\"deepseek\",\"model\":\"deepseek-chat\",\"reason\":\"route\"}",
-      "__E:{\"t\":\"tool_call\",\"tool\":\"read_file\",\"detail\":\"{\\\"path\\\":\\\"README.md\\\"}\",\"content\":\"\",\"id\":\"call-1\"}",
-      "__E:{\"t\":\"tool_result\",\"id\":\"call-1\",\"output\":\"read README\",\"error\":false}",
-      "__E:{\"t\":\"status\",\"message\":\"Compaction: removed ~2k tokens via snip.\",\"key\":\"tanya:compact:snip:none\",\"compactType\":\"snip\",\"removedTokens\":2000}",
-      "Done.",
-      "__E:{\"t\":\"status\",\"message\":\"Tanya finished. Changed files: 1. Tool errors: 0.\",\"key\":\"tanya:final\",\"files\":[\"README.md\"]}",
-      "",
-    ].join("\n"));
-    expect(output).not.toContain("\x1b");
-  });
 });

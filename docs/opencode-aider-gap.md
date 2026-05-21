@@ -102,7 +102,7 @@ The historical `claude-code-study/` directory is no longer present in this repo 
 - One live status/footer line in interactive mode.
 - Current provider/model, route step, context pressure, spend, active child count.
 - Permission and escalation prompts remain line-based but can update the footer.
-- JSONL/Cosmo sinks unchanged.
+- JSONL and human sinks unchanged.
 - Opt-out env for simple terminals.
 
 **Verdict.** Ship a lightweight EventSink renderer milestone. Skip a full Ink/React/Bubble Tea rewrite for now.

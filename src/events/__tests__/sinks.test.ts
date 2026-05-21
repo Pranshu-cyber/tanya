@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createCosmoSink } from "../cosmo";
 import { createJsonlSink } from "../jsonl";
 import { createHumanSink } from "../../ui/humanSink";
 import type { EventSink, TanyaEvent } from "../types";
@@ -122,7 +121,7 @@ describe("event sinks", () => {
     expect(stream.chunks).toEqual([]);
   });
 
-  it("accepts cancellation, permission, and compaction events in human and Cosmo sinks", async () => {
+  it("accepts cancellation, permission, and compaction events in human and JSONL sinks", async () => {
     const events: TanyaEvent[] = [
       { type: "tool_cancel_requested", toolCallId: "call-1", tool: "run_shell", timestamp: "2026-05-14T12:00:00.000Z" },
       { type: "tool_cancelled", toolCallId: "call-1", tool: "run_shell", timestamp: "2026-05-14T12:00:00.100Z", partialOutput: "partial" },
@@ -132,7 +131,7 @@ describe("event sinks", () => {
       { type: "prompt_budget_exceeded", droppedSections: ["domain packs"], totalTokens: 12_000, cap: 8_000 },
     ];
 
-    for (const createSink of [createHumanSink, createCosmoSink]) {
+    for (const createSink of [createHumanSink, createJsonlSink]) {
       const stream = new MemoryStream();
       const sink = createSink(stream as unknown as NodeJS.WritableStream);
       for (const event of events) await sink(event);
@@ -195,27 +194,19 @@ describe("event sinks", () => {
     expect(output).toContain("Final answer.");
   });
 
-  it("forwards reasoning events through Cosmo without UI transformation", async () => {
+  it("serializes reasoning truncation events to JSONL", async () => {
     const stream = new MemoryStream();
-    const sink = createCosmoSink(stream as unknown as NodeJS.WritableStream);
+    const sink = createJsonlSink(stream as unknown as NodeJS.WritableStream);
 
-    await sink({ type: "reasoning_chunk", content: "full reasoning", provider: "qwen", model: "qwen3-thinking-plus", runId: "r-2", tokens: 5 });
     await sink({ type: "reasoning_truncated", provider: "qwen", model: "qwen3-thinking-plus", usedTokens: 1200, capTokens: 1000, stepType: "synthesis" });
 
-    const lines = stream.chunks.join("").trim().split(/\n/).map((line) => JSON.parse(line.replace(/^__E:/, "")));
-    expect(lines[0]).toEqual(expect.objectContaining({
-      t: "reasoning_chunk",
-      content: "full reasoning",
+    expect(JSON.parse(stream.chunks.join(""))).toEqual({
+      type: "reasoning_truncated",
       provider: "qwen",
       model: "qwen3-thinking-plus",
-      runId: "r-2",
-      tokens: 5,
-    }));
-    expect(lines[1]).toEqual(expect.objectContaining({
-      t: "status",
       usedTokens: 1200,
       capTokens: 1000,
       stepType: "synthesis",
-    }));
+    });
   });
 });

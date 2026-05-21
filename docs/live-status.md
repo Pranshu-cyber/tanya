@@ -2,7 +2,7 @@
 
 Tanya renders a compact live status line in interactive `tanya chat` sessions.
 It is a read-only projection over existing EventSink events; it does not replace
-human output, JSONL output, Cosmo bridge events, audit logs, or verifier inputs.
+human output, JSONL output, audit logs, or verifier inputs.
 
 Example snapshots:
 
@@ -32,9 +32,8 @@ No new events are emitted by the live status layer.
 ## TTY Behavior
 
 Terminal control sequences are only written when `stdout` is an interactive TTY.
-When output is piped, redirected, written as JSONL, or bridged to Cosmo, the live
-status renderer is a no-op. This keeps CI logs and machine-readable streams
-byte-stable.
+When output is piped, redirected, or written as JSONL, the live status renderer
+is a no-op. This keeps CI logs and machine-readable streams byte-stable.
 
 Disable the renderer explicitly:
 

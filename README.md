@@ -334,8 +334,8 @@ same events already sent to the human sink:
 [escalated deepseek:deepseek-chat->openai:gpt-4.1-mini: parse_failure]
 ```
 
-The footer is TTY-only. Piped output, JSONL output, and Cosmo bridge streams stay
-byte-stable and receive no ANSI cursor control bytes. Disable it with
+The footer is TTY-only. Piped output and JSONL output stay byte-stable and
+receive no ANSI cursor control bytes. Disable it with
 `TANYA_LIVE_STATUS=0` or the legacy `TANIA_LIVE_STATUS=0` alias.
 
 See [docs/live-status.md](./docs/live-status.md) for the surfaced fields,
@@ -355,7 +355,7 @@ emits `reasoning_truncated` and asks the model to finish.
 
 Use `/memory --reasoning <runId>` to inspect archived reasoning. Use
 `TANYA_HIDE_REASONING=1` to hide reasoning from the human UI while preserving
-JSONL/Cosmo events. Verifier reasoning annotations are off by default; enable
+JSONL events. Verifier reasoning annotations are off by default; enable
 them with `--verbose-verifier` or `TANYA_VERIFIER_INCLUDE_REASONING=1`.
 
 See [docs/reasoning.md](./docs/reasoning.md) for provider notes, billing math,
