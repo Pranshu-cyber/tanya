@@ -47,8 +47,8 @@ its cap Tanya emits `reasoning_truncated` and injects a synthetic user message:
 Human REPL output shows reasoning dimmed and italic with a `thinking...` prefix,
 then collapses to `thinking for Ns...` when the assistant response starts or the
 turn ends. Set `TANYA_HIDE_REASONING=1` (or legacy `TANIA_HIDE_REASONING=1`) to
-suppress reasoning from the human UI. JSONL and Cosmo sinks still receive full
-reasoning events.
+suppress reasoning from the human UI. JSONL output still receives full reasoning
+events.
 
 Use `/memory --reasoning <runId>` to replay archived reasoning. Add `--turn N`
 to inspect one turn.

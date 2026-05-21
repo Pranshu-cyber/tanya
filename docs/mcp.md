@@ -74,7 +74,7 @@ That means they use the same runner path as native tools:
 - audit log entry in `.tania/audit.jsonl`
 - model-visible tool result truncation when needed
 - full verifier-visible result when available
-- JSONL, Cosmo, and human event sinks
+- JSONL and human event sinks
 
 Use `/mcp` in interactive chat to list configured servers, connection status,
 restart count, and exposed tools.

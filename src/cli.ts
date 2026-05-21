@@ -6,7 +6,6 @@ import { loadConfig } from "./config/env";
 import { envValue } from "./config/envCompat";
 import { loadRunContextFile, type TanyaRunContext } from "./context/runContext";
 import { materializeCliArtifacts } from "./context/artifacts";
-import { createCosmoSink } from "./events/cosmo";
 import { createJsonlSink } from "./events/jsonl";
 import { createProvider, createProviderForRoute } from "./providers/factory";
 import type { EventSink } from "./events/types";
@@ -68,7 +67,6 @@ const cliOptionDefinitions: CliOptionDefinition[] = [
   { flags: "--context-file <path>", key: "context-file", kind: "string", property: "contextFile" },
   { flags: "--context-path <path>", key: "context-path", kind: "array", property: "contextPath" },
   { flags: "--continue", key: "continue", kind: "boolean", property: "continue" },
-  { flags: "--cosmo", key: "cosmo", kind: "boolean", property: "cosmo" },
   { flags: "--cwd <path>", key: "cwd", kind: "string", property: "cwd" },
   { flags: "--duration <seconds>", key: "duration", kind: "string", property: "duration" },
   { flags: "--dispatch-mode <mode>", key: "dispatch-mode", kind: "string", property: "dispatchMode" },
@@ -378,7 +376,6 @@ Usage:
   tanya run --review "task"      Run task then auto-review the diff
   tanya run --plan --retries 2 --review "task"   Full autonomous mode
   tanya run --json --prompt-file /tmp/prompt.txt
-  tanya run --cosmo --cwd /tmp/project --prompt-file /tmp/prompt.txt
   tanya debug-prompt "task"                   Print system prompt without running agent
   tanya debug-prompt --cwd <path> "task"      Print system prompt for a specific project
   tanya debug-prompt --section artifacts "task"  Print only the artifact section
@@ -611,9 +608,9 @@ function buildRoutingOptions(config: ReturnType<typeof loadConfig>, cwd: string)
   };
 }
 
-function shouldUseInkChat(args: ParsedArgs, json: boolean, cosmo: boolean): boolean {
+function shouldUseInkChat(args: ParsedArgs, json: boolean): boolean {
   if (args.command !== "chat") return false;
-  if (json || cosmo) return false;
+  if (json) return false;
   if (hasFlag(args, "no-tui")) return false;
   if (envValue({}, "TANYA_TUI").trim().toLowerCase() === "off") return false;
   return Boolean(process.stdout.isTTY && process.stdin.isTTY);
@@ -1098,8 +1095,7 @@ async function main(): Promise<void> {
   const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
   const routing = buildRoutingOptions(config, cwd);
   const json = hasFlag(args, "json");
-  const cosmo = hasFlag(args, "cosmo");
-  if (shouldUseInkChat(args, json, cosmo)) {
+  if (shouldUseInkChat(args, json)) {
     const { startInkChat } = await import("./ui/ink/runInkChat");
     await startInkChat({
       provider,
@@ -1110,7 +1106,7 @@ async function main(): Promise<void> {
     });
     return;
   }
-  const sink = cosmo ? createCosmoSink() : json ? createJsonlSink() : createHumanSink(process.stdout, { liveStatus: args.command === "chat" });
+  const sink = json ? createJsonlSink() : createHumanSink(process.stdout, { liveStatus: args.command === "chat" });
   let runPromptTokens = 0;
   let runCompletionTokens = 0;
   const trackingSink: EventSink = async (event) => {
