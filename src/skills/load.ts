@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { load as parseYaml } from "js-yaml";
+import { discoverIntegrationEntries } from "../integrations/discovery";
 import type {
   LoadedSkillPack,
   SkillPackContext,
@@ -635,15 +636,7 @@ function enforceBudget(packs: Array<SkillPackFile & { reason: LoadedSkillPack["r
   return kept.sort(compareMatchedPacks);
 }
 
-export function loadSkillPacksFromRoot(ctx: SkillPackContext, skillsRoot: string): LoadedSkillPack[] {
-  if (!safeExists(skillsRoot)) return [];
-  try {
-    const stats = statSync(skillsRoot);
-    if (!stats.isDirectory()) return [];
-  } catch {
-    return [];
-  }
-
+function loadSkillPacksFromFiles(ctx: SkillPackContext, skillsRoot: string, files: string[]): LoadedSkillPack[] {
   const normalizedCtx: SkillPackContext = {
     workspace: ctx.workspace,
     hints: {
@@ -654,7 +647,7 @@ export function loadSkillPacksFromRoot(ctx: SkillPackContext, skillsRoot: string
     ...(ctx.taskHint ? { taskHint: ctx.taskHint } : {}),
   };
   const signals = detectWorkspaceSignals(normalizedCtx);
-  const matched = collectSkillFiles(skillsRoot)
+  const matched = files
     .map((filePath) => readSkillPackFile(skillsRoot, filePath))
     .filter((pack): pack is SkillPackFile => pack !== null)
     .map((pack) => {
@@ -673,6 +666,48 @@ export function loadSkillPacksFromRoot(ctx: SkillPackContext, skillsRoot: string
   }));
 }
 
+export function loadSkillPacksFromRoot(ctx: SkillPackContext, skillsRoot: string): LoadedSkillPack[] {
+  if (!safeExists(skillsRoot)) return [];
+  try {
+    const stats = statSync(skillsRoot);
+    if (!stats.isDirectory()) return [];
+  } catch {
+    return [];
+  }
+
+  return loadSkillPacksFromFiles(ctx, skillsRoot, collectSkillFiles(skillsRoot));
+}
+
+function loadSkillPacksFromPath(ctx: SkillPackContext, path: string): LoadedSkillPack[] {
+  try {
+    const stats = statSync(path);
+    if (stats.isDirectory()) return loadSkillPacksFromRoot(ctx, path);
+    if (stats.isFile() && path.toLowerCase().endsWith(".md")) {
+      return loadSkillPacksFromFiles(ctx, dirname(path), [path]);
+    }
+  } catch {
+    return [];
+  }
+  return [];
+}
+
+function loadIntegrationSkillPacks(ctx: SkillPackContext): LoadedSkillPack[] {
+  return discoverIntegrationEntries("skills")
+    .flatMap((entry) => loadSkillPacksFromPath(ctx, entry.path));
+}
+
+function mergeSkillPacks(bundled: LoadedSkillPack[], discovered: LoadedSkillPack[]): LoadedSkillPack[] {
+  const seen = new Set(bundled.map((pack) => pack.slug));
+  const merged = [...bundled];
+  for (const pack of discovered) {
+    if (seen.has(pack.slug)) continue;
+    seen.add(pack.slug);
+    merged.push(pack);
+  }
+  return merged;
+}
+
 export function loadSkillPacks(ctx: SkillPackContext): LoadedSkillPack[] {
-  return loadSkillPacksFromRoot(ctx, resolveDefaultSkillsRoot());
+  const bundled = loadSkillPacksFromRoot(ctx, resolveDefaultSkillsRoot());
+  return mergeSkillPacks(bundled, loadIntegrationSkillPacks(ctx));
 }

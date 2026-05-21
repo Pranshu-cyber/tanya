@@ -25,6 +25,7 @@ type DirectoryEntry = {
 };
 
 const moduleRoot = dirname(fileURLToPath(import.meta.url));
+let defaultIntegrationsRoot: string | null = null;
 
 function safeIsDirectory(path: string): boolean {
   try {
@@ -77,7 +78,8 @@ function packageRootFromSkillsRoot(skillsRoot: string): string {
 export function integrationsRoot(env: EnvLike = process.env): string {
   const override = envValue(env, "TANYA_INTEGRATIONS_DIR").trim();
   if (override) return override;
-  return join(packageRootFromSkillsRoot(resolveDefaultSkillsRoot()), "integrations");
+  defaultIntegrationsRoot ??= join(packageRootFromSkillsRoot(resolveDefaultSkillsRoot()), "integrations");
+  return defaultIntegrationsRoot;
 }
 
 export function discoverIntegrationEntries(

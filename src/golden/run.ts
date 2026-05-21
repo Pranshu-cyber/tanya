@@ -7,7 +7,7 @@ import { runAgent } from "../agent/runner";
 import type { TanyaRunContext } from "../context/runContext";
 import type { TanyaEvent } from "../events/types";
 import { ContextWindowExceededError, type ChatDelta, type ChatProvider, type ChatRequest, type ToolCall } from "../providers/types";
-import { BUILT_IN_GOLDEN_TASK_PROFILES, type GoldenTaskProfile } from "./profiles";
+import { loadGoldenTaskProfiles, type GoldenTaskProfile } from "./profiles";
 
 type GoldenTaskFixture = {
   workspace: string;
@@ -878,7 +878,7 @@ export function goldenRunnableProfiles(): GoldenTaskProfile[] {
     "tanya.medium.edit-block-fuzzy",
     ...Object.keys(GENERIC_BENCHMARK_SPECS),
   ]);
-  return BUILT_IN_GOLDEN_TASK_PROFILES.filter((profile) => runnable.has(profile.id));
+  return loadGoldenTaskProfiles().filter((profile) => runnable.has(profile.id));
 }
 
 async function createFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixture> {
@@ -929,7 +929,7 @@ async function runFixture(profile: GoldenTaskProfile, fixture: GoldenTaskFixture
 }
 
 export async function runGoldenTask(profileId: string): Promise<GoldenRunResult> {
-  const profile = BUILT_IN_GOLDEN_TASK_PROFILES.find((item) => item.id === profileId);
+  const profile = loadGoldenTaskProfiles().find((item) => item.id === profileId);
   if (!profile) throw new Error(`Unknown golden profile: ${profileId}`);
   const fixture = await createFixture(profile);
   return runFixture(profile, fixture);
@@ -939,7 +939,7 @@ export async function runEditBlockFuzzyGoldenComparison(): Promise<{
   enabled: GoldenRunResult;
   disabled: GoldenRunResult;
 }> {
-  const profile = BUILT_IN_GOLDEN_TASK_PROFILES.find((item) => item.id === "tanya.medium.edit-block-fuzzy");
+  const profile = loadGoldenTaskProfiles().find((item) => item.id === "tanya.medium.edit-block-fuzzy");
   if (!profile) throw new Error("Unknown golden profile: tanya.medium.edit-block-fuzzy");
   const enabled = await runFixture(profile, await editBlockFuzzyFixture(profile, "enabled"));
   const disabled = await runFixture(profile, await editBlockFuzzyFixture(profile, "disabled"));

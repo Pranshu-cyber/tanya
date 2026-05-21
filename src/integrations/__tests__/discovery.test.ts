@@ -51,9 +51,16 @@ describe("integration discovery", () => {
   it("supports the legacy TANIA_INTEGRATIONS_DIR override", () => {
     const root = makeTempRoot();
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    const currentOverride = process.env.TANYA_INTEGRATIONS_DIR;
+    delete process.env.TANYA_INTEGRATIONS_DIR;
 
-    expect(integrationsRoot({ TANIA_INTEGRATIONS_DIR: root })).toBe(root);
-    expect(warn).toHaveBeenCalledWith("[tanya] TANIA_INTEGRATIONS_DIR is deprecated; use TANYA_INTEGRATIONS_DIR.");
+    try {
+      expect(integrationsRoot({ TANIA_INTEGRATIONS_DIR: root })).toBe(root);
+      expect(warn).toHaveBeenCalledWith("[tanya] TANIA_INTEGRATIONS_DIR is deprecated; use TANYA_INTEGRATIONS_DIR.");
+    } finally {
+      if (currentOverride === undefined) delete process.env.TANYA_INTEGRATIONS_DIR;
+      else process.env.TANYA_INTEGRATIONS_DIR = currentOverride;
+    }
   });
 
   it("skips integrations that are missing the requested kind", () => {

@@ -1,9 +1,34 @@
-import { describe, expect, it } from "vitest";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { validateEvalSuite } from "../schemas";
 import { dryRunEvalSuite, loadEvalSuite, listEvalSuites } from "../suites";
 
+const tempRoots: string[] = [];
+
+function makeTempRoot(): string {
+  const root = mkdtempSync(join(tmpdir(), "tanya-eval-integrations-"));
+  tempRoots.push(root);
+  return root;
+}
+
+function write(root: string, path: string, content: unknown): string {
+  const fullPath = join(root, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, `${JSON.stringify(content, null, 2)}\n`, "utf8");
+  return fullPath;
+}
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+  for (const root of tempRoots.splice(0)) rmSync(root, { recursive: true, force: true });
+});
+
 describe("eval suite ingestion", () => {
   it("loads the three M8 suites with valid shapes", () => {
+    vi.stubEnv("TANYA_INTEGRATIONS_DIR", join(makeTempRoot(), "missing"));
+
     expect(listEvalSuites()).toEqual(["swe-bench-lite", "tanya-native", "cosmohq", "eco-30", "mvp", "verifier-self-test"]);
     for (const name of listEvalSuites()) {
       const suite = loadEvalSuite(name);
@@ -52,5 +77,38 @@ describe("eval suite ingestion", () => {
       model: "deepseek-chat",
     });
     expect(dryRun.estimatedCostUsd).toBeGreaterThan(0);
+  });
+
+  it("loads integration JSON suites from TANYA_INTEGRATIONS_DIR", () => {
+    const root = makeTempRoot();
+    vi.stubEnv("TANYA_INTEGRATIONS_DIR", root);
+    write(root, "acme/suites/acme-suite.json", {
+      name: "acme-smoke",
+      version: "2026-05",
+      tasks: [
+        {
+          id: "acme-01",
+          repo_setup: { type: "local_fixture", path: "fixtures/acme-01" },
+          prompt: "Verify the integration suite is discoverable.",
+          expected_files: ["README.md"],
+          metadata: { source: "integration" },
+        },
+      ],
+    });
+
+    expect(listEvalSuites()).toContain("acme-smoke");
+    expect(loadEvalSuite("acme-smoke")).toEqual({
+      name: "acme-smoke",
+      version: "2026-05",
+      tasks: [
+        {
+          id: "acme-01",
+          repo_setup: { type: "local_fixture", path: "fixtures/acme-01" },
+          prompt: "Verify the integration suite is discoverable.",
+          expected_files: ["README.md"],
+          metadata: { source: "integration" },
+        },
+      ],
+    });
   });
 });
