@@ -167,7 +167,9 @@ export function normalizePlan(plan: DispatchPlan, maxSubtasks: number): Dispatch
     ids.add(task.id);
     const files = Array.isArray(task.files) ? task.files.map(String) : [];
     const dependsOn = Array.isArray(task.depends_on) ? task.depends_on.map(String) : [];
-    if (files.length > 8) throw new Error(`dispatch subtask ${task.id} touches more than 8 files`);
+    // files is advisory: the planning prompt nudges toward small subtasks and runtime
+    // outOfScopeFiles() warns on sprawl. No hard cap — a legit CRUD feature spans many
+    // files and a pre-flight throw would abort the whole run.
     const tdd = typeof task.tdd === "boolean" ? task.tdd : undefined;
     const autoFix = typeof task.auto_fix === "boolean" ? task.auto_fix : undefined;
     return { id: task.id, title: task.title, files, depends_on: dependsOn, ...(tdd !== undefined ? { tdd } : {}), ...(autoFix !== undefined ? { auto_fix: autoFix } : {}) };
