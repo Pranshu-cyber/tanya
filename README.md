@@ -320,8 +320,12 @@ Escalations are visible: if a cheap route exhausts the malformed tool-call
 repair budget, Tanya emits `escalation_event` and uses the route fallback once,
 up to `TANYA_ESCALATION_CAP` per session.
 
+Per-turn reasoning budgets fall back to `TANYA_REASONING_CAP_SHORT` (default
+`2000`) and `TANYA_REASONING_CAP_LONG` (default `8000`) when a route pins no
+`reasoningCap` of its own.
+
 See [docs/routing.md](./docs/routing.md) for schema, examples, context-window
-guards, per-tool model overrides, and sub-agent model pins.
+guards, per-tool model overrides, sub-agent model pins, and reasoning budgets.
 
 ## Live status
 

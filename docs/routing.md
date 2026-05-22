@@ -155,3 +155,23 @@ an `escalation_event`. The default session cap is 5 escalations, configurable
 with `TANYA_ESCALATION_CAP` or legacy `TANIA_ESCALATION_CAP`. If the cap is
 exhausted, Tanya raises `EscalationExhaustedError` instead of silently spending
 on capable-tier retries.
+
+## Reasoning budget
+
+Each turn has a reasoning-token budget. Reasoning beyond it is truncated and
+Tanya is asked for a final answer, emitting a `reasoning_truncated` event.
+
+A route may pin its own budget with `reasoningCap.maxTokens` in `routes.json`.
+When a route sets no cap, the budget falls back to two tiers:
+
+- **short** — `planning`, `tool_call`, and `unknown` turns. Default `2000`.
+- **long** — `synthesis`, `verification`, and `reasoning` turns. Default `8000`.
+
+Both tiers are configurable per process:
+
+- `TANYA_REASONING_CAP_SHORT` (legacy `TANIA_REASONING_CAP_SHORT`)
+- `TANYA_REASONING_CAP_LONG` (legacy `TANIA_REASONING_CAP_LONG`)
+
+Raise the short tier when a heavy reasoning model needs more headroom to
+converge on single-shot work — e.g. `TANYA_REASONING_CAP_SHORT=8000`. An
+explicit per-route `reasoningCap` always overrides these tiers.

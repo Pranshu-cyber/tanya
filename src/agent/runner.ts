@@ -900,9 +900,16 @@ function escalationCap(): number {
   return Math.max(0, Math.floor(numberEnvValue(process.env, "TANYA_ESCALATION_CAP", 5)));
 }
 
-function reasoningCapForTurn(stepType: StepType, route?: ResolvedRoute): number {
+// reasoningCapForTurn picks the per-turn reasoning-token budget. An explicit
+// per-route reasoningCap always wins. Otherwise the budget falls back to two
+// env-configurable tiers — short (planning / tool_call / unknown) and long
+// (synthesis / verification / reasoning) — so heavier reasoning models can be
+// given more headroom without hand-writing a full routes.json route table.
+export function reasoningCapForTurn(stepType: StepType, route?: ResolvedRoute): number {
   if (route?.reasoningCap?.maxTokens) return route.reasoningCap.maxTokens;
-  return stepType === "planning" || stepType === "tool_call" || stepType === "unknown" ? 2_000 : 8_000;
+  const shortCap = Math.max(1, Math.floor(numberEnvValue(process.env, "TANYA_REASONING_CAP_SHORT", 2_000)));
+  const longCap = Math.max(1, Math.floor(numberEnvValue(process.env, "TANYA_REASONING_CAP_LONG", 8_000)));
+  return stepType === "planning" || stepType === "tool_call" || stepType === "unknown" ? shortCap : longCap;
 }
 
 function resultOutputText(result: ToolResult): string | null {
