@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.17.1-beta.0] - 2026-05-24
+
+### Changes
+
+- Audit: production-readiness fixes (HIGH+MEDIUM+LOW) (#10)
+- chore(funding): drop github key until Sponsors enrolment lands
+- chore: add funding handles
+- chore: add funding handles
+- feat(router): make the per-turn reasoning cap env-configurable (#6)
+- plan-and-dispatch: drop the hard per-subtask file cap
+- raise plan-and-dispatch subtask file cap from 5 to 8
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
