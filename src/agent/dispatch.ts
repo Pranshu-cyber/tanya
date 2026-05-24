@@ -63,6 +63,25 @@ export type RunPlanAndDispatchResult = {
 
 const ULID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
 
+export class DispatchCorruptedStateError extends Error {
+  readonly path: string;
+  constructor(path: string, cause: unknown) {
+    const causeMessage = cause instanceof Error ? cause.message : String(cause);
+    super(`dispatch state file is corrupted (delete it to recover): ${path} (${causeMessage})`);
+    this.name = "DispatchCorruptedStateError";
+    this.path = path;
+  }
+}
+
+function readDispatchJSON<T>(path: string): T {
+  const raw = readFileSync(path, "utf8");
+  try {
+    return JSON.parse(raw) as T;
+  } catch (err) {
+    throw new DispatchCorruptedStateError(path, err);
+  }
+}
+
 export type VerifyFailure = {
   type?: "verify_failure";
   kind: string;
@@ -220,22 +239,32 @@ function loadCompleted(dir: string, ordered: DispatchSubtask[]): DispatchSubtask
   for (const task of ordered) {
     const path = subtaskResultPath(dir, task.id);
     if (!existsSync(path)) break;
-    completed.push(JSON.parse(readFileSync(path, "utf8")) as DispatchSubtaskResult);
+    completed.push(readDispatchJSON<DispatchSubtaskResult>(path));
   }
   return completed;
 }
 
+// Logging-path appends must never fail the dispatch run they are recording.
+// Best-effort: swallow ENOSPC/EBUSY/permission errors on the log files.
+function safeAppend(path: string, line: string): void {
+  try {
+    appendFileSync(path, line);
+  } catch {
+    // Observability failure; intentionally ignored.
+  }
+}
+
 function recordFailure(dir: string, subtaskID: string, err: unknown): void {
   const message = err instanceof Error ? err.message : String(err);
-  appendFileSync(join(dir, "failures.log"), `${new Date().toISOString()} subtask=${subtaskID} ${message}\n`);
+  safeAppend(join(dir, "failures.log"), `${new Date().toISOString()} subtask=${subtaskID} ${message}\n`);
 }
 
 function appendPhase(dir: string, subtaskID: string, event: Record<string, unknown>): void {
-  appendFileSync(subtaskPhasePath(dir, subtaskID), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`);
+  safeAppend(subtaskPhasePath(dir, subtaskID), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`);
 }
 
 function appendFix(dir: string, subtaskID: string, event: Record<string, unknown>): void {
-  appendFileSync(subtaskFixPath(dir, subtaskID), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`);
+  safeAppend(subtaskFixPath(dir, subtaskID), `${JSON.stringify({ at: new Date().toISOString(), ...event })}\n`);
 }
 
 export function parseVerifyFailureJSONL(lines: string[]): VerifyFailure[] {
@@ -524,7 +553,7 @@ export async function runPlanAndDispatch(options: RunPlanAndDispatchOptions): Pr
   if (options.resumeRunID) {
     const planPath = join(dir, "plan.json");
     if (!existsSync(planPath)) throw new Error(`dispatch run ${runID} has no plan.json`);
-    plan = normalizePlan(JSON.parse(readFileSync(planPath, "utf8")) as DispatchPlan, maxSubtasks);
+    plan = normalizePlan(readDispatchJSON<DispatchPlan>(planPath), maxSubtasks);
   } else {
     const planningResponse = await options.runTurn(buildPlanningPrompt(options.prompt, maxSubtasks), { phase: "plan" });
     plan = normalizePlan(parseFencedJSON<DispatchPlan>(planningResponse), maxSubtasks);

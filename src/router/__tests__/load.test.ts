@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { builtInRouteTable } from "../defaults";
 import { loadRouteTable, parseRoutesJson, resolveRoute, validateRouteTable } from "../load";
+import { resolveRouteWithContextGuard } from "../resolve";
+import type { EffectiveRouteTable } from "../types";
 
 const runtimeDefault = { provider: "openai", model: "gpt-4.1-mini" };
 
@@ -35,6 +37,7 @@ describe("route table schema", () => {
         { match: "planning", provider: "openai", model: "gpt", escalate: "yes", reasoningCap: { maxTokens: 0 } },
       ],
       defaults: { provider: "openai" },
+      cascade: [{ cli: "deepseek", model: "deepseek-chat", max_input_tokens: 0 }],
     }));
 
     expect(result.ok).toBe(false);
@@ -48,7 +51,22 @@ describe("route table schema", () => {
         "$.routes[2].escalate",
         "$.routes[2].reasoningCap.maxTokens",
         "$.defaults.model",
+        "$.cascade[0].maxInputTokens",
       ]));
+    }
+  });
+
+  it("accepts legacy default_model as a one-entry route cascade", () => {
+    const result = validateRouteTable({
+      version: 1,
+      routes: [],
+      default_model: "deepseek-chat",
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.defaults).toEqual({ provider: "deepseek", model: "deepseek-chat" });
+      expect(result.value.cascade).toBeUndefined();
     }
   });
 });
@@ -112,6 +130,25 @@ describe("route loading and resolution", () => {
     });
   });
 
+  it("loads legacy default_model configs as a one-entry cascade", () => {
+    const home = mkdtempSync(join(tmpdir(), "tanya-routes-home-"));
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-routes-cwd-"));
+    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    writeFileSync(join(cwd, ".tania", "routes.json"), JSON.stringify({
+      version: 1,
+      routes: [],
+      default_model: "deepseek-chat",
+    }));
+
+    const loaded = loadRouteTable({ cwd, home, defaults: runtimeDefault });
+
+    expect(loaded.issues).toEqual([]);
+    expect(loaded.table.defaults).toEqual({ provider: "deepseek", model: "deepseek-chat" });
+    expect(loaded.table.cascade).toEqual([
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" },
+    ]);
+  });
+
   it("resolves regex matches against supplied route text", () => {
     const table = builtInRouteTable(runtimeDefault);
     const effective = {
@@ -119,8 +156,10 @@ describe("route loading and resolution", () => {
       routes: [{ match: { regex: "validate_" }, provider: "deepseek", model: "deepseek-reasoner", source: "project" as const }],
       defaults: table.defaults,
       defaultSource: "runtime-default" as const,
+      cascade: [{ provider: "openai", model: "gpt-4.1-mini", maxInputTokens: 128_000, source: "runtime-default" as const }],
+      cascadeSource: "runtime-default" as const,
       sources: ["test"],
-    };
+    } satisfies EffectiveRouteTable;
 
     expect(resolveRoute("unknown", effective, "validate_schema")).toMatchObject({
       provider: "deepseek",
@@ -128,4 +167,113 @@ describe("route loading and resolution", () => {
       source: "project",
     });
   });
+
+  it("blocks deepseek-chat for unknown turns that look like code-editing tasks", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-route-code-guard-"));
+    writeFileSync(join(cwd, "go.mod"), "module example.com/app\n");
+    const effective = {
+      version: 1 as const,
+      routes: [{
+        match: "unknown" as const,
+        provider: "deepseek",
+        model: "deepseek-chat",
+        fallback: { provider: "deepseek", model: "deepseek-reasoner" },
+        source: "project" as const,
+      }],
+      defaults: { provider: "deepseek", model: "deepseek-chat" },
+      defaultSource: "runtime-default" as const,
+      cascade: [{ provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "runtime-default" as const }],
+      cascadeSource: "runtime-default" as const,
+      sources: ["test"],
+    } satisfies EffectiveRouteTable;
+
+    expect(resolveRouteWithContextGuard({
+      stepType: "unknown",
+      table: effective,
+      messages: [{ role: "assistant", content: "I will inspect the repo." }],
+      cwd,
+      prompt: "Update the existing Go API implementation.\n".repeat(80),
+    })).toMatchObject({
+      provider: "deepseek",
+      model: "deepseek-reasoner",
+      reason: expect.stringContaining("declined deepseek-chat for code-editing task"),
+    });
+  });
+
+  it("selects a later cascade route when the first route cannot fit the estimated prompt", () => {
+    const effective = cascadeTable([
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" as const },
+      { provider: "claude", model: "claude-sonnet-4-6", maxInputTokens: 1_000_000, source: "project" as const },
+    ]);
+
+    const route = resolveRouteWithContextGuard({
+      stepType: "tool_call",
+      table: effective,
+      messages: [{ role: "user", content: "x".repeat(800_000) }],
+    });
+
+    expect(route).toMatchObject({
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      cascade: expect.objectContaining({
+        reason: "cascade-fit",
+        estimatedTokens: expect.any(Number),
+        selectedIndex: 1,
+      }),
+    });
+  });
+
+  it("keeps the first cascade route when it fits", () => {
+    const effective = cascadeTable([
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" as const },
+      { provider: "claude", model: "claude-sonnet-4-6", maxInputTokens: 1_000_000, source: "project" as const },
+    ]);
+
+    const route = resolveRouteWithContextGuard({
+      stepType: "tool_call",
+      table: effective,
+      messages: [{ role: "user", content: "x".repeat(200_000) }],
+    });
+
+    expect(route).toMatchObject({ provider: "deepseek", model: "deepseek-chat" });
+    expect(route.cascade).toBeUndefined();
+  });
+
+  it("reports the highest configured route when no cascade entry can fit", () => {
+    const effective = cascadeTable([
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" as const },
+    ]);
+
+    expect(() => resolveRouteWithContextGuard({
+      stepType: "tool_call",
+      table: effective,
+      messages: [{ role: "user", content: "x".repeat(800_000) }],
+    })).toThrow(/deepseek\/deepseek-chat.*128,000 tokens × 0\.85 safety = 108,800/);
+  });
+
+  it("does not cascade when a forced route cannot fit", () => {
+    const effective = cascadeTable([
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" as const },
+      { provider: "claude", model: "claude-sonnet-4-6", maxInputTokens: 1_000_000, source: "project" as const },
+    ]);
+
+    expect(() => resolveRouteWithContextGuard({
+      stepType: "tool_call",
+      table: effective,
+      messages: [{ role: "user", content: "x".repeat(800_000) }],
+      forcedRoute: { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000 },
+    })).toThrow(/Forced route deepseek\/deepseek-chat cannot fit estimated/);
+  });
 });
+
+function cascadeTable(cascade: EffectiveRouteTable["cascade"]): EffectiveRouteTable {
+  return {
+    version: 1,
+    routes: [],
+    defaults: { provider: "deepseek", model: "deepseek-chat" },
+    defaultSource: "runtime-default",
+    cascade,
+    cascadeSource: "project",
+    sources: ["test"],
+  };
+}

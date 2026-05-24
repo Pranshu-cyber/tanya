@@ -29,6 +29,29 @@ export async function appendArchive(runId: string, messages: ArchivedMessage[], 
   await next;
 }
 
+// Best-effort archive append. The archive is an audit trail; a permission-denied
+// or ENOSPC at the archive path should surface through the run's event sink
+// (so it appears in the run log) rather than silently dropping the audit entry
+// or crashing the run loop.
+export async function safeAppendArchive(
+  runId: string,
+  messages: ArchivedMessage[],
+  options: ArchiveOptions = {},
+  onError?: (err: Error) => void | Promise<void>,
+): Promise<void> {
+  try {
+    await appendArchive(runId, messages, options);
+  } catch (err) {
+    const error = err instanceof Error ? err : new Error(String(err));
+    if (!onError) return;
+    try {
+      await onError(error);
+    } catch {
+      // The sink itself failing must not crash the run either.
+    }
+  }
+}
+
 export async function readArchive(runId: string, options: ArchiveOptions = {}): Promise<ArchivedMessage[]> {
   const path = archivePath(options.workspace ?? process.cwd(), runId);
   if (!existsSync(path)) return [];

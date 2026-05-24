@@ -37,5 +37,6 @@ export function createProviderForRoute(config: TanyaConfig, target: RouteTarget)
     temperature: config.temperature,
     topP: config.topP,
     timeoutMs: config.timeoutMs,
+    ...(target.maxInputTokens ? { contextWindow: target.maxInputTokens } : {}),
   });
 }

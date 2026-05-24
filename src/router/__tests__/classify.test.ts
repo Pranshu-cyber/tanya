@@ -1,3 +1,6 @@
+import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import type { ChatMessage, ToolCall } from "../../providers/types";
 import { classifyStep, type RunnerStepState } from "../classify";
@@ -62,5 +65,34 @@ describe("classifyStep", () => {
     ["plain assistant prose is unknown", { lastAssistantMessage: assistant({ content: "hello" }) }, "unknown"],
   ] satisfies Array<[string, RunnerStepState, StepType]>)("%s", (_name, state, expected) => {
     expect(classifyStep(state)).toBe(expected);
+  });
+
+  it("recognizes go-backend coding prompts as tool-call work after provider prose", () => {
+    const prompt = [
+      `Template id: "go-backend-favorites"`,
+      "EXISTING CODE DETECTED",
+      "EXECUTE mode",
+      "Add favorites endpoints to the existing Go backend.",
+    ].join("\n\n");
+
+    expect(classifyStep({
+      prompt,
+      turnIndex: 1,
+      lastAssistantMessage: assistant({ content: "← ok — Read .env.example\n→ read_file" }),
+      runContext: { task: { title: "go-backend-favorites" } },
+    })).toBe("tool_call");
+  });
+
+  it("treats a substantial prompt in a Go module as code-editing work", () => {
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-classify-go-"));
+    writeFileSync(join(cwd, "go.mod"), "module example.com/app\n");
+    mkdirSync(join(cwd, "cmd"), { recursive: true });
+
+    expect(classifyStep({
+      cwd,
+      prompt: "Update the existing API implementation.\n".repeat(80),
+      turnIndex: 1,
+      lastAssistantMessage: assistant({ content: "I will inspect the code." }),
+    })).toBe("tool_call");
   });
 });

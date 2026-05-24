@@ -25,7 +25,7 @@ function makeProvider(responses: string[]): ChatProvider & { requests: ChatReque
 describe("runAgent final report recovery", () => {
   it("emits token metrics and writes a run log", async () => {
     const provider: ChatProvider = {
-      id: "test",
+      id: "deepseek",
       model: "deepseek-chat",
       async *streamChat() {
         yield { usage: { promptTokens: 123, completionTokens: 45 } };
@@ -48,6 +48,9 @@ describe("runAgent final report recovery", () => {
       const finalEvent = events.find((event) => event.type === "final");
       expect(finalEvent?.type === "final" ? finalEvent.metrics?.promptTokens : undefined).toBe(123);
       expect(finalEvent?.type === "final" ? finalEvent.metrics?.completionTokens : undefined).toBe(45);
+      const costUsd = finalEvent?.type === "final" ? finalEvent.metrics?.costUsd : undefined;
+      expect(typeof costUsd).toBe("number");
+      expect(costUsd).toBeCloseTo((123 / 1_000_000) * 0.27 + (45 / 1_000_000) * 1.10);
       const logs = readdirSync(join(cwd, ".tania", "runs")).filter((file) => file.endsWith(".json"));
       expect(logs.length).toBe(1);
       const log = JSON.parse(readFileSync(join(cwd, ".tania", "runs", logs[0] ?? ""), "utf8")) as {

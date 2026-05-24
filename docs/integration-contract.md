@@ -47,7 +47,7 @@ forward-compatible additions.
 | `command_invoked` | `name`, `args`, `runId?` |
 | `subtask_start` | `subtask_id`, `title`, `files` |
 | `subtask_done` | `subtask_id`, `files_changed`, `summary`, `ok` |
-| `final` | `message`, `suppressHumanMessage?`, `files?`, `manifest?`, `metrics?` |
+| `final` | `message`, `suppressHumanMessage?`, `files?`, `manifest?`, `metrics?` (`costUsd` is the actual run cost in USD, or `0` when pricing is unknown) |
 | `error` | `message`, `detail?` |
 
 `stepType` is one of `planning`, `tool_call`, `synthesis`, `verification`,

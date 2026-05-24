@@ -66,6 +66,25 @@ describe("event sinks", () => {
     });
   });
 
+  it("serializes provider raw events to JSONL", async () => {
+    const stream = new MemoryStream();
+    const sink = createJsonlSink(stream as unknown as NodeJS.WritableStream);
+
+    await sink({
+      type: "provider.raw",
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      event: { type: "model_routed", reason: "cascade-fit" },
+    });
+
+    expect(JSON.parse(stream.chunks.join(""))).toEqual({
+      type: "provider.raw",
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      event: { type: "model_routed", reason: "cascade-fit" },
+    });
+  });
+
   it("serializes compact events to JSONL", async () => {
     const stream = new MemoryStream();
     const sink = createJsonlSink(stream as unknown as NodeJS.WritableStream);

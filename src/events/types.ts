@@ -68,6 +68,12 @@ export type TanyaEvent = (
       cacheImpact?: "hit" | "miss" | "unknown";
     }
   | {
+      type: "provider.raw";
+      provider?: string;
+      model?: string;
+      event: Record<string, unknown>;
+    }
+  | {
       type: "escalation_event";
       from: { provider: string; model: string };
       to: { provider: string; model: string };
@@ -121,6 +127,7 @@ export type TanyaEvent = (
         promptTokens?: number;
         completionTokens?: number;
         reasoningTokens?: number;
+        costUsd?: number;
         systemPromptTokens?: number;
         repoMapTokens?: number;
         toolResultTokens?: number;

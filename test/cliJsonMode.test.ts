@@ -5,14 +5,17 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 function cliEnv(): NodeJS.ProcessEnv {
+  const home = mkdtempSync(join(tmpdir(), "tanya-json-home-"));
   return {
     ...process.env,
+    HOME: home,
     NODE_NO_WARNINGS: "1",
     TANYA_PROVIDER: "custom",
     TANYA_API_KEY: "test",
     TANYA_BASE_URL: "https://fake-provider.test",
     TANYA_MODEL: "test-model",
     TANYA_TIMEOUT_MS: "5000",
+    TANYA_SUPPRESS_DEPRECATION: "1",
   };
 }
 

@@ -5,6 +5,7 @@ export type RouteMatch = StepType | { regex: string };
 export interface RouteTarget {
   provider: string;
   model: string;
+  maxInputTokens?: number;
 }
 
 export interface RouteRule extends RouteTarget {
@@ -18,6 +19,12 @@ export interface RouteTable {
   version: 1;
   routes: RouteRule[];
   defaults: RouteTarget;
+  cascade?: RouteCascadeEntry[];
+}
+
+export interface RouteCascadeEntry extends RouteTarget {
+  maxInputTokens: number;
+  stepTypes?: StepType[];
 }
 
 export type RouteSource = "project" | "user" | "built-in" | "session" | "runtime-default";
@@ -31,6 +38,8 @@ export interface EffectiveRouteTable {
   routes: SourcedRouteRule[];
   defaults: RouteTarget;
   defaultSource: RouteSource;
+  cascade: SourcedRouteCascadeEntry[];
+  cascadeSource: RouteSource;
   sources: string[];
 }
 
@@ -41,6 +50,29 @@ export interface ResolvedRoute extends RouteTarget {
   reasoningCap?: { maxTokens: number };
   source: RouteSource;
   reason: string;
+  cascade?: RouteCascadeSelection;
+}
+
+export interface SourcedRouteCascadeEntry extends RouteCascadeEntry {
+  source: RouteSource;
+}
+
+export interface RouteAttempt {
+  provider: string;
+  model: string;
+  maxInputTokens: number;
+  safetyLimit: number;
+  source: RouteSource;
+  reason: string;
+}
+
+export interface RouteCascadeSelection {
+  reason: "cascade-fit";
+  estimatedTokens: number;
+  safetyFactor: number;
+  attemptedRoutes: RouteAttempt[];
+  selectedRoute: RouteAttempt;
+  selectedIndex: number;
 }
 
 export interface RouteSchemaIssue {

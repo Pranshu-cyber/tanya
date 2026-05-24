@@ -21,6 +21,8 @@ function table(routes: EffectiveRouteTable["routes"], defaults: RouteTarget = { 
     routes,
     defaults,
     defaultSource: "runtime-default",
+    cascade: [{ ...defaults, maxInputTokens: defaults.maxInputTokens ?? 128_000, source: "runtime-default" }],
+    cascadeSource: "runtime-default",
     sources: ["test"],
   };
 }
@@ -41,6 +43,92 @@ function routedProvider(target: RouteTarget, handler: (target: RouteTarget, inpu
 describe("runner router integration", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+  });
+
+  it("emits cascade-fit telemetry when token-fit selection uses a non-first route", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-router-cascade-telemetry-"));
+    const events: TanyaEvent[] = [];
+    const calls: string[] = [];
+    const routes = table([], { provider: "deepseek", model: "deepseek-chat" });
+    routes.cascade = [
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" },
+      { provider: "claude", model: "claude-sonnet-4-6", maxInputTokens: 1_000_000, source: "project" },
+    ];
+    const prompt = "x".repeat(800_000);
+
+    await runAgent({
+      provider: routedProvider({ provider: "deepseek", model: "deepseek-chat" }, async function* () {
+        yield { content: "unused" };
+      }),
+      prompt,
+      cwd,
+      sink: (event) => { events.push(event); },
+      maxTurns: 1,
+      routing: {
+        enabled: true,
+        table: routes,
+        providerFactory: (target) => routedProvider(target, async function* (routeTarget) {
+          calls.push(`${routeTarget.provider}/${routeTarget.model}`);
+          yield { content: "Fits large prompt." };
+        }),
+      },
+    });
+
+    expect(calls).toEqual(["claude/claude-sonnet-4-6"]);
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "model_routed",
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      reason: expect.stringContaining("cascade-fit"),
+    }));
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "provider.raw",
+      provider: "claude",
+      model: "claude-sonnet-4-6",
+      event: expect.objectContaining({
+        type: "model_routed",
+        reason: "cascade-fit",
+        estimated_tokens: expect.any(Number),
+        attempted_routes: expect.arrayContaining([
+          expect.objectContaining({ provider: "deepseek", model: "deepseek-chat" }),
+          expect.objectContaining({ provider: "claude", model: "claude-sonnet-4-6" }),
+        ]),
+      }),
+    }));
+  });
+
+  it("does not emit cascade-fit telemetry when the first route fits", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "tanya-router-cascade-first-"));
+    const events: TanyaEvent[] = [];
+    const routes = table([], { provider: "deepseek", model: "deepseek-chat" });
+    routes.cascade = [
+      { provider: "deepseek", model: "deepseek-chat", maxInputTokens: 128_000, source: "project" },
+      { provider: "claude", model: "claude-sonnet-4-6", maxInputTokens: 1_000_000, source: "project" },
+    ];
+
+    await runAgent({
+      provider: routedProvider({ provider: "deepseek", model: "deepseek-chat" }, async function* () {
+        yield { content: "unused" };
+      }),
+      prompt: "x".repeat(200_000),
+      cwd,
+      sink: (event) => { events.push(event); },
+      maxTurns: 1,
+      routing: {
+        enabled: true,
+        table: routes,
+        providerFactory: (target) => routedProvider(target, async function* () {
+          yield { content: "Fits first route." };
+        }),
+      },
+    });
+
+    expect(events).toContainEqual(expect.objectContaining({
+      type: "model_routed",
+      provider: "deepseek",
+      model: "deepseek-chat",
+    }));
+    expect(events.some((event) => event.type === "provider.raw")).toBe(false);
   });
 
   it("routes planning and tool-call turns through the effective route table", async () => {

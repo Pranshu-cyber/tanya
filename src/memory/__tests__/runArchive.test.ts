@@ -7,6 +7,7 @@ import {
   appendArchive,
   fileTouchPathsFromArchive,
   readArchive,
+  safeAppendArchive,
   searchArchive,
   toArchivedMessages,
 } from "../runArchive";
@@ -48,6 +49,28 @@ describe("run archive", () => {
     const raw = readFileSync(join(workspace, ".tanya", "runs", "run-1", "archive.jsonl"), "utf8");
     expect(raw.trim().split(/\r?\n/)).toHaveLength(5);
     expect(await readArchive("run-1", { workspace })).toHaveLength(5);
+  });
+
+  it("safeAppendArchive routes append failures through onError without throwing", async () => {
+    // Workspace points at /dev/null/... so mkdir + appendFile both fail with ENOTDIR.
+    const captured: Error[] = [];
+    await expect(safeAppendArchive(
+      "run-1",
+      [{ archivedAt: "2026-05-16T00:00:00.000Z", role: "assistant", content: "first" }],
+      { workspace: "/dev/null/no-such-workspace" },
+      (err) => {
+        captured.push(err);
+      },
+    )).resolves.toBeUndefined();
+    expect(captured).toHaveLength(1);
+  });
+
+  it("safeAppendArchive swallows errors when no onError is provided", async () => {
+    await expect(safeAppendArchive(
+      "run-1",
+      [{ archivedAt: "2026-05-16T00:00:00.000Z", role: "assistant", content: "first" }],
+      { workspace: "/dev/null/no-such-workspace" },
+    )).resolves.toBeUndefined();
   });
 
   it("extracts file-touch paths from archived tool calls", () => {

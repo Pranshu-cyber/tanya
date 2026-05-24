@@ -17,6 +17,7 @@ const knownEventTypes = new Set([
   "tool_call_parse_warning",
   "schema_flatten_warning",
   "provider_throttle",
+  "provider.raw",
   "model_routed",
   "escalation_event",
   "compact_event",

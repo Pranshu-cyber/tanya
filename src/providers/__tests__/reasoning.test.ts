@@ -213,6 +213,8 @@ describe("reasoning model streaming", () => {
           }],
           defaults: { provider: "openai", model: "gpt-4.1-mini" },
           defaultSource: "runtime-default",
+          cascade: [{ provider: "openai", model: "gpt-4.1-mini", maxInputTokens: 128_000, source: "runtime-default" }],
+          cascadeSource: "runtime-default",
           sources: ["test"],
         },
         providerFactory,

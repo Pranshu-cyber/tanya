@@ -5,6 +5,7 @@ import { builtInRouteTable, ROUTES_SCHEMA_VERSION } from "./defaults";
 import type {
   EffectiveRouteTable,
   ResolvedRoute,
+  RouteCascadeEntry,
   RouteMatch,
   RouteRule,
   RouteSchemaIssue,
@@ -48,13 +49,28 @@ export function loadRouteTable(options: LoadRouteTableOptions): LoadedRouteTable
     ...sourceRoutes(user.value?.routes ?? [], "user"),
     ...sourceRoutes(builtIn.routes, "built-in"),
   ];
+  const defaultSource: RouteSource = project.value?.defaults ? "project" : user.value?.defaults ? "user" : "runtime-default";
+  const defaults = project.value?.defaults ?? user.value?.defaults ?? builtIn.defaults;
+  const cascadeSource: RouteSource = project.value
+    ? "project"
+    : user.value
+      ? "user"
+      : "built-in";
+  const cascade = sourceCascade(
+    project.value ? cascadeOrLegacyDefault(project.value) :
+      user.value ? cascadeOrLegacyDefault(user.value) :
+        builtIn.cascade ?? cascadeOrLegacyDefault(builtIn),
+    cascadeSource,
+  );
 
   return {
     table: {
       version: ROUTES_SCHEMA_VERSION,
       routes,
-      defaults: project.value?.defaults ?? user.value?.defaults ?? builtIn.defaults,
-      defaultSource: project.value?.defaults ? "project" : user.value?.defaults ? "user" : "runtime-default",
+      defaults,
+      defaultSource,
+      cascade,
+      cascadeSource,
       sources,
     },
     issues,
@@ -81,7 +97,10 @@ export function validateRouteTable(input: unknown): RouteSchemaResult {
   }
 
   const routes = validateRoutes(input.routes, issues);
-  const defaults = validateTarget(input.defaults, "$.defaults", issues);
+  const defaults = input.defaults === undefined
+    ? validateLegacyDefaultTarget(input, issues)
+    : validateTarget(input.defaults, "$.defaults", issues);
+  const cascade = input.cascade === undefined ? undefined : validateCascade(input.cascade, issues);
 
   if (issues.length > 0) return { ok: false, issues };
   return {
@@ -90,6 +109,7 @@ export function validateRouteTable(input: unknown): RouteSchemaResult {
       version: ROUTES_SCHEMA_VERSION,
       routes,
       defaults,
+      ...(cascade ? { cascade } : {}),
     },
     issues: [],
   };
@@ -144,7 +164,24 @@ function sourceRoutes(routes: RouteRule[], source: RouteSource) {
   return routes.map((route) => ({ ...route, source }));
 }
 
+function sourceCascade(cascade: RouteCascadeEntry[], source: RouteSource) {
+  return cascade.map((route) => ({ ...route, source }));
+}
+
+function cascadeOrLegacyDefault(table: RouteTable): RouteCascadeEntry[] {
+  return table.cascade?.length ? table.cascade : [targetToCascade(table.defaults)];
+}
+
+function targetToCascade(target: RouteTarget): RouteCascadeEntry {
+  return {
+    provider: target.provider,
+    model: target.model,
+    maxInputTokens: target.maxInputTokens ?? contextWindowForProvider(target.provider),
+  };
+}
+
 function validateRoutes(input: unknown, issues: RouteSchemaIssue[]): RouteRule[] {
+  if (input === undefined) return [];
   if (!Array.isArray(input)) {
     issues.push({ path: "$.routes", message: "Expected an array." });
     return [];
@@ -170,9 +207,29 @@ function validateRoutes(input: unknown, issues: RouteSchemaIssue[]): RouteRule[]
       match,
       provider: target.provider,
       model: target.model,
+      ...(target.maxInputTokens ? { maxInputTokens: target.maxInputTokens } : {}),
       ...(fallback ? { fallback } : {}),
       ...(item.escalate !== undefined ? { escalate: Boolean(item.escalate) } : {}),
       ...(reasoningCap ? { reasoningCap } : {}),
+    }];
+  });
+}
+
+function validateCascade(input: unknown, issues: RouteSchemaIssue[]): RouteCascadeEntry[] {
+  if (!Array.isArray(input)) {
+    issues.push({ path: "$.cascade", message: "Expected an array when present." });
+    return [];
+  }
+  return input.flatMap((item, index) => {
+    const path = `$.cascade[${index}]`;
+    const target = validateTarget(item, path, issues);
+    const stepTypes = validateStepTypes(isRecord(item) ? item.stepTypes ?? item.step_types : undefined, `${path}.stepTypes`, issues);
+    if (!target || !target.maxInputTokens) return [];
+    return [{
+      provider: target.provider,
+      model: target.model,
+      maxInputTokens: target.maxInputTokens,
+      ...(stepTypes ? { stepTypes } : {}),
     }];
   });
 }
@@ -188,6 +245,23 @@ function validateReasoningCap(input: unknown, path: string, issues: RouteSchemaI
     return null;
   }
   return { maxTokens: Math.floor(input.maxTokens) };
+}
+
+function validateStepTypes(input: unknown, path: string, issues: RouteSchemaIssue[]): StepType[] | null {
+  if (input === undefined) return null;
+  if (!Array.isArray(input)) {
+    issues.push({ path, message: "Expected an array of step types when present." });
+    return null;
+  }
+  const out: StepType[] = [];
+  input.forEach((item, index) => {
+    if (typeof item !== "string" || !STEP_TYPES.has(item as StepType)) {
+      issues.push({ path: `${path}[${index}]`, message: "Expected a known step type." });
+      return;
+    }
+    out.push(item as StepType);
+  });
+  return out.length ? out : null;
 }
 
 function validateMatch(input: unknown, path: string, issues: RouteSchemaIssue[]): RouteMatch | null {
@@ -222,21 +296,89 @@ function validateTarget(input: unknown, path: string, issues: RouteSchemaIssue[]
     issues.push({ path, message: "Expected an object." });
     return { provider: "", model: "" };
   }
-  if (typeof input.provider !== "string" || input.provider.trim() === "") {
+  const provider = typeof input.provider === "string" && input.provider.trim()
+    ? input.provider.trim()
+    : typeof input.cli === "string" && input.cli.trim()
+      ? input.cli.trim()
+      : "";
+  const model = typeof input.model === "string" && input.model.trim()
+    ? input.model.trim()
+    : "";
+  const maxInputTokens = numericField(input.maxInputTokens ?? input.max_input_tokens);
+  if (!provider) {
     issues.push({ path: `${path}.provider`, message: "Expected a non-empty provider string." });
   }
-  if (typeof input.model !== "string" || input.model.trim() === "") {
+  if (!model) {
     issues.push({ path: `${path}.model`, message: "Expected a non-empty model string." });
   }
+  if ((input.maxInputTokens !== undefined || input.max_input_tokens !== undefined) && !maxInputTokens) {
+    issues.push({ path: `${path}.maxInputTokens`, message: "Expected a positive number." });
+  }
   return {
-    provider: typeof input.provider === "string" ? input.provider : "",
-    model: typeof input.model === "string" ? input.model : "",
+    provider,
+    model,
+    ...(maxInputTokens ? { maxInputTokens } : {}),
+  };
+}
+
+function validateLegacyDefaultTarget(input: Record<string, unknown>, issues: RouteSchemaIssue[]): RouteTarget {
+  const defaultModel = typeof input.default_model === "string" && input.default_model.trim()
+    ? input.default_model.trim()
+    : typeof input.defaultModel === "string" && input.defaultModel.trim()
+      ? input.defaultModel.trim()
+      : "";
+  const defaultProvider = typeof input.default_cli === "string" && input.default_cli.trim()
+    ? input.default_cli.trim()
+    : typeof input.default_provider === "string" && input.default_provider.trim()
+      ? input.default_provider.trim()
+      : typeof input.defaultProvider === "string" && input.defaultProvider.trim()
+        ? input.defaultProvider.trim()
+        : "";
+  if (!defaultModel) {
+    issues.push({ path: "$.defaults", message: "Expected defaults or legacy default_model." });
+  }
+  const provider = defaultProvider || inferProviderForModel(defaultModel);
+  if (!provider) {
+    issues.push({ path: "$.default_cli", message: "Expected default_cli/default_provider for this default_model." });
+  }
+  const maxInputTokens = numericField(input.maxInputTokens ?? input.max_input_tokens);
+  return {
+    provider,
+    model: defaultModel,
+    ...(maxInputTokens ? { maxInputTokens } : {}),
   };
 }
 
 function routeMatches(match: RouteMatch, stepType: StepType, text: string): boolean {
   if (typeof match === "string") return match === stepType;
   return new RegExp(match.regex).test(text);
+}
+
+function numericField(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
+  return Math.floor(value);
+}
+
+function inferProviderForModel(model: string): string {
+  if (/^deepseek-/i.test(model)) return "deepseek";
+  if (/^(?:gpt-|o\d|o\d-|chatgpt)/i.test(model)) return "openai";
+  if (/^claude-/i.test(model)) return "claude";
+  if (/^gemini-/i.test(model)) return "gemini";
+  if (/^qwen/i.test(model)) return "qwen";
+  return "";
+}
+
+function contextWindowForProvider(provider: string): number {
+  switch (provider) {
+    case "claude":
+      return 1_000_000;
+    case "gemini":
+      return 2_000_000;
+    case "openai":
+      return 200_000;
+    default:
+      return 128_000;
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

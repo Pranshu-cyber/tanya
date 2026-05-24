@@ -37,6 +37,7 @@ import { parseTaskFilter, readEvalResult, runEvalSuite, writeEvalResult } from "
 import { formatEvalReport } from "./eval/report";
 import { compareEvalResults, formatEvalComparison } from "./eval/compare";
 import { runSessionsCommand } from "./cli/sessionsCommand";
+import { createCosmoChatFinalizeSink } from "./integrations/cosmochatFinalize";
 
 interface ParsedArgs {
   command: string;
@@ -1106,7 +1107,7 @@ async function main(): Promise<void> {
     });
     return;
   }
-  const sink = json ? createJsonlSink() : createHumanSink(process.stdout, { liveStatus: args.command === "chat" });
+  const sink = createCosmoChatFinalizeSink(json ? createJsonlSink() : createHumanSink(process.stdout, { liveStatus: args.command === "chat" }));
   let runPromptTokens = 0;
   let runCompletionTokens = 0;
   const trackingSink: EventSink = async (event) => {

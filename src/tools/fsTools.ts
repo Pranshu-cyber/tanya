@@ -24,6 +24,53 @@ import { recordMetricsDashboardHandoffTool } from "./metricsDashboardTools";
 
 const ignoredNames = new Set([".git", "node_modules", ".next", "dist", "build", ".turbo", ".cache"]);
 export const PROGRESS_THROTTLE_MS = 2_000;
+export const MAX_WRITE_FILE_BYTES = 8 * 1024 * 1024;
+export const MAX_PROCESS_BUFFER_BYTES = 16 * 1024 * 1024;
+
+type CappedBuffer = {
+  append: (chunk: string) => void;
+  value: () => string;
+  truncated: () => boolean;
+};
+
+// runShell historically hard-coded /bin/zsh, which ENOENTs on minimal Linux
+// CI/dev containers. Resolve once at module load: prefer the user's $SHELL,
+// then fall back to /bin/zsh and /bin/bash. The flags we pass (`-lc`) are
+// portable across both shells.
+function pickShellPath(): string {
+  const candidates = [process.env.SHELL, "/bin/zsh", "/bin/bash"];
+  for (const candidate of candidates) {
+    if (candidate && existsSync(candidate)) return candidate;
+  }
+  return "/bin/zsh";
+}
+const SHELL_PATH = pickShellPath();
+
+// Hard ceiling on accumulated process output. A runaway shell command (watching
+// build, a flaky test loop, `cat` of a huge log) would otherwise inflate the
+// buffer until the worker OOMs even when timeouts eventually kill the process.
+function makeCappedBuffer(cap: number = MAX_PROCESS_BUFFER_BYTES): CappedBuffer {
+  let text = "";
+  let truncated = false;
+  return {
+    append(chunk: string): void {
+      if (!chunk || truncated) return;
+      const remaining = cap - text.length;
+      if (chunk.length <= remaining) {
+        text += chunk;
+        return;
+      }
+      text += chunk.slice(0, Math.max(0, remaining));
+      truncated = true;
+    },
+    value(): string {
+      return truncated ? `${text}\n[output truncated at ${cap} bytes]` : text;
+    },
+    truncated(): boolean {
+      return truncated;
+    },
+  };
+}
 
 function isProtectedLocalConfigPath(filePath: string): boolean {
   return basename(filePath.trim().replace(/\\/g, "/")) === "local.properties";
@@ -105,22 +152,28 @@ function runProcess(
       shell: false,
       env: process.env,
     });
-    let stdout = "";
-    let stderr = "";
+    const stdout = makeCappedBuffer();
+    const stderr = makeCappedBuffer();
     const timer = setTimeout(() => {
       child.kill("SIGTERM");
     }, timeoutMs);
+    const cleanup = () => {
+      clearTimeout(timer);
+      child.stdout?.destroy();
+      child.stderr?.destroy();
+    };
 
     child.stdout.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString();
+      stdout.append(chunk.toString());
     });
     child.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString();
+      stderr.append(chunk.toString());
     });
     child.on("close", (code) => {
-      clearTimeout(timer);
-      const output = `${stdout}${stderr ? `\n${stderr}` : ""}`.trim();
-      const truncated = output.length > 12_000;
+      cleanup();
+      const stderrText = stderr.value();
+      const output = `${stdout.value()}${stderrText ? `\n${stderrText}` : ""}`.trim();
+      const truncated = output.length > 12_000 || stdout.truncated() || stderr.truncated();
       const baseResult: ToolResult = {
         ok: code === 0,
         summary: buildProcessSummary("Command", code, output, truncated),
@@ -129,7 +182,7 @@ function runProcess(
       resolve(code === 0 ? baseResult : { ...baseResult, error: output.slice(0, 2_000) });
     });
     child.on("error", (err) => {
-      clearTimeout(timer);
+      cleanup();
       resolve({ ok: false, summary: "Command failed to start.", error: err.message });
     });
   });
@@ -150,14 +203,14 @@ function emitToolProgress(context: ToolContext, stream: "stdout" | "stderr", chu
 
 function runShell(script: string, context: ToolContext, timeoutMs: number, cwd = context.workspace): Promise<ToolResult> {
   return new Promise((resolve) => {
-    const child = spawn("/bin/zsh", ["-lc", script], {
+    const child = spawn(SHELL_PATH, ["-lc", script], {
       cwd,
       shell: false,
       env: process.env,
       detached: process.platform !== "win32",
     });
-    let stdout = "";
-    let stderr = "";
+    const stdout = makeCappedBuffer();
+    const stderr = makeCappedBuffer();
     let cancelled = context.signal?.aborted ?? false;
     let cancelKillTimer: ReturnType<typeof setTimeout> | null = null;
     const progressBuffers: Record<"stdout" | "stderr", string> = {
@@ -187,7 +240,10 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
       progressTimers[stream] = setTimeout(() => flushProgress(stream), PROGRESS_THROTTLE_MS);
       progressTimers[stream]?.unref?.();
     };
-    const outputSoFar = () => `${stdout}${stderr ? `\n${stderr}` : ""}`.trim();
+    const outputSoFar = () => {
+      const stderrText = stderr.value();
+      return `${stdout.value()}${stderrText ? `\n${stderrText}` : ""}`.trim();
+    };
     const killShellProcess = (signal: NodeJS.Signals) => {
       if (child.pid && process.platform !== "win32") {
         try {
@@ -216,6 +272,8 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
       if (cancelKillTimer) clearTimeout(cancelKillTimer);
       context.signal?.removeEventListener("abort", requestCancel);
       flushAllProgress();
+      child.stdout?.destroy();
+      child.stderr?.destroy();
     };
     const timer = setTimeout(() => {
       killShellProcess("SIGTERM");
@@ -225,12 +283,12 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
 
     child.stdout.on("data", (chunk: Buffer) => {
       const text = chunk.toString();
-      stdout += text;
+      stdout.append(text);
       queueProgress("stdout", text);
     });
     child.stderr.on("data", (chunk: Buffer) => {
       const text = chunk.toString();
-      stderr += text;
+      stderr.append(text);
       queueProgress("stderr", text);
     });
     child.on("close", (code) => {
@@ -248,7 +306,7 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
         });
         return;
       }
-      const truncated = output.length > 16_000;
+      const truncated = output.length > 16_000 || stdout.truncated() || stderr.truncated();
       const baseResult: ToolResult = {
         ok: code === 0,
         summary: buildProcessSummary("Shell", code, output, truncated),
@@ -263,6 +321,12 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
   });
 }
 
+// The regex-based shell safety checks below (unsafeMaskedVerification,
+// unsafeHostPackageMutation, and the inline guards in runShellTool.run) are
+// ADVISORY ONLY. They are trivially bypassable via indirection (`eval $(cat)`,
+// shell variables, `bash -c "..."`). The authoritative gate is the
+// permissions engine in src/safety/permissions. Do not weaken or remove a
+// permission rule on the assumption that these regexes already catch a case.
 function unsafeMaskedVerification(script: string): string | null {
   const runsMobileBuildTool = /(?:^|[\s;&|])(?:\.\/gradlew|gradle|xcodebuild|fastlane)\b/.test(script);
   if (!runsMobileBuildTool) return null;
@@ -369,21 +433,27 @@ function runProcessWithInput(
       shell: false,
       env: process.env,
     });
-    let stdout = "";
-    let stderr = "";
+    const stdout = makeCappedBuffer();
+    const stderr = makeCappedBuffer();
     const timer = setTimeout(() => {
       child.kill("SIGTERM");
     }, timeoutMs);
+    const cleanup = () => {
+      clearTimeout(timer);
+      child.stdout?.destroy();
+      child.stderr?.destroy();
+    };
 
     child.stdout.on("data", (chunk: Buffer) => {
-      stdout += chunk.toString();
+      stdout.append(chunk.toString());
     });
     child.stderr.on("data", (chunk: Buffer) => {
-      stderr += chunk.toString();
+      stderr.append(chunk.toString());
     });
     child.on("close", (code) => {
-      clearTimeout(timer);
-      const output = `${stdout}${stderr ? `\n${stderr}` : ""}`.trim();
+      cleanup();
+      const stderrText = stderr.value();
+      const output = `${stdout.value()}${stderrText ? `\n${stderrText}` : ""}`.trim();
       const baseResult: ToolResult = {
         ok: code === 0,
         summary: `Command exited ${code ?? "unknown"}.`,
@@ -392,7 +462,7 @@ function runProcessWithInput(
       resolve(code === 0 ? baseResult : { ...baseResult, error: output.slice(0, 2_000) });
     });
     child.on("error", (err) => {
-      clearTimeout(timer);
+      cleanup();
       resolve({ ok: false, summary: "Command failed to start.", error: err.message });
     });
     child.stdin.end(input);
@@ -551,12 +621,20 @@ export const writeFileTool: TanyaTool = {
     const path = asString(input, "path");
     const content = asString(input, "content");
     if (isProtectedLocalConfigPath(path)) return localPropertiesWriteError();
+    const bytes = Buffer.byteLength(content, "utf8");
+    if (bytes > MAX_WRITE_FILE_BYTES) {
+      return {
+        ok: false,
+        summary: `Refused write to ${path}: content is ${bytes} bytes (cap ${MAX_WRITE_FILE_BYTES}).`,
+        error: `write_file rejects payloads larger than ${MAX_WRITE_FILE_BYTES} bytes to avoid OOM/disk-fill. Split the file or stream it via run_shell.`,
+      };
+    }
     const abs = resolveInsideWorkspace(context.workspace, path);
     await mkdir(dirname(abs), { recursive: true });
     await writeFile(abs, content, "utf8");
-    const written = await readFile(abs, "utf8");
-    const lineCount = written.split("\n").length;
-    const preview = written.split("\n").slice(0, 4).join("\n");
+    const previewLines = content.split("\n");
+    const lineCount = previewLines.length;
+    const preview = previewLines.slice(0, 4).join("\n");
     return {
       ok: true,
       summary: `Wrote ${path} (${lineCount} lines).`,

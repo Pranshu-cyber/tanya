@@ -14,6 +14,7 @@ export interface OpenAiCompatibleProviderOptions {
   timeoutMs?: number;
   temperature?: number;
   topP?: number;
+  contextWindow?: number;
 }
 
 interface StreamChoice {
@@ -131,7 +132,7 @@ export class OpenAiCompatibleProvider implements ChatProvider {
     this.baseUrl = (options.baseUrl || this.adapter.defaultBaseUrl || "").replace(/\/$/, "");
     this.model = options.model || this.adapter.defaultModel || "";
     warnDeprecatedDeepSeekModel(this.adapter.id, this.model);
-    this.contextWindow = this.adapter.capabilities.contextWindow;
+    this.contextWindow = options.contextWindow ?? this.adapter.capabilities.contextWindow;
     this.reasoning = reasoningEnabled(this.adapter, this.model);
     this.roundTripReasoning = this.adapter.capabilities.roundTripReasoning === true;
     const envTimeout = parseInt(envValue({}, "TANYA_TIMEOUT_MS"), 10);

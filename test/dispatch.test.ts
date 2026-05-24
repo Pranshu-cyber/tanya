@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildAutoFixPrompt,
+  DispatchCorruptedStateError,
   inferTestCommand,
   parseVerifyFailureJSONL,
   runPlanAndDispatch,
@@ -125,6 +126,53 @@ describe("plan-and-dispatch", () => {
     });
     expect(seen).toEqual(["2", "3", "complete"]);
     expect(result.completed).toHaveLength(3);
+  });
+
+  it("TestPlanAndDispatch_Resume_CorruptedPlanJSON_RaisesTypedError", async () => {
+    const cwd = tempRoot();
+    await expect(runPlanAndDispatch({
+      cwd,
+      prompt: "build",
+      runTurn: async (_prompt, meta) => {
+        if (meta.phase === "plan") return planJSON();
+        throw new Error("stop");
+      },
+    })).rejects.toThrow("stop");
+
+    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
+    const planPath = join(cwd, ".tania", "dispatch", runID, "plan.json");
+    writeFileSync(planPath, "{not-json");
+
+    await expect(runPlanAndDispatch({
+      cwd,
+      prompt: "",
+      resumeRunID: runID,
+      runTurn: async () => "unused",
+    })).rejects.toBeInstanceOf(DispatchCorruptedStateError);
+  });
+
+  it("TestPlanAndDispatch_Resume_CorruptedSubtaskResult_RaisesTypedError", async () => {
+    const cwd = tempRoot();
+    await expect(runPlanAndDispatch({
+      cwd,
+      prompt: "build",
+      runTurn: async (_prompt, meta) => {
+        if (meta.phase === "plan") return planJSON();
+        if (meta.subtask?.id === "2") throw new Error("stop");
+        return `\`\`\`json\n${JSON.stringify({ done: true, files_changed: ["file1.ts"], summary: "first done" })}\n\`\`\``;
+      },
+    })).rejects.toThrow("stop");
+
+    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
+    const resultPath = join(cwd, ".tania", "dispatch", runID, "subtask_1.json");
+    writeFileSync(resultPath, "{not-json");
+
+    await expect(runPlanAndDispatch({
+      cwd,
+      prompt: "",
+      resumeRunID: runID,
+      runTurn: async () => "unused",
+    })).rejects.toBeInstanceOf(DispatchCorruptedStateError);
   });
 
   it("TestPlanAndDispatch_MaxSubtasksRespected", async () => {

@@ -1,4 +1,7 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { ChatMessage, ToolCall } from "../providers/types";
+import type { TanyaRunContext } from "../context/runContext";
 import type { StepType } from "./types";
 
 export interface RunnerStepState {
@@ -9,6 +12,9 @@ export interface RunnerStepState {
   depth?: number;
   turnIndex?: number;
   providerReasoningActive?: boolean;
+  prompt?: string;
+  cwd?: string;
+  runContext?: TanyaRunContext;
 }
 
 interface PendingTool {
@@ -33,7 +39,43 @@ export function classifyStep(state: RunnerStepState): StepType {
     return "synthesis";
   }
 
+  if (looksLikeCodeEditingTask(state)) return "tool_call";
+
   return "unknown";
+}
+
+export function looksLikeCodeEditingTask(state: Pick<RunnerStepState, "messages" | "prompt" | "cwd" | "runContext">): boolean {
+  const runContext = state.runContext;
+  if (runContext?.task?.kind === "coding") return true;
+  if (runContext?.expected_report && Object.keys(runContext.expected_report).length > 0) return true;
+  if (runContext?.verification?.commands?.length) return true;
+
+  const taskText = [
+    runContext?.task?.title,
+    runContext?.task?.summary,
+    runContext?.stack,
+    ...(runContext?.languages ?? []),
+    ...(runContext?.frameworks ?? []),
+    state.prompt,
+    ...userMessageContent(state.messages ?? []),
+  ].filter(Boolean).join("\n");
+
+  if (/\bgo-backend-[a-z0-9_-]+\b/i.test(taskText)) return true;
+  if (/template\s*(?:id|ID)?\s*[:=]?\s*["'`]?go-backend-[a-z0-9_-]+/i.test(taskText)) return true;
+  if (/EXISTING CODE DETECTED/i.test(taskText) && /\bEXECUTE\s+mode\b/i.test(taskText)) return true;
+
+  return Boolean(state.cwd && isCodeWorkspace(state.cwd) && taskText.length > 1_200);
+}
+
+function isCodeWorkspace(cwd: string): boolean {
+  return [
+    "go.mod",
+    "package.json",
+    "Cargo.toml",
+    "pyproject.toml",
+    "requirements.txt",
+    "Package.swift",
+  ].some((marker) => existsSync(join(cwd, marker)));
 }
 
 function hasVerificationTool(toolCalls: Array<ToolCall | PendingTool>): boolean {
@@ -79,4 +121,10 @@ function messagesSinceLastUser(messages: ChatMessage[]): ChatMessage[] {
     if (messages[index]?.role === "user") return messages.slice(index + 1);
   }
   return messages;
+}
+
+function userMessageContent(messages: ChatMessage[]): string[] {
+  return messages
+    .filter((message) => message.role === "user" && typeof message.content === "string")
+    .map((message) => message.content ?? "");
 }

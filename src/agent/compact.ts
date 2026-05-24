@@ -1,5 +1,5 @@
 import type { ChatMessage, ChatProvider, ToolCall } from "../providers/types";
-import { appendArchive, toArchivedMessages } from "../memory/runArchive";
+import { safeAppendArchive, toArchivedMessages } from "../memory/runArchive";
 
 export type MicrocompactOptions = {
   tokenBudget: number;
@@ -28,6 +28,7 @@ export type AutoCompactOptions = {
   archive?: {
     workspace: string;
     runId: string;
+    onError?: (err: Error) => void | Promise<void>;
   };
 };
 
@@ -186,7 +187,12 @@ export async function autoCompact(messages: ChatMessage[], options: AutoCompactO
   const summarized = indices.map((index) => messages[index]).filter((message): message is ChatMessage => Boolean(message));
   const summary = await summarizeMessages(options.provider, summarized, options);
   if (options.archive) {
-    await appendArchive(options.archive.runId, toArchivedMessages(summarized), { workspace: options.archive.workspace });
+    await safeAppendArchive(
+      options.archive.runId,
+      toArchivedMessages(summarized),
+      { workspace: options.archive.workspace },
+      options.archive.onError,
+    );
   }
   const summaryMessage: ChatMessage = {
     role: "system",

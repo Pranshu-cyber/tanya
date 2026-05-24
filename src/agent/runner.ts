@@ -20,7 +20,7 @@ import { recordRepairRunMemory, type RepairAttemptSnapshot } from "../memory/rep
 import { appendTaskHistory, buildHistoryBlock, readRecentTaskHistory } from "../memory/taskHistory";
 import { appendTaskToVault } from "../obsidian/vaultAppender";
 import { envValue, numberEnvValue } from "../config/envCompat";
-import { appendArchive, toArchivedMessages } from "../memory/runArchive";
+import { safeAppendArchive, toArchivedMessages } from "../memory/runArchive";
 import { appendAuditDecision } from "../memory/auditLog";
 import { estimateRunCost } from "../memory/runLogs";
 import { writeCachedToolResult } from "../memory/resultCache";
@@ -122,6 +122,7 @@ type FinalMetrics = {
   promptTokens: number;
   completionTokens: number;
   reasoningTokens: number;
+  costUsd: number;
   systemPromptTokens: number;
   repoMapTokens: number;
   toolResultTokens: number;
@@ -678,6 +679,38 @@ function auditModelRouted(workspace: string, context: PermissionContext, event: 
   });
 }
 
+function forcedRouteFromRunContext(runContext: TanyaRunContext | undefined): RouteTarget | null {
+  const metadata = runContext?.metadata;
+  if (!metadata) return null;
+  const forcedModel = stringMetadata(metadata, "forced_model") ?? stringMetadata(metadata, "forcedModel");
+  const forcedProvider = stringMetadata(metadata, "forced_cli") ??
+    stringMetadata(metadata, "forcedCli") ??
+    stringMetadata(metadata, "forced_provider") ??
+    stringMetadata(metadata, "forcedProvider");
+  if (!forcedModel && !forcedProvider) return null;
+  if (forcedModel?.includes("/") && !forcedProvider) {
+    const [provider, model] = forcedModel.split("/", 2);
+    if (provider?.trim() && model?.trim()) return { provider: provider.trim(), model: model.trim() };
+  }
+  const provider = forcedProvider ?? inferForcedProvider(forcedModel ?? "");
+  if (!provider || !forcedModel) return null;
+  return { provider, model: forcedModel };
+}
+
+function stringMetadata(metadata: Record<string, unknown>, key: string): string | undefined {
+  const value = metadata[key];
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function inferForcedProvider(model: string): string | null {
+  if (/^deepseek-/i.test(model)) return "deepseek";
+  if (/^(?:gpt-|o\d|o\d-|chatgpt)/i.test(model)) return "openai";
+  if (/^claude-/i.test(model)) return "claude";
+  if (/^gemini-/i.test(model)) return "gemini";
+  if (/^qwen/i.test(model)) return "qwen";
+  return null;
+}
+
 function auditEscalation(workspace: string, context: PermissionContext, event: {
   from: { provider: string; model: string };
   to: { provider: string; model: string };
@@ -997,6 +1030,18 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
     await options.sink({ type: "status", message: `Sub-agent permission inheritance warning: ${warning.reason}` });
   }
   const fileReadDedup = new FileReadDedupCache(workspace);
+  // Archive append failures (permission denied, ENOSPC, EBUSY) must surface as
+  // a warn through the run's event sink — silent drops produce gaps in the
+  // audit trail that only show up later when readArchive returns less than
+  // expected. They must NOT crash the run loop.
+  const archiveErrorSink = async (err: Error) => {
+    await options.sink({
+      type: "status",
+      message: `[warn] archive append failed: ${err.message}`,
+    });
+  };
+  const appendRunArchive = (messagesToArchive: ChatMessage[]) =>
+    safeAppendArchive(runId, toArchivedMessages(messagesToArchive), { workspace }, archiveErrorSink);
   const permissionAnswers = new Map<string, { answer: HostPermissionAnswer; source: "user" | "engine" }>();
   const changedFiles: string[] = [];
   let changed = changedFiles;
@@ -1012,10 +1057,12 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
   let lastProviderKey = providerKey(activeProvider);
   if (options.routing?.enabled) {
     try {
+      const forcedRoute = forcedRouteFromRunContext(options.runContext);
       const initialRoute = resolveRouteWithContextGuard({
         stepType: "planning",
         table: options.routing.table,
         messages: [...(options.history ?? []), { role: "user", content: options.prompt }],
+        ...(forcedRoute ? { forcedRoute } : {}),
       });
       activeProvider = options.routing.providerFactory(initialRoute);
       lastProviderKey = providerKey(activeProvider);
@@ -1275,6 +1322,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       promptTokens: totalPromptTokens,
       completionTokens: totalCompletionTokens,
       reasoningTokens: totalReasoningTokens,
+      costUsd: runSpendUsd,
       systemPromptTokens,
       repoMapTokens,
       toolResultTokens: totalToolResultTokens,
@@ -1362,12 +1410,34 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       return { provider, stepType: forced.stepType };
     }
 
-    const stepType = classifyStep({ messages, turnIndex: turn, pendingToolCalls: pendingToolCallsForRouting() });
-    const route = preferredRouteForStep(stepType) ?? resolveRouteWithContextGuard({
-      stepType,
-      table: options.routing.table,
+    const classifierState = {
       messages,
-    });
+      turnIndex: turn,
+      pendingToolCalls: pendingToolCallsForRouting(),
+      cwd: workspace,
+      ...(options.prompt ? { prompt: options.prompt } : {}),
+      ...(options.runContext ? { runContext: options.runContext } : {}),
+    };
+    const stepType = classifyStep(classifierState);
+    const forcedRoute = forcedRouteFromRunContext(options.runContext);
+    const route = forcedRoute
+      ? resolveRouteWithContextGuard({
+          stepType,
+          table: options.routing.table,
+          messages,
+          prompt: options.prompt,
+          cwd: workspace,
+          ...(options.runContext ? { runContext: options.runContext } : {}),
+          forcedRoute,
+        })
+      : preferredRouteForStep(stepType) ?? resolveRouteWithContextGuard({
+          stepType,
+          table: options.routing.table,
+          messages,
+          prompt: options.prompt,
+          cwd: workspace,
+          ...(options.runContext ? { runContext: options.runContext } : {}),
+        });
     const provider = options.routing.providerFactory(route);
     const key = providerKey(provider);
     const cacheImpact: "hit" | "miss" = key === lastProviderKey ? "hit" : "miss";
@@ -1382,6 +1452,24 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       cacheImpact,
     };
     await options.sink(event);
+    if (route.cascade && route.cascade.selectedIndex > 0) {
+      await options.sink({
+        type: "provider.raw",
+        provider: provider.id,
+        model: provider.model,
+        event: {
+          type: "model_routed",
+          reason: "cascade-fit",
+          stepType,
+          provider: provider.id,
+          model: provider.model,
+          attempted_routes: route.cascade.attemptedRoutes,
+          estimated_tokens: route.cascade.estimatedTokens,
+          safety_factor: route.cascade.safetyFactor,
+          selected_route: route.cascade.selectedRoute,
+        },
+      });
+    }
     auditModelRouted(workspace, permissionContext, event);
     return { provider, stepType, route };
   }
@@ -1476,7 +1564,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       });
       if (compacted.foldedPairs > 0) {
         evictReasoningArchiveForCompaction();
-        await appendArchive(runId, toArchivedMessages(compacted.archivedMessages), { workspace });
+        await appendRunArchive(compacted.archivedMessages);
         messages = compacted.messages;
         fileReadDedup.clear();
         await options.sink({
@@ -1492,7 +1580,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       if (snipped.snippedCount > 0) {
         evictReasoningArchiveForCompaction();
         const beforeSnipTokens = estimateCompactTokens(messages);
-        await appendArchive(runId, toArchivedMessages(snipped.archivedMessages), { workspace });
+        await appendRunArchive(snipped.archivedMessages);
         messages = snipped.messages;
         fileReadDedup.clear();
         const afterSnipTokens = estimateCompactTokens(messages);
@@ -1655,7 +1743,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
           });
           if (micro.foldedPairs > 0) {
             evictReasoningArchiveForCompaction();
-            await appendArchive(runId, toArchivedMessages(micro.archivedMessages), { workspace });
+            await appendRunArchive(micro.archivedMessages);
             messages = micro.messages;
             fileReadDedup.clear();
             await options.sink({
@@ -1669,7 +1757,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
           const snipped = snipLowSignal(messages);
           if (snipped.snippedCount > 0) {
             evictReasoningArchiveForCompaction();
-            await appendArchive(runId, toArchivedMessages(snipped.archivedMessages), { workspace });
+            await appendRunArchive(snipped.archivedMessages);
             messages = snipped.messages;
             fileReadDedup.clear();
             await options.sink({
@@ -1684,7 +1772,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
             provider: turnProvider,
             model: turnProvider.model,
             aggression,
-            archive: { workspace, runId },
+            archive: { workspace, runId, onError: archiveErrorSink },
           });
           evictReasoningArchiveForCompaction();
           messages = compacted.messages;
