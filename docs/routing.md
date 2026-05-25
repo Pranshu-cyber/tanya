@@ -6,8 +6,8 @@ model to decide which model to use.
 
 ## Route table
 
-Routes live in project `.tania/routes.json` and user-global
-`~/.tanya/routes.json`. Tanya also reads legacy `~/.tania/routes.json` when the
+Routes live in project `.tanya/routes.json` and user-global
+`~/.tanya/routes.json`. Tanya also reads legacy `~/.tanya/routes.json` when the
 new user-global file is absent. Project routes are prepended ahead of user
 routes, then the built-in table, and the first matching route wins.
 
@@ -152,7 +152,7 @@ The classifier is deterministic and rule-based:
 Escalation is observable. If a cheap-tier route exhausts the tool-call parsing
 repair budget, Tanya may use the route fallback for one final attempt and emits
 an `escalation_event`. The default session cap is 5 escalations, configurable
-with `TANYA_ESCALATION_CAP` or legacy `TANIA_ESCALATION_CAP`. If the cap is
+with `TANYA_ESCALATION_CAP` or legacy `TANYA_ESCALATION_CAP`. If the cap is
 exhausted, Tanya raises `EscalationExhaustedError` instead of silently spending
 on capable-tier retries.
 
@@ -169,8 +169,8 @@ When a route sets no cap, the budget falls back to two tiers:
 
 Both tiers are configurable per process:
 
-- `TANYA_REASONING_CAP_SHORT` (legacy `TANIA_REASONING_CAP_SHORT`)
-- `TANYA_REASONING_CAP_LONG` (legacy `TANIA_REASONING_CAP_LONG`)
+- `TANYA_REASONING_CAP_SHORT` (legacy `TANYA_REASONING_CAP_SHORT`)
+- `TANYA_REASONING_CAP_LONG` (legacy `TANYA_REASONING_CAP_LONG`)
 
 Raise the short tier when a heavy reasoning model needs more headroom to
 converge on single-shot work — e.g. `TANYA_REASONING_CAP_SHORT=8000`. An

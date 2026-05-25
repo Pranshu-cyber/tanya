@@ -6,6 +6,8 @@ export interface PendingTurn {
   spinnerVisible: boolean;
 }
 
+export type BootStage = "loading" | "ready";
+
 export interface InkState {
   messages: InkMessage[];
   assistantMessageIndexes: Record<string, number>;
@@ -17,6 +19,9 @@ export interface InkState {
   turnCount: number;
   stats: InkSessionStats;
   pendingPermission: PermissionRequest | null;
+  bootStage: BootStage;
+  bootMessage: string;
+  bootStartedAt: number;
 }
 
 export interface InitialInkStateOptions {
@@ -42,6 +47,8 @@ export type InkAction =
   | { type: "activity_end"; id: string; summary: string; status: "done" | "error"; endedAt: number }
   | { type: "permission_request"; request: PermissionRequest }
   | { type: "permission_clear" }
+  | { type: "boot_progress"; message: string }
+  | { type: "boot_complete" }
   | { type: "replace_session"; messages: InkMessage[]; stats: InkSessionStats; generateMs: number; turnCount: number }
   | { type: "clear" };
 
@@ -67,6 +74,9 @@ export function createInitialInkState(options: InitialInkStateOptions = {}): Ink
     turnCount: options.initialTurnCount ?? 0,
     stats: options.initialStats ?? { costUsd: 0, totalTokens: 0 },
     pendingPermission: null,
+    bootStage: "loading",
+    bootMessage: "Preparing Tanya…",
+    bootStartedAt: now,
   };
 }
 
@@ -185,6 +195,10 @@ export function inkReducer(state: InkState, action: InkAction): InkState {
       return { ...state, pendingPermission: action.request };
     case "permission_clear":
       return { ...state, pendingPermission: null };
+    case "boot_progress":
+      return { ...state, bootMessage: action.message };
+    case "boot_complete":
+      return { ...state, bootStage: "ready" };
     case "replace_session":
       return {
         ...state,

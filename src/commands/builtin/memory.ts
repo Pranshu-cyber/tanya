@@ -95,7 +95,7 @@ type ChildRunSummary = {
 };
 
 async function readChildRunSummary(workspace: string, runId: string): Promise<ChildRunSummary | null> {
-  const runsRoot = join(workspace, ".tania", "runs");
+  const runsRoot = join(workspace, ".tanya", "runs");
   const path = await findRunSummaryPath(runsRoot, `${runId}.json`);
   if (!path) return null;
   try {

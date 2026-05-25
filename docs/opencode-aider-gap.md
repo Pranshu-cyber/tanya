@@ -60,7 +60,7 @@ The historical `claude-code-study/` directory is no longer present in this repo 
 
 **Additive model.** Repo-map should become a cheap preflight context source:
 
-- Build or refresh `.tania/index/repo-map.json` from tree-sitter/ripgrep.
+- Build or refresh `.tanya/index/repo-map.json` from tree-sitter/ripgrep.
 - Keep it read-only model context unless the model asks to inspect a file.
 - Feed a small symbol summary into lite prompts under the system-prompt budget.
 - Let `/budget` account for repo-map tokens as a separate section.

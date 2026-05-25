@@ -234,7 +234,7 @@ describe("task tool", () => {
     expect(result.manifest.blockers).toEqual([]);
     expect(result.manifest.childWarnings).toBeUndefined();
     expect(result.manifest.childVerdicts).toBeUndefined();
-    const audit = readFileSync(join(cwd, ".tania", "audit.jsonl"), "utf8");
+    const audit = readFileSync(join(cwd, ".tanya", "audit.jsonl"), "utf8");
     expect(audit).toContain("\"reason\":\"child-verdict\"");
     expect(audit).toContain("\"treatFailureAs\":\"ignore\"");
   });
@@ -287,7 +287,7 @@ describe("task tool", () => {
           childStarted = true;
           yield {
             toolCalls: [toolCall("call-child-shell", "run_shell", {
-              script: "printf child; touch .tania-child-started; sleep 10",
+              script: "printf child; touch .tanya-child-started; sleep 10",
               timeoutMs: 20_000,
             })],
           };
@@ -307,7 +307,7 @@ describe("task tool", () => {
       signal: controller.signal,
     });
 
-    await waitFor(() => childStarted && existsSync(join(cwd, ".tania-child-started")), 2_000);
+    await waitFor(() => childStarted && existsSync(join(cwd, ".tanya-child-started")), 2_000);
     controller.abort();
     await runPromise;
 

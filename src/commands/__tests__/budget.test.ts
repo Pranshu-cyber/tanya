@@ -15,7 +15,7 @@ class MemoryStream {
 }
 
 function writeRun(workspace: string, name: string, log: Partial<RunLog>): void {
-  const runsDir = join(workspace, ".tania", "runs");
+  const runsDir = join(workspace, ".tanya", "runs");
   mkdirSync(runsDir, { recursive: true });
   writeFileSync(join(runsDir, `${name}.json`), JSON.stringify({
     ts: "2026-05-16T12:00:00.000Z",
@@ -98,7 +98,7 @@ describe("/budget command", () => {
       sink: () => {},
     })).resolves.toBe(true);
 
-    const path = join(cwd, ".tania", "permissions.json");
+    const path = join(cwd, ".tanya", "permissions.json");
     expect(existsSync(path)).toBe(true);
     const parsed = JSON.parse(readFileSync(path, "utf8")) as { spendRules?: unknown[] };
     expect(parsed.spendRules).toEqual([

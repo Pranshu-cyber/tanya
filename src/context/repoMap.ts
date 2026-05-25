@@ -34,7 +34,7 @@ const SOURCE_EXTENSIONS = new Map<string, RepoMapLang>([
 const SKIP_SEGMENTS = new Set([
   ".git",
   ".next",
-  ".tania",
+  ".tanya",
   "build",
   "coverage",
   "dist",
@@ -107,11 +107,11 @@ export async function buildRepoMap(workspace: string, options: BuildRepoMapOptio
 }
 
 export function repoMapCachePath(workspace: string): string {
-  return join(resolve(workspace), ".tania", "index", "repo-map.json");
+  return join(resolve(workspace), ".tanya", "index", "repo-map.json");
 }
 
 export function repoMapMetaPath(workspace: string): string {
-  return join(resolve(workspace), ".tania", "index", "repo-map-meta.json");
+  return join(resolve(workspace), ".tanya", "index", "repo-map-meta.json");
 }
 
 export function writeRepoMap(workspace: string, map: RepoMap): void {

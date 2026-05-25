@@ -21,9 +21,9 @@ describe("/mcp command", () => {
 
   it("lists connected servers and their tools", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-command-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     const serverPath = writeMockServer(cwd);
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [{ name: "mock", transport: "stdio", command: process.execPath, args: [serverPath] }],
     }));

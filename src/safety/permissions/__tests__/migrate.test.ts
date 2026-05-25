@@ -7,7 +7,7 @@ import { BUILT_IN_ALWAYS_ALLOW_SEED, suggestPermissionsFromRuns } from "../migra
 describe("permissions migration helper", () => {
   it("builds a starter allow list from recent run logs", () => {
     const workspace = mkdtempSync(join(tmpdir(), "tanya-permission-migrate-"));
-    const runsDir = join(workspace, ".tania", "runs");
+    const runsDir = join(workspace, ".tanya", "runs");
     mkdirSync(runsDir, { recursive: true });
     writeFileSync(join(runsDir, "2026-05-16T12-00-00.json"), JSON.stringify({
       ts: "2026-05-16T12:00:00.000Z",
@@ -16,7 +16,7 @@ describe("permissions migration helper", () => {
       durationMs: 1,
       promptTokens: 1,
       completionTokens: 1,
-      changedFiles: ["src/app.ts", ".tania/audit.jsonl"],
+      changedFiles: ["src/app.ts", ".tanya/audit.jsonl"],
       blockers: [],
     }));
 
@@ -25,7 +25,7 @@ describe("permissions migration helper", () => {
     expect(suggested.mode).toBe("ask");
     expect(suggested.alwaysAllow).toEqual(expect.arrayContaining(BUILT_IN_ALWAYS_ALLOW_SEED));
     expect(suggested.alwaysAllow.some((pattern) => pattern.includes("src/app\\.ts"))).toBe(true);
-    expect(suggested.alwaysAllow.some((pattern) => pattern.includes(".tania"))).toBe(false);
+    expect(suggested.alwaysAllow.some((pattern) => pattern.includes(".tanya"))).toBe(false);
     expect(suggested.alwaysAllow).toContain("run_command:.*node.*");
   });
 });

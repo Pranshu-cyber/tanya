@@ -18,7 +18,7 @@ model history.
 ## Client config
 
 User-global config is read from `~/.tanya/mcp.json`, with a migration fallback
-to `~/.tania/mcp.json`. Project config is read from `.tania/mcp.json`.
+to `~/.tanya/mcp.json`. Project config is read from `.tanya/mcp.json`.
 Project servers prepend user servers; if both define the same `name`, the
 project server wins entirely.
 
@@ -71,7 +71,7 @@ mcp:linear:create_issue
 That means they use the same runner path as native tools:
 
 - permission decision before execution
-- audit log entry in `.tania/audit.jsonl`
+- audit log entry in `.tanya/audit.jsonl`
 - model-visible tool result truncation when needed
 - full verifier-visible result when available
 - JSONL and human event sinks
@@ -103,7 +103,7 @@ tool that was not loaded from `mcp.json` is rejected as not allowlisted.
 `stdio` servers are spawned as child processes. Tanya captures their stderr to:
 
 ```text
-.tania/mcp/logs/<server>.log
+.tanya/mcp/logs/<server>.log
 ```
 
 Logs rotate at 10 MB. If a server exits, Tanya restarts it with exponential
@@ -118,7 +118,7 @@ default. Override with:
 TANYA_MCP_CALL_TIMEOUT_MS=10000
 ```
 
-The legacy `TANIA_MCP_CALL_TIMEOUT_MS` alias is also accepted.
+The legacy `TANYA_MCP_CALL_TIMEOUT_MS` alias is also accepted.
 
 ## Tanya as an MCP server
 

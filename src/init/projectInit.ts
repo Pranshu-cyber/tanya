@@ -121,7 +121,7 @@ function buildInstructions(detection: StackDetection): string {
 
 export async function initTanyaProject(cwd: string): Promise<string> {
   const workspace = resolve(cwd);
-  const instructionsPath = join(workspace, ".tania", "INSTRUCTIONS.md");
+  const instructionsPath = join(workspace, ".tanya", "INSTRUCTIONS.md");
   const detection = await detectStack(workspace);
   await mkdir(dirname(instructionsPath), { recursive: true });
   try {

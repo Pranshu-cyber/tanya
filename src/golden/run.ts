@@ -249,12 +249,12 @@ async function genericBenchmarkFixture(profile: GoldenTaskProfile): Promise<Gold
     await writeFile(join(workspace, file.path), file.content);
   }
   if (spec.useArtifact) {
-    await mkdir(join(workspace, ".tania/artifacts/generic"), { recursive: true });
-    await writeFile(join(workspace, ".tania/artifacts/generic/Pattern.md"), `# Pattern\n\nUse ${marker} in the adapted output.\n`);
+    await mkdir(join(workspace, ".tanya/artifacts/generic"), { recursive: true });
+    await writeFile(join(workspace, ".tanya/artifacts/generic/Pattern.md"), `# Pattern\n\nUse ${marker} in the adapted output.\n`);
   }
   if (spec.useContext) {
-    await mkdir(join(workspace, ".tania/context"), { recursive: true });
-    await writeFile(join(workspace, ".tania/context/task.md"), `# Task Context\n\nUse ${marker}.\n`);
+    await mkdir(join(workspace, ".tanya/context"), { recursive: true });
+    await writeFile(join(workspace, ".tanya/context/task.md"), `# Task Context\n\nUse ${marker}.\n`);
   }
   if (spec.dirtyWorktree) {
     await writeFile(join(workspace, "unrelated.txt"), "baseline\n");
@@ -267,8 +267,8 @@ async function genericBenchmarkFixture(profile: GoldenTaskProfile): Promise<Gold
   }
 
   const toolCalls: ToolCall[] = [];
-  if (spec.useArtifact) toolCalls.push(toolCall("read-artifact", "read_file", { path: ".tania/artifacts/generic/Pattern.md" }));
-  if (spec.useContext) toolCalls.push(toolCall("read-context", "read_file", { path: ".tania/context/task.md" }));
+  if (spec.useArtifact) toolCalls.push(toolCall("read-artifact", "read_file", { path: ".tanya/artifacts/generic/Pattern.md" }));
+  if (spec.useContext) toolCalls.push(toolCall("read-context", "read_file", { path: ".tanya/context/task.md" }));
   if (spec.preVerifyBeforeEdit) toolCalls.push(toolCall("verify-before", "run_command", { command: "node", args: ["scripts/check.js"] }));
   if (spec.useSearchReplace) {
     for (const file of spec.targetFiles) {
@@ -304,8 +304,8 @@ async function genericBenchmarkFixture(profile: GoldenTaskProfile): Promise<Gold
     ]),
     runContext: {
       task: { kind: "coding", title: profile.title, summary: profile.purpose },
-      artifacts: spec.useArtifact ? [{ path: ".tania/artifacts/generic/Pattern.md", sourcePath: "artifacts/generic/Pattern.md", status: "available" }] : [],
-      contextFiles: spec.useContext ? [{ path: ".tania/context/task.md", sourcePath: "context/task.md", status: "available" }] : [],
+      artifacts: spec.useArtifact ? [{ path: ".tanya/artifacts/generic/Pattern.md", sourcePath: "artifacts/generic/Pattern.md", status: "available" }] : [],
+      contextFiles: spec.useContext ? [{ path: ".tanya/context/task.md", sourcePath: "context/task.md", status: "available" }] : [],
       expected_report: { verification: true, artifact_reuse: true },
       metadata: { goldenTaskCandidate: true, caller: "tanya-benchmark" },
     },
@@ -450,8 +450,8 @@ async function editBlockFuzzyFixture(profile: GoldenTaskProfile, mode: "enabled"
     "",
   ].join("\n"));
   if (mode === "enabled") {
-    await mkdir(join(workspace, ".tania"), { recursive: true });
-    await writeFile(join(workspace, ".tania", "permissions.json"), JSON.stringify({
+    await mkdir(join(workspace, ".tanya"), { recursive: true });
+    await writeFile(join(workspace, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "default",
       alwaysAllow: ["edit_block:.*\"matchPolicy\":\"fuzzy\".*"],
@@ -543,11 +543,11 @@ async function editBlockFuzzyFixture(profile: GoldenTaskProfile, mode: "enabled"
 
 async function androidSplashFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixture> {
   const workspace = await createBaseWorkspace(profile.id);
-  await mkdir(join(workspace, ".tania/artifacts/android"), { recursive: true });
+  await mkdir(join(workspace, ".tanya/artifacts/android"), { recursive: true });
   await mkdir(join(workspace, "app/src/main/java/com/example/app/ui/splash"), { recursive: true });
   await mkdir(join(workspace, "app/src/main/res/values"), { recursive: true });
   await mkdir(join(workspace, "app/src/main/res/drawable"), { recursive: true });
-  await writeFile(join(workspace, ".tania/artifacts/android/SplashScreenPattern.kt"), "fun SplashPattern() {}\n");
+  await writeFile(join(workspace, ".tanya/artifacts/android/SplashScreenPattern.kt"), "fun SplashPattern() {}\n");
   await writeFile(join(workspace, "gradlew"), "#!/bin/sh\ncase \"$*\" in\n  *ktlintCheck*) echo ktlint ok ;;\n  *) echo BUILD SUCCESSFUL ;;\nesac\n");
   await writeFile(join(workspace, "app/src/main/res/drawable/ic_splash_logo.png"), "png\n");
 
@@ -555,7 +555,7 @@ async function androidSplashFixture(profile: GoldenTaskProfile): Promise<GoldenT
     {
       content: "Create Android splash resources from the artifact.",
       toolCalls: [
-        toolCall("read-artifact", "read_file", { path: ".tania/artifacts/android/SplashScreenPattern.kt" }),
+        toolCall("read-artifact", "read_file", { path: ".tanya/artifacts/android/SplashScreenPattern.kt" }),
         toolCall("write-manifest", "write_file", {
           path: "app/src/main/AndroidManifest.xml",
           content: "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"><application><activity android:name=\".MainActivity\" android:theme=\"@style/Theme.App.Splash\" /></application></manifest>\n",
@@ -600,7 +600,7 @@ async function androidSplashFixture(profile: GoldenTaskProfile): Promise<GoldenT
     provider,
     runContext: {
       task: { kind: "coding", title: "Splash Screen - Android", summary: profile.purpose },
-      artifacts: [{ path: ".tania/artifacts/android/SplashScreenPattern.kt", sourcePath: "artifacts/android/SplashScreenPattern.kt", status: "available" }],
+      artifacts: [{ path: ".tanya/artifacts/android/SplashScreenPattern.kt", sourcePath: "artifacts/android/SplashScreenPattern.kt", status: "available" }],
       expected_report: { verification: true, artifact_reuse: true },
       metadata: { goldenTaskCandidate: true, caller: "tanya-golden" },
     },
@@ -609,18 +609,18 @@ async function androidSplashFixture(profile: GoldenTaskProfile): Promise<GoldenT
 
 async function iosFoundationFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixture> {
   const workspace = await createBaseWorkspace(profile.id);
-  await mkdir(join(workspace, ".tania/artifacts/ios"), { recursive: true });
-  await writeFile(join(workspace, ".tania/artifacts/ios/ThemeSystem.swift"), "import SwiftUI\n");
-  await writeFile(join(workspace, ".tania/artifacts/ios/SwiftDataSetup.swift"), "import SwiftData\n");
-  await writeFile(join(workspace, ".tania/artifacts/ios/NavigationSetup.swift"), "import SwiftUI\n");
+  await mkdir(join(workspace, ".tanya/artifacts/ios"), { recursive: true });
+  await writeFile(join(workspace, ".tanya/artifacts/ios/ThemeSystem.swift"), "import SwiftUI\n");
+  await writeFile(join(workspace, ".tanya/artifacts/ios/SwiftDataSetup.swift"), "import SwiftData\n");
+  await writeFile(join(workspace, ".tanya/artifacts/ios/NavigationSetup.swift"), "import SwiftUI\n");
 
   const provider = scriptedProvider(profile.id, [
     {
       content: "Create iOS foundation from theme, SwiftData, and navigation artifacts.",
       toolCalls: [
-        toolCall("read-theme", "read_file", { path: ".tania/artifacts/ios/ThemeSystem.swift" }),
-        toolCall("read-data", "read_file", { path: ".tania/artifacts/ios/SwiftDataSetup.swift" }),
-        toolCall("read-nav", "read_file", { path: ".tania/artifacts/ios/NavigationSetup.swift" }),
+        toolCall("read-theme", "read_file", { path: ".tanya/artifacts/ios/ThemeSystem.swift" }),
+        toolCall("read-data", "read_file", { path: ".tanya/artifacts/ios/SwiftDataSetup.swift" }),
+        toolCall("read-nav", "read_file", { path: ".tanya/artifacts/ios/NavigationSetup.swift" }),
         toolCall("mkdirs", "run_shell", { script: "mkdir -p CosaNostra/Theme CosaNostra/Models CosaNostra/Navigation" }),
         toolCall("write-colors", "write_file", {
           path: "CosaNostra/Theme/Colors.swift",
@@ -674,9 +674,9 @@ async function iosFoundationFixture(profile: GoldenTaskProfile): Promise<GoldenT
     runContext: {
       task: { kind: "coding", title: "Fundações - iOS", summary: profile.purpose },
       artifacts: [
-        { path: ".tania/artifacts/ios/ThemeSystem.swift", sourcePath: "artifacts/ios/ThemeSystem.swift", status: "available" },
-        { path: ".tania/artifacts/ios/SwiftDataSetup.swift", sourcePath: "artifacts/ios/SwiftDataSetup.swift", status: "available" },
-        { path: ".tania/artifacts/ios/NavigationSetup.swift", sourcePath: "artifacts/ios/NavigationSetup.swift", status: "available" },
+        { path: ".tanya/artifacts/ios/ThemeSystem.swift", sourcePath: "artifacts/ios/ThemeSystem.swift", status: "available" },
+        { path: ".tanya/artifacts/ios/SwiftDataSetup.swift", sourcePath: "artifacts/ios/SwiftDataSetup.swift", status: "available" },
+        { path: ".tanya/artifacts/ios/NavigationSetup.swift", sourcePath: "artifacts/ios/NavigationSetup.swift", status: "available" },
       ],
       expected_report: { verification: true, artifact_reuse: true },
       metadata: { goldenTaskCandidate: true, caller: "tanya-golden" },
@@ -731,11 +731,11 @@ async function appleAppIconFixture(profile: GoldenTaskProfile): Promise<GoldenTa
 
 async function androidFoundationFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixture> {
   const workspace = await createBaseWorkspace(profile.id);
-  await mkdir(join(workspace, ".tania/artifacts/android"), { recursive: true });
+  await mkdir(join(workspace, ".tanya/artifacts/android"), { recursive: true });
   await mkdir(join(workspace, "app"), { recursive: true });
-  await writeFile(join(workspace, ".tania/artifacts/android/ThemeSystem.kt"), "package artifact\n");
-  await writeFile(join(workspace, ".tania/artifacts/android/NavigationSetup.kt"), "package artifact\n");
-  await writeFile(join(workspace, ".tania/artifacts/android/RoomSetup.kt"), "package artifact\n");
+  await writeFile(join(workspace, ".tanya/artifacts/android/ThemeSystem.kt"), "package artifact\n");
+  await writeFile(join(workspace, ".tanya/artifacts/android/NavigationSetup.kt"), "package artifact\n");
+  await writeFile(join(workspace, ".tanya/artifacts/android/RoomSetup.kt"), "package artifact\n");
   await writeFile(join(workspace, "gradlew"), "#!/bin/sh\ncase \"$*\" in\n  *ktlintCheck*) echo ktlint ok ;;\n  *) echo BUILD SUCCESSFUL ;;\nesac\n");
   await writeFile(join(workspace, "build.gradle.kts"), "plugins {\n    id(\"com.android.application\") version \"8.7.2\" apply false\n}\n");
   await writeFile(join(workspace, "app/build.gradle.kts"), [
@@ -753,9 +753,9 @@ async function androidFoundationFixture(profile: GoldenTaskProfile): Promise<Gol
     {
       content: "Create Android foundation with the deterministic high-level tool.",
       toolCalls: [
-        toolCall("read-theme", "read_file", { path: ".tania/artifacts/android/ThemeSystem.kt" }),
-        toolCall("read-nav", "read_file", { path: ".tania/artifacts/android/NavigationSetup.kt" }),
-        toolCall("read-room", "read_file", { path: ".tania/artifacts/android/RoomSetup.kt" }),
+        toolCall("read-theme", "read_file", { path: ".tanya/artifacts/android/ThemeSystem.kt" }),
+        toolCall("read-nav", "read_file", { path: ".tanya/artifacts/android/NavigationSetup.kt" }),
+        toolCall("read-room", "read_file", { path: ".tanya/artifacts/android/RoomSetup.kt" }),
         toolCall("create-foundation", "create_android_foundation", {
           packageName: "com.example.app",
           appName: "Golden",
@@ -790,9 +790,9 @@ async function androidFoundationFixture(profile: GoldenTaskProfile): Promise<Gol
     runContext: {
       task: { kind: "coding", title: "Fundações - Android", summary: profile.purpose },
       artifacts: [
-        { path: ".tania/artifacts/android/ThemeSystem.kt", sourcePath: "artifacts/android/ThemeSystem.kt", status: "available" },
-        { path: ".tania/artifacts/android/NavigationSetup.kt", sourcePath: "artifacts/android/NavigationSetup.kt", status: "available" },
-        { path: ".tania/artifacts/android/RoomSetup.kt", sourcePath: "artifacts/android/RoomSetup.kt", status: "available" },
+        { path: ".tanya/artifacts/android/ThemeSystem.kt", sourcePath: "artifacts/android/ThemeSystem.kt", status: "available" },
+        { path: ".tanya/artifacts/android/NavigationSetup.kt", sourcePath: "artifacts/android/NavigationSetup.kt", status: "available" },
+        { path: ".tanya/artifacts/android/RoomSetup.kt", sourcePath: "artifacts/android/RoomSetup.kt", status: "available" },
       ],
       expected_report: { verification: true, artifact_reuse: true },
       metadata: { goldenTaskCandidate: true, caller: "tanya-golden" },
@@ -802,18 +802,18 @@ async function androidFoundationFixture(profile: GoldenTaskProfile): Promise<Gol
 
 async function backendApiFoundationFixture(profile: GoldenTaskProfile): Promise<GoldenTaskFixture> {
   const workspace = await createBaseWorkspace(profile.id);
-  await mkdir(join(workspace, ".tania/artifacts/backend"), { recursive: true });
+  await mkdir(join(workspace, ".tanya/artifacts/backend"), { recursive: true });
   await mkdir(join(workspace, "app/api/health"), { recursive: true });
   await mkdir(join(workspace, "lib"), { recursive: true });
   await mkdir(join(workspace, "prisma"), { recursive: true });
-  await writeFile(join(workspace, ".tania/artifacts/backend/JwtAuthRoutes.ts"), "export function authRoutePattern() {}\n");
+  await writeFile(join(workspace, ".tanya/artifacts/backend/JwtAuthRoutes.ts"), "export function authRoutePattern() {}\n");
   await writeFile(join(workspace, "package.json"), JSON.stringify({ scripts: { typecheck: "tsc --noEmit", test: "node --test" }, dependencies: {} }, null, 2));
 
   const provider = scriptedProvider(profile.id, [
     {
       content: "Create backend health/API foundation from the route artifact.",
       toolCalls: [
-        toolCall("read-artifact", "read_file", { path: ".tania/artifacts/backend/JwtAuthRoutes.ts" }),
+        toolCall("read-artifact", "read_file", { path: ".tanya/artifacts/backend/JwtAuthRoutes.ts" }),
         toolCall("write-health", "write_file", {
           path: "app/api/health/route.ts",
           content: "export async function GET() { return Response.json({ status: 'ok', health: true }); }\n",
@@ -859,7 +859,7 @@ async function backendApiFoundationFixture(profile: GoldenTaskProfile): Promise<
     provider,
     runContext: {
       task: { kind: "coding", title: "Backend API Foundation", summary: profile.purpose },
-      artifacts: [{ path: ".tania/artifacts/backend/JwtAuthRoutes.ts", sourcePath: "artifacts/backend/JwtAuthRoutes.ts", status: "available" }],
+      artifacts: [{ path: ".tanya/artifacts/backend/JwtAuthRoutes.ts", sourcePath: "artifacts/backend/JwtAuthRoutes.ts", status: "available" }],
       expected_report: { verification: true, artifact_reuse: true },
       metadata: { goldenTaskCandidate: true, caller: "tanya-golden" },
     },

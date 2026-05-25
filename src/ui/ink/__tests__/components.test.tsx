@@ -82,33 +82,43 @@ describe("Ink TUI components", () => {
     expect(frame).toContain("session 1m 5s");
     expect(frame).toContain("$0.012");
     expect(frame).toContain("12.3k tokens");
-    expect(frame).toContain("─");
     expect(frame).not.toContain("┌");
   });
 
-  it("derives the spinner frame and counter from the shared clock", () => {
+  it("computes the spinner frame and counter from the current system clock", () => {
     const startedAt = new Date(2026, 4, 17, 12, 0, 0).getTime();
+    vi.useFakeTimers();
 
-    const { lastFrame, rerender } = render(<Spinner startedAt={startedAt} now={startedAt} />);
+    vi.setSystemTime(startedAt);
+    const initial = render(<Spinner startedAt={startedAt} />);
+    expect(initial.lastFrame()).toContain("thinking… (0s)");
+    expect(initial.lastFrame()).toContain("⠋");
+    initial.unmount();
 
-    expect(lastFrame()).toContain("thinking… (0s)");
-    expect(lastFrame()).toContain("⠋");
+    vi.setSystemTime(startedAt + 240);
+    const after240 = render(<Spinner startedAt={startedAt} />);
+    expect(after240.lastFrame()).toContain("thinking… (0s)");
+    expect(after240.lastFrame()).toContain("⠹");
+    after240.unmount();
 
-    rerender(<Spinner startedAt={startedAt} now={startedAt + 120} />);
-
-    expect(lastFrame()).toContain("thinking… (0s)");
-    expect(lastFrame()).toContain("⠙");
+    vi.setSystemTime(startedAt + 2400);
+    const after2400 = render(<Spinner startedAt={startedAt} />);
+    expect(after2400.lastFrame()).toContain("thinking… (2s)");
+    after2400.unmount();
   });
 
-  it("renders the input spinner while a turn is active", () => {
+  it("renders the input box in a disabled style while a turn is active", () => {
     const startedAt = new Date(2026, 4, 17, 12, 0, 0).getTime();
+    vi.useFakeTimers();
+    vi.setSystemTime(startedAt);
 
     const { lastFrame } = render(<Input disabled pendingStartedAt={startedAt} now={startedAt} onSubmit={() => {}} onExit={() => {}} />);
 
-    expect(lastFrame()).toContain("thinking… (0s)");
-    expect(lastFrame()).not.toContain("waiting…");
-    expect(lastFrame()).toContain("─");
-    expect(lastFrame()).not.toContain("┌");
+    const frame = lastFrame() ?? "";
+    expect(frame).toContain("[12:00:00] >");
+    expect(frame).toContain("…");
+    expect(frame).not.toContain("thinking…");
+    expect(frame).toMatch(/[╭╮╰╯]/);
   });
 
   it("keeps the input clock pinned to the shared clock prop", () => {
@@ -122,9 +132,14 @@ describe("Ink TUI components", () => {
     expect(lastFrame()).toContain("[12:00:00] >");
   });
 
-  it("renders live activity for reasoning and tools", () => {
+  it("renders live activity for reasoning and tools inside a bordered box", () => {
+    const startedAt = new Date(2026, 4, 17, 12, 0, 0).getTime();
+    vi.useFakeTimers();
+    vi.setSystemTime(startedAt);
+
     const { lastFrame } = render(
       <ActivityPanel
+        pendingStartedAt={startedAt}
         items={[
           { id: "r1", kind: "reasoning", status: "active", summary: "thinking…", content: "checking files", startedAt: 1 },
           { id: "t1", kind: "tool", status: "done", summary: "list_files: 23 files", startedAt: 2, endedAt: 3 },
@@ -136,6 +151,12 @@ describe("Ink TUI components", () => {
     expect(frame).toContain("thinking…");
     expect(frame).toContain("checking files");
     expect(frame).toContain("list_files: 23 files");
+    expect(frame).toMatch(/[╭╮╰╯]/);
+  });
+
+  it("renders nothing when there is no pending turn and no items", () => {
+    const { lastFrame } = render(<ActivityPanel items={[]} />);
+    expect(lastFrame() ?? "").toBe("");
   });
 
   it("accumulates activity progress and clears it when the turn completes", () => {

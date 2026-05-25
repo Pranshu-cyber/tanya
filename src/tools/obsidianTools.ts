@@ -25,7 +25,7 @@ function asOptionalBoolean(input: unknown, key: string, fallback: boolean): bool
 
 export const searchObsidianNotesTool: TanyaTool = {
   name: "search_obsidian_notes",
-  description: "Search the configured Obsidian vault for task-relevant markdown notes and optionally materialize excerpts into .tania/context.",
+  description: "Search the configured Obsidian vault for task-relevant markdown notes and optionally materialize excerpts into .tanya/context.",
   definition: {
     type: "function",
     function: {
@@ -36,7 +36,7 @@ export const searchObsidianNotesTool: TanyaTool = {
         properties: {
           query: { type: "string", description: "Search terms or task text." },
           maxResults: { type: "number", description: "Maximum notes to return. Default 5." },
-          materialize: { type: "boolean", description: "Materialize matching note excerpts into .tania/context/obsidian. Default false." },
+          materialize: { type: "boolean", description: "Materialize matching note excerpts into .tanya/context/obsidian. Default false." },
         },
         required: ["query"],
         additionalProperties: false,

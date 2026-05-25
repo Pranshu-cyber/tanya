@@ -5,8 +5,8 @@ decides `allow`, `deny`, or `ask` before a tool reaches the filesystem, shell,
 network, or a project-local command.
 
 The first M3 release is intentionally compatible: default mode is `bypass`, so
-existing `tanya run` and legacy `tania run` automation keeps unrestricted
-behavior until a user opts into stricter modes.
+existing `tanya run` automation keeps unrestricted behavior until a user opts
+into stricter modes.
 
 ## File locations
 
@@ -16,16 +16,10 @@ User rules:
 ~/.tanya/permissions.json
 ```
 
-Tanya also reads legacy user rules from:
-
-```text
-~/.tania/permissions.json
-```
-
 Project rules:
 
 ```text
-.tania/permissions.json
+.tanya/permissions.json
 ```
 
 Project rules merge over user rules field-by-field. Arrays append by default.
@@ -179,14 +173,14 @@ plan instead of acting.
 
 ## Migration helper
 
-`tanya permissions migrate` scans the last 100 `.tania/runs/*.json` files and
+`tanya permissions migrate` scans the last 100 `.tanya/runs/*.json` files and
 prints a starter config to stdout:
 
 ```bash
-tanya permissions migrate --cwd . > .tania/permissions.suggested.json
+tanya permissions migrate --cwd . > .tanya/permissions.suggested.json
 ```
 
-Review the file before copying it to `.tania/permissions.json`. The generated
+Review the file before copying it to `.tanya/permissions.json`. The generated
 config starts in `ask` mode and includes this built-in low-risk seed list:
 
 ```json

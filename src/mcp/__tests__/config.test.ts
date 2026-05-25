@@ -21,7 +21,7 @@ describe("MCP config", () => {
     const home = mkdtempSync(join(tmpdir(), "tanya-mcp-home-"));
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-cwd-"));
     mkdirSync(join(home, ".tanya"), { recursive: true });
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     writeFileSync(join(home, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [
@@ -29,7 +29,7 @@ describe("MCP config", () => {
         { name: "user-only", transport: "stdio", command: "user-only" },
       ],
     }));
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [
         { name: "shared", transport: "stdio", command: "project-shared" },

@@ -1,10 +1,10 @@
 node_modules
 dist
 .env
-.tania
+.tanya
 /integrations/
 *.log
 
 # Local project-instructions file — may hold machine-specific paths.
-# Project rules for the public repo belong in .tania/INSTRUCTIONS.md.
+# Project rules for the public repo belong in .tanya/INSTRUCTIONS.md.
 TANYA.md

@@ -15,7 +15,7 @@ import {
 const roots: string[] = [];
 
 function tempRoot(): string {
-  const root = mkdtempSync(join(tmpdir(), "tania-dispatch-"));
+  const root = mkdtempSync(join(tmpdir(), "tanya-dispatch-"));
   roots.push(root);
   return root;
 }
@@ -72,7 +72,7 @@ describe("plan-and-dispatch", () => {
     expect(result.completed).toHaveLength(3);
     expect(prompts).toHaveLength(5);
     expect(prompts[2]).toContain("finished 1");
-    expect(readFileSync(join(cwd, ".tania", "dispatch", result.runID, "plan.json"), "utf8")).toContain("Build it");
+    expect(readFileSync(join(cwd, ".tanya", "dispatch", result.runID, "plan.json"), "utf8")).toContain("Build it");
   });
 
   it("TestPlanAndDispatch_JSONParseFailure_LogsAndStops", async () => {
@@ -112,7 +112,7 @@ describe("plan-and-dispatch", () => {
       },
     })).rejects.toThrow("stop");
 
-    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
+    const runID = readdirSync(join(cwd, ".tanya", "dispatch"))[0]!;
     const seen: string[] = [];
     const result = await runPlanAndDispatch({
       cwd,
@@ -139,8 +139,8 @@ describe("plan-and-dispatch", () => {
       },
     })).rejects.toThrow("stop");
 
-    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
-    const planPath = join(cwd, ".tania", "dispatch", runID, "plan.json");
+    const runID = readdirSync(join(cwd, ".tanya", "dispatch"))[0]!;
+    const planPath = join(cwd, ".tanya", "dispatch", runID, "plan.json");
     writeFileSync(planPath, "{not-json");
 
     await expect(runPlanAndDispatch({
@@ -163,8 +163,8 @@ describe("plan-and-dispatch", () => {
       },
     })).rejects.toThrow("stop");
 
-    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
-    const resultPath = join(cwd, ".tania", "dispatch", runID, "subtask_1.json");
+    const runID = readdirSync(join(cwd, ".tanya", "dispatch"))[0]!;
+    const resultPath = join(cwd, ".tanya", "dispatch", runID, "subtask_1.json");
     writeFileSync(resultPath, "{not-json");
 
     await expect(runPlanAndDispatch({
@@ -215,7 +215,7 @@ describe("plan-and-dispatch TDD", () => {
     expect(result.completed).toHaveLength(3);
     expect(commands).toHaveLength(6);
     for (const subtask of ["1", "2", "3"]) {
-      expect(existsSync(join(cwd, ".tania", "dispatch", result.runID, `subtask_${subtask}_phases.jsonl`))).toBe(true);
+      expect(existsSync(join(cwd, ".tanya", "dispatch", result.runID, `subtask_${subtask}_phases.jsonl`))).toBe(true);
     }
   });
 
@@ -267,7 +267,7 @@ describe("plan-and-dispatch TDD", () => {
     });
     expect(result.completed[0]?.summary).toBe("fallback");
     expect(prompts.filter((prompt) => prompt.includes("TDD violation")).length).toBe(2);
-    const phaseLog = readFileSync(join(cwd, ".tania", "dispatch", result.runID, "subtask_1_phases.jsonl"), "utf8");
+    const phaseLog = readFileSync(join(cwd, ".tanya", "dispatch", result.runID, "subtask_1_phases.jsonl"), "utf8");
     expect(phaseLog).toContain("red_abandoned");
   });
 
@@ -308,8 +308,8 @@ describe("plan-and-dispatch TDD", () => {
       },
       runCommand: async () => fail,
     })).rejects.toThrow(/failed TDD GREEN after 5 attempts/);
-    const runID = readdirSync(join(cwd, ".tania", "dispatch"))[0]!;
-    expect(readFileSync(join(cwd, ".tania", "dispatch", runID, "failures.log"), "utf8")).toContain("failed TDD GREEN");
+    const runID = readdirSync(join(cwd, ".tanya", "dispatch"))[0]!;
+    expect(readFileSync(join(cwd, ".tanya", "dispatch", runID, "failures.log"), "utf8")).toContain("failed TDD GREEN");
   });
 
   it("TestTDD_SubtaskFlaggedTDDFalseInPlan_SkipsTDDWrapper", async () => {
@@ -396,7 +396,7 @@ describe("plan-and-dispatch TDD", () => {
         return commandCalls === 1 ? fail : pass;
       },
     });
-    const lines = readFileSync(join(cwd, ".tania", "dispatch", result.runID, "subtask_1_phases.jsonl"), "utf8").trim().split("\n");
+    const lines = readFileSync(join(cwd, ".tanya", "dispatch", result.runID, "subtask_1_phases.jsonl"), "utf8").trim().split("\n");
     expect(lines.length).toBeGreaterThanOrEqual(6);
     for (const line of lines) expect(() => JSON.parse(line)).not.toThrow();
   });
@@ -427,7 +427,7 @@ describe("auto-fix verify loop", () => {
     });
     expect(result.completed[0]?.summary).toBe("fixed: register");
     expect(prompts.some((prompt) => prompt.includes("Failure 1/1: grep in a.go"))).toBe(true);
-    const fixLog = readFileSync(join(cwd, ".tania", "dispatch", result.runID, "subtask_1_fixes.jsonl"), "utf8").trim().split("\n");
+    const fixLog = readFileSync(join(cwd, ".tanya", "dispatch", result.runID, "subtask_1_fixes.jsonl"), "utf8").trim().split("\n");
     expect(fixLog).toHaveLength(1);
   });
 

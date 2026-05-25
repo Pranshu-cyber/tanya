@@ -24,9 +24,9 @@ describe("MCP client", () => {
 
   it("registers a mock MCP server tool and routes the result through the standard tool path", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-client-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     const serverPath = writeMockServer(cwd);
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [{
         name: "mock",
@@ -73,10 +73,10 @@ describe("MCP client", () => {
 
   it("auto-restarts a crashed stdio server and increments the restart counter", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-restart-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     const marker = join(cwd, "already-crashed");
     const serverPath = writeMockServer(cwd, { marker });
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [{
         name: "flaky",
@@ -103,9 +103,9 @@ describe("MCP client", () => {
 
   it("returns a structured tool error when an MCP call exceeds the configured timeout", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-timeout-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     const serverPath = writeMockServer(cwd, { slow: true });
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [{
         name: "slow",

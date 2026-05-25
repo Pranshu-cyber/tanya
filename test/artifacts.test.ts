@@ -20,10 +20,10 @@ describe("materializeCliArtifacts", () => {
         baseContext: { task: { kind: "coding" } },
       });
 
-      expect(readFileSync(join(cwd, ".tania", "artifacts", "ios", "FastlaneSetup.md"), "utf8")).toBe("fastlane setup\n");
+      expect(readFileSync(join(cwd, ".tanya", "artifacts", "ios", "FastlaneSetup.md"), "utf8")).toBe("fastlane setup\n");
       expect(context?.artifacts).toEqual([
         expect.objectContaining({
-          path: ".tania/artifacts/ios/FastlaneSetup.md",
+          path: ".tanya/artifacts/ios/FastlaneSetup.md",
           sourcePath: "ios/FastlaneSetup.md",
           status: "available",
         }),
@@ -99,9 +99,9 @@ describe("materializeCliArtifacts", () => {
         baseContext: { task: { kind: "coding" } },
       });
 
-      expect(readFileSync(join(cwd, ".tania", "context", "brand", "safety.md"), "utf8")).toBe("safety rules\n");
+      expect(readFileSync(join(cwd, ".tanya", "context", "brand", "safety.md"), "utf8")).toBe("safety rules\n");
       expect(context?.contextFiles?.[0]).toEqual(expect.objectContaining({
-        path: ".tania/context/brand/safety.md",
+        path: ".tanya/context/brand/safety.md",
         sourcePath: safetyPath,
         status: "available",
       }));

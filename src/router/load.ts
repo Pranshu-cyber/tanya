@@ -34,10 +34,10 @@ export function loadRouteTable(options: LoadRouteTableOptions): LoadedRouteTable
   const builtIn = builtInRouteTable(options.defaults);
   const userFiles = [
     join(home, ".tanya", "routes.json"),
-    join(home, ".tania", "routes.json"),
+    join(home, ".tanya", "routes.json"),
   ];
   const user = readFirstRouteFile(userFiles, "user");
-  const project = readRouteFile(join(options.cwd, ".tania", "routes.json"), "project");
+  const project = readRouteFile(join(options.cwd, ".tanya", "routes.json"), "project");
   const sources = [
     ...(project.source ? [project.source] : []),
     ...(user.source ? [user.source] : []),

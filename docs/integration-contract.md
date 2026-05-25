@@ -10,8 +10,7 @@ tanya run --json --cwd <path> "task"
 tanya run --json --cwd <path> --prompt-file <prompt.md>
 ```
 
-The legacy `tania` binary alias is still supported. The removed `--cosmo` mode is
-not part of this contract.
+The removed `--cosmo` mode is not part of this contract.
 
 ## Stream Format
 
@@ -55,12 +54,11 @@ forward-compatible additions.
 
 ## Final Verdict
 
-Coding runs keep the backward-compatible final report verdict line:
+Coding runs end with a final report verdict line:
 
 ```text
-TANIA RESULT: PASSED
-TANIA RESULT: FAIL
+TANYA RESULT: PASSED
+TANYA RESULT: FAIL
 ```
 
-The literal prefix is `TANIA`, not `TANYA`. Consumers that inspect human final
-reports should continue matching `TANIA RESULT: PASSED|FAIL`.
+Consumers that inspect human final reports should match `TANYA RESULT: PASSED|FAIL`.

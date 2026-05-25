@@ -21,7 +21,7 @@ describe("createCosmoChatFinalizeSink", () => {
     await sink({ type: "message_end" });
     await sink({
       type: "final",
-      message: "Done.\n\nTANIA RESULT: PASSED",
+      message: "Done.\n\nTANYA RESULT: PASSED",
       files: [],
       manifest: { blockers: [] },
     });
@@ -70,7 +70,7 @@ describe("createCosmoChatFinalizeSink", () => {
 
     await sink({
       type: "final",
-      message: "Done.\n\nTANIA RESULT: PASSED",
+      message: "Done.\n\nTANYA RESULT: PASSED",
       files: [],
       manifest: { blockers: [] },
     });

@@ -51,9 +51,9 @@ describe("runAgent final report recovery", () => {
       const costUsd = finalEvent?.type === "final" ? finalEvent.metrics?.costUsd : undefined;
       expect(typeof costUsd).toBe("number");
       expect(costUsd).toBeCloseTo((123 / 1_000_000) * 0.27 + (45 / 1_000_000) * 1.10);
-      const logs = readdirSync(join(cwd, ".tania", "runs")).filter((file) => file.endsWith(".json"));
+      const logs = readdirSync(join(cwd, ".tanya", "runs")).filter((file) => file.endsWith(".json"));
       expect(logs.length).toBe(1);
-      const log = JSON.parse(readFileSync(join(cwd, ".tania", "runs", logs[0] ?? ""), "utf8")) as {
+      const log = JSON.parse(readFileSync(join(cwd, ".tanya", "runs", logs[0] ?? ""), "utf8")) as {
         promptTokens: number;
         completionTokens: number;
         model: string;
@@ -219,7 +219,7 @@ describe("runAgent final report recovery", () => {
               type: "function",
               function: {
                 name: "read_file",
-                arguments: JSON.stringify({ path: ".tania/artifacts/ios/FastlaneSetup.md" }),
+                arguments: JSON.stringify({ path: ".tanya/artifacts/ios/FastlaneSetup.md" }),
               },
             },
           ],
@@ -227,8 +227,8 @@ describe("runAgent final report recovery", () => {
       },
     };
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-report-"));
-    mkdirSync(join(cwd, ".tania", "artifacts", "ios"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "artifacts", "ios", "FastlaneSetup.md"), "fastlane");
+    mkdirSync(join(cwd, ".tanya", "artifacts", "ios"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "artifacts", "ios", "FastlaneSetup.md"), "fastlane");
 
     const events: TanyaEvent[] = [];
     const { message: result } = await runAgent({
@@ -241,7 +241,7 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/example.md",
+            path: ".tanya/artifacts/example.md",
             sourcePath: "artifacts/example.md",
             status: "available",
           },
@@ -273,7 +273,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/android/SplashScreenPattern.kt" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/android/SplashScreenPattern.kt" }),
                 },
               },
               {
@@ -301,8 +301,8 @@ describe("runAgent final report recovery", () => {
       },
     };
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-zero-change-strip-artifact-prose-"));
-    mkdirSync(join(cwd, ".tania", "artifacts", "android"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "artifacts", "android", "SplashScreenPattern.kt"), "splash");
+    mkdirSync(join(cwd, ".tanya", "artifacts", "android"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "artifacts", "android", "SplashScreenPattern.kt"), "splash");
 
     const { message: result } = await runAgent({
       provider,
@@ -354,7 +354,7 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/example.md",
+            path: ".tanya/artifacts/example.md",
             sourcePath: "artifacts/example.md",
             status: "available",
           },
@@ -432,7 +432,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/ios/FastlaneSetup.md" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/ios/FastlaneSetup.md" }),
                 },
               },
               {
@@ -484,8 +484,8 @@ describe("runAgent final report recovery", () => {
       },
     };
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-targets-"));
-    mkdirSync(join(cwd, ".tania", "artifacts", "ios"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "artifacts", "ios", "FastlaneSetup.md"), "fastlane");
+    mkdirSync(join(cwd, ".tanya", "artifacts", "ios"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "artifacts", "ios", "FastlaneSetup.md"), "fastlane");
 
     const { message: result } = await runAgent({
       provider,
@@ -494,7 +494,7 @@ describe("runAgent final report recovery", () => {
       sink: async () => {},
       runContext: {
         task: { kind: "coding", title: "Setup Environment - iOS" },
-        artifacts: [{ path: ".tania/artifacts/ios/FastlaneSetup.md", sourcePath: "artifacts/ios/FastlaneSetup.md", status: "available" }],
+        artifacts: [{ path: ".tanya/artifacts/ios/FastlaneSetup.md", sourcePath: "artifacts/ios/FastlaneSetup.md", status: "available" }],
         expected_report: { verification: true, artifact_reuse: true },
       },
     });
@@ -519,7 +519,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/testing/OpenApiDtoGeneration.md" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/testing/OpenApiDtoGeneration.md" }),
                 },
               },
             ],
@@ -555,8 +555,8 @@ describe("runAgent final report recovery", () => {
       },
     };
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-none-report-"));
-    mkdirSync(join(cwd, ".tania", "artifacts", "testing"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "artifacts", "testing", "OpenApiDtoGeneration.md"), "openapi");
+    mkdirSync(join(cwd, ".tanya", "artifacts", "testing"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "artifacts", "testing", "OpenApiDtoGeneration.md"), "openapi");
 
     const { message: result } = await runAgent({
       provider,
@@ -567,7 +567,7 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/testing/OpenApiDtoGeneration.md",
+            path: ".tanya/artifacts/testing/OpenApiDtoGeneration.md",
             sourcePath: "artifacts/testing/OpenApiDtoGeneration.md",
             status: "available",
           },
@@ -691,7 +691,7 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/testing/OpenApiDtoGeneration.md",
+            path: ".tanya/artifacts/testing/OpenApiDtoGeneration.md",
             sourcePath: "artifacts/testing/OpenApiDtoGeneration.md",
             status: "available",
           },
@@ -1538,7 +1538,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/ios/ThemeSystem.swift" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/ios/ThemeSystem.swift" }),
                 },
               },
               {
@@ -1546,7 +1546,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/ios/OfflineCachePatterns.swift" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/ios/OfflineCachePatterns.swift" }),
                 },
               },
               {
@@ -1573,9 +1573,9 @@ describe("runAgent final report recovery", () => {
       },
     };
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-precise-ios-"));
-    mkdirSync(join(cwd, ".tania/artifacts/ios"), { recursive: true });
-    writeFileSync(join(cwd, ".tania/artifacts/ios/ThemeSystem.swift"), "theme");
-    writeFileSync(join(cwd, ".tania/artifacts/ios/OfflineCachePatterns.swift"), "offline");
+    mkdirSync(join(cwd, ".tanya/artifacts/ios"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya/artifacts/ios/ThemeSystem.swift"), "theme");
+    writeFileSync(join(cwd, ".tanya/artifacts/ios/OfflineCachePatterns.swift"), "offline");
 
     const { message: result } = await runAgent({
       provider,
@@ -2011,7 +2011,7 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/android/FastlaneSetup.md",
+            path: ".tanya/artifacts/android/FastlaneSetup.md",
             sourcePath: "artifacts/android/FastlaneSetup.md",
             status: "available",
           },
@@ -2042,7 +2042,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/android/NavigationSetup.kt" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/android/NavigationSetup.kt" }),
                 },
               },
               {
@@ -2050,7 +2050,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/android/RoomSetup.kt" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/android/RoomSetup.kt" }),
                 },
               },
               {
@@ -2087,9 +2087,9 @@ describe("runAgent final report recovery", () => {
     };
 
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-none-deterministic-"));
-    mkdirSync(join(cwd, ".tania/artifacts/android"), { recursive: true });
-    writeFileSync(join(cwd, ".tania/artifacts/android/NavigationSetup.kt"), "package artifact\n");
-    writeFileSync(join(cwd, ".tania/artifacts/android/RoomSetup.kt"), "package artifact\n");
+    mkdirSync(join(cwd, ".tanya/artifacts/android"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya/artifacts/android/NavigationSetup.kt"), "package artifact\n");
+    writeFileSync(join(cwd, ".tanya/artifacts/android/RoomSetup.kt"), "package artifact\n");
 
     const { message: result } = await runAgent({
       provider,
@@ -2100,12 +2100,12 @@ describe("runAgent final report recovery", () => {
         task: { kind: "coding" },
         artifacts: [
           {
-            path: ".tania/artifacts/android/NavigationSetup.kt",
+            path: ".tanya/artifacts/android/NavigationSetup.kt",
             sourcePath: "artifacts/android/NavigationSetup.kt",
             status: "available",
           },
           {
-            path: ".tania/artifacts/android/RoomSetup.kt",
+            path: ".tanya/artifacts/android/RoomSetup.kt",
             sourcePath: "artifacts/android/RoomSetup.kt",
             status: "available",
           },
@@ -2137,7 +2137,7 @@ describe("runAgent final report recovery", () => {
               function: {
                 name: "write_file",
                 arguments: JSON.stringify({
-                  path: ".tania/artifact-output/backend/NewPattern.ts",
+                  path: ".tanya/artifact-output/backend/NewPattern.ts",
                   content: "export const pattern = true;\n",
                 }),
               },
@@ -2167,7 +2167,7 @@ describe("runAgent final report recovery", () => {
     expect(result).toContain("Artifact created: artifacts/backend/NewPattern.ts -> reusable artifact");
   });
 
-  it("cleans materialized .tania context after a successful coding run", async () => {
+  it("cleans materialized .tanya context after a successful coding run", async () => {
     const provider = makeProvider([
       [
         "Artifact reused: none",
@@ -2177,12 +2177,12 @@ describe("runAgent final report recovery", () => {
       ].join("\n"),
     ]);
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-clean-context-"));
-    mkdirSync(join(cwd, ".tania", "context"), { recursive: true });
-    mkdirSync(join(cwd, ".tania", "artifacts"), { recursive: true });
-    mkdirSync(join(cwd, ".tania", "memory"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "context", "safety.md"), "rules\n");
-    writeFileSync(join(cwd, ".tania", "artifacts", "manifest.json"), "{}\n");
-    writeFileSync(join(cwd, ".tania", "memory", "golden-tasks.jsonl"), "{}\n");
+    mkdirSync(join(cwd, ".tanya", "context"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya", "artifacts"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya", "memory"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "context", "safety.md"), "rules\n");
+    writeFileSync(join(cwd, ".tanya", "artifacts", "manifest.json"), "{}\n");
+    writeFileSync(join(cwd, ".tanya", "memory", "golden-tasks.jsonl"), "{}\n");
 
     try {
       await runAgent({
@@ -2196,10 +2196,10 @@ describe("runAgent final report recovery", () => {
         },
       });
 
-      expect(existsSync(join(cwd, ".tania", "context"))).toBe(false);
-      expect(existsSync(join(cwd, ".tania", "artifacts"))).toBe(false);
-      expect(existsSync(join(cwd, ".tania", "memory"))).toBe(false);
-      expect(existsSync(join(cwd, ".tania", "runs"))).toBe(true);
+      expect(existsSync(join(cwd, ".tanya", "context"))).toBe(false);
+      expect(existsSync(join(cwd, ".tanya", "artifacts"))).toBe(false);
+      expect(existsSync(join(cwd, ".tanya", "memory"))).toBe(false);
+      expect(existsSync(join(cwd, ".tanya", "runs"))).toBe(true);
     } finally {
       await rm(cwd, { recursive: true, force: true });
     }
@@ -2259,7 +2259,7 @@ describe("runAgent final report recovery", () => {
     }
   });
 
-  it("keeps materialized .tania context when validation fails", async () => {
+  it("keeps materialized .tanya context when validation fails", async () => {
     const provider = makeProvider([
       [
         "Artifact reused: none",
@@ -2269,8 +2269,8 @@ describe("runAgent final report recovery", () => {
       ].join("\n"),
     ]);
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-keep-failed-context-"));
-    mkdirSync(join(cwd, ".tania", "artifacts", "ios"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "artifacts", "ios", "FastlaneSetup.md"), "setup\n");
+    mkdirSync(join(cwd, ".tanya", "artifacts", "ios"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "artifacts", "ios", "FastlaneSetup.md"), "setup\n");
 
     try {
       await runAgent({
@@ -2282,7 +2282,7 @@ describe("runAgent final report recovery", () => {
           task: { kind: "coding" },
           artifacts: [
             {
-              path: ".tania/artifacts/ios/FastlaneSetup.md",
+              path: ".tanya/artifacts/ios/FastlaneSetup.md",
               sourcePath: "artifacts/ios/FastlaneSetup.md",
               status: "available",
             },
@@ -2292,13 +2292,13 @@ describe("runAgent final report recovery", () => {
         },
       });
 
-      expect(existsSync(join(cwd, ".tania", "artifacts", "ios", "FastlaneSetup.md"))).toBe(true);
+      expect(existsSync(join(cwd, ".tanya", "artifacts", "ios", "FastlaneSetup.md"))).toBe(true);
     } finally {
       await rm(cwd, { recursive: true, force: true });
     }
   });
 
-  it("keeps materialized .tania context when keep mode is enabled", async () => {
+  it("keeps materialized .tanya context when keep mode is enabled", async () => {
     const provider = makeProvider([
       [
         "Artifact reused: none",
@@ -2308,8 +2308,8 @@ describe("runAgent final report recovery", () => {
       ].join("\n"),
     ]);
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-keep-context-"));
-    mkdirSync(join(cwd, ".tania", "context"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "context", "safety.md"), "rules\n");
+    mkdirSync(join(cwd, ".tanya", "context"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "context", "safety.md"), "rules\n");
 
     try {
       await runAgent({
@@ -2323,7 +2323,7 @@ describe("runAgent final report recovery", () => {
         },
       });
 
-      expect(existsSync(join(cwd, ".tania", "context", "safety.md"))).toBe(true);
+      expect(existsSync(join(cwd, ".tanya", "context", "safety.md"))).toBe(true);
     } finally {
       await rm(cwd, { recursive: true, force: true });
     }
@@ -2555,7 +2555,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/android/SplashScreenPattern.kt" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/android/SplashScreenPattern.kt" }),
                 },
               },
               {
@@ -2590,8 +2590,8 @@ describe("runAgent final report recovery", () => {
     };
 
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-android-splash-artifact-targets-"));
-    mkdirSync(join(cwd, ".tania/artifacts/android"), { recursive: true });
-    writeFileSync(join(cwd, ".tania/artifacts/android/SplashScreenPattern.kt"), "fun SplashPattern() {}\n");
+    mkdirSync(join(cwd, ".tanya/artifacts/android"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya/artifacts/android/SplashScreenPattern.kt"), "fun SplashPattern() {}\n");
 
     const { message: result } = await runAgent({
       provider,
@@ -2600,7 +2600,7 @@ describe("runAgent final report recovery", () => {
       sink: async () => {},
       runContext: {
         task: { kind: "coding" },
-        artifacts: [{ sourcePath: "artifacts/android/SplashScreenPattern.kt", path: ".tania/artifacts/android/SplashScreenPattern.kt" }],
+        artifacts: [{ sourcePath: "artifacts/android/SplashScreenPattern.kt", path: ".tanya/artifacts/android/SplashScreenPattern.kt" }],
         expected_report: { verification: true, artifact_reuse: true },
       },
     });
@@ -3091,7 +3091,7 @@ describe("runAgent final report recovery", () => {
                 type: "function",
                 function: {
                   name: "read_file",
-                  arguments: JSON.stringify({ path: ".tania/artifacts/ios/SplashScreenPattern.swift" }),
+                  arguments: JSON.stringify({ path: ".tanya/artifacts/ios/SplashScreenPattern.swift" }),
                 },
               },
               {
@@ -3127,8 +3127,8 @@ describe("runAgent final report recovery", () => {
     };
 
     const cwd = mkdtempSync(join(tmpdir(), "tanya-runner-artifact-same-extension-"));
-    mkdirSync(join(cwd, ".tania/artifacts/ios"), { recursive: true });
-    writeFileSync(join(cwd, ".tania/artifacts/ios/SplashScreenPattern.swift"), "import SwiftUI\n");
+    mkdirSync(join(cwd, ".tanya/artifacts/ios"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya/artifacts/ios/SplashScreenPattern.swift"), "import SwiftUI\n");
 
     const { message: result } = await runAgent({
       provider,
@@ -3137,7 +3137,7 @@ describe("runAgent final report recovery", () => {
       sink: async () => {},
       runContext: {
         task: { kind: "coding" },
-        artifacts: [{ sourcePath: "artifacts/ios/SplashScreenPattern.swift", path: ".tania/artifacts/ios/SplashScreenPattern.swift" }],
+        artifacts: [{ sourcePath: "artifacts/ios/SplashScreenPattern.swift", path: ".tanya/artifacts/ios/SplashScreenPattern.swift" }],
         expected_report: { verification: true, artifact_reuse: true },
       },
     });
@@ -3373,7 +3373,7 @@ describe("runAgent final report recovery", () => {
       },
     });
 
-    const memory = readFileSync(join(cwd, ".tania/memory/golden-tasks.jsonl"), "utf8")
+    const memory = readFileSync(join(cwd, ".tanya/memory/golden-tasks.jsonl"), "utf8")
       .trim()
       .split(/\r?\n/)
       .map((line) => JSON.parse(line) as { outcome: string; task: { title?: string } });

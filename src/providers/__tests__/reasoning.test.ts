@@ -123,7 +123,7 @@ describe("reasoning model streaming", () => {
     if (reasoningEvent?.type !== "reasoning_chunk") throw new Error("missing reasoning event");
     const archive = readReasoningArchive(cwd, reasoningEvent.runId);
     expect(archive.map((entry) => entry.content).join("")).toContain("run_shell");
-    expect(existsSync(join(cwd, ".tania", "runs", reasoningEvent.runId, "reasoning.jsonl"))).toBe(true);
+    expect(existsSync(join(cwd, ".tanya", "runs", reasoningEvent.runId, "reasoning.jsonl"))).toBe(true);
   });
 
   it("persists assistant reasoning_content in runner history only for round-trip providers", async () => {

@@ -31,28 +31,28 @@ describe("workspace context bootstrap", () => {
     expect(summary.tree.some((entry) => entry.includes("node_modules"))).toBe(false);
   });
 
-  it("loads .tania/INSTRUCTIONS.md as an instruction source", () => {
+  it("loads .tanya/INSTRUCTIONS.md as an instruction source", () => {
     const root = makeProject();
     writeFileSync(join(root, "package.json"), JSON.stringify({ name: "demo" }));
-    mkdirSync(join(root, ".tania"));
-    writeFileSync(join(root, ".tania", "INSTRUCTIONS.md"), "Always run the verifier.\n");
+    mkdirSync(join(root, ".tanya"));
+    writeFileSync(join(root, ".tanya", "INSTRUCTIONS.md"), "Always run the verifier.\n");
 
     const summary = loadWorkspaceSummary(root);
 
-    expect(summary.instructionReads.map((item) => item.path)).toContain(".tania/INSTRUCTIONS.md");
+    expect(summary.instructionReads.map((item) => item.path)).toContain(".tanya/INSTRUCTIONS.md");
   });
 
   it("renders a useful context block for non-git folders", () => {
     const root = makeProject();
     writeFileSync(join(root, "pyproject.toml"), "[project]\nname = \"demo\"\n");
-    writeFileSync(join(root, "TANIA.md"), "Prefer small changes.\n");
+    writeFileSync(join(root, "TANYA.md"), "Prefer small changes.\n");
 
     const block = buildContextBlock(root);
 
     expect(block).toContain("## Workspace Context");
     expect(block).toContain("Git repo: no");
     expect(block).toContain("Project type: python");
-    expect(block).toContain("--- TANIA.md ---");
+    expect(block).toContain("--- TANYA.md ---");
     expect(block).toContain("Prefer small changes.");
   });
 

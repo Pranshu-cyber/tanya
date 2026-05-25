@@ -18,7 +18,7 @@ class MemoryStream {
 
 function project(): string {
   const cwd = mkdtempSync(join(tmpdir(), "tanya-slash-sessions-"));
-  mkdirSync(join(cwd, ".tania"), { recursive: true });
+  mkdirSync(join(cwd, ".tanya"), { recursive: true });
   return cwd;
 }
 

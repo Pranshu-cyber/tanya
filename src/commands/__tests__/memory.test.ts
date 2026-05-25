@@ -84,7 +84,7 @@ describe("/memory command", () => {
 
 function makeWorkspace(): { workspace: string; output: MemoryStream } {
   const workspace = mkdtempSync(join(tmpdir(), "tanya-memory-command-"));
-  const memoryDir = join(workspace, ".tania", "memory");
+  const memoryDir = join(workspace, ".tanya", "memory");
   mkdirSync(memoryDir, { recursive: true });
   writeFileSync(join(memoryDir, "golden-tasks.jsonl"), [
     JSON.stringify(record("task-1", "2026-05-15T12:00:00.000Z", "first task")),

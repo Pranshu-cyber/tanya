@@ -219,7 +219,7 @@ export function topologicalSubtasks(plan: DispatchPlan): DispatchSubtask[] {
 }
 
 function dispatchDir(cwd: string, runID: string): string {
-  return resolve(cwd, ".tania", "dispatch", runID);
+  return resolve(cwd, ".tanya", "dispatch", runID);
 }
 
 function subtaskResultPath(dir: string, id: string): string {

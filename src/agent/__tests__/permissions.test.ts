@@ -8,7 +8,6 @@ import type { ChatProvider, ToolCall } from "../../providers/types";
 import { readAuditDecisions } from "../../memory/auditLog";
 
 const originalTanyaMode = process.env.TANYA_MODE;
-const originalTaniaMode = process.env.TANIA_MODE;
 
 function toolCall(id: string, name: string, args: unknown): ToolCall {
   return {
@@ -57,8 +56,6 @@ function providerForCalls(calls: ToolCall[]): ChatProvider {
 afterEach(() => {
   if (originalTanyaMode === undefined) delete process.env.TANYA_MODE;
   else process.env.TANYA_MODE = originalTanyaMode;
-  if (originalTaniaMode === undefined) delete process.env.TANIA_MODE;
-  else process.env.TANIA_MODE = originalTaniaMode;
 });
 
 describe("runner permissions", () => {
@@ -96,8 +93,8 @@ describe("runner permissions", () => {
 
   it("denies matched project rules before tool execution", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-permission-deny-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "permissions.json"), JSON.stringify({
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "default",
       alwaysDeny: ["write_file:.*blocked\\.txt.*"],
@@ -151,7 +148,7 @@ describe("runner permissions", () => {
 
   it("keeps bypass as the default mode", async () => {
     delete process.env.TANYA_MODE;
-    delete process.env.TANIA_MODE;
+    delete process.env.TANYA_MODE;
     const cwd = mkdtempSync(join(tmpdir(), "tanya-permission-bypass-"));
     const events: TanyaEvent[] = [];
 
@@ -173,9 +170,9 @@ describe("runner permissions", () => {
     });
   });
 
-  it("honors legacy TANIA_MODE and plan mode denies every tool call", async () => {
+  it("honors legacy TANYA_MODE and plan mode denies every tool call", async () => {
     delete process.env.TANYA_MODE;
-    process.env.TANIA_MODE = "plan";
+    process.env.TANYA_MODE = "plan";
     const cwd = mkdtempSync(join(tmpdir(), "tanya-permission-plan-"));
     const events: TanyaEvent[] = [];
 
@@ -202,8 +199,8 @@ describe("runner permissions", () => {
 
   it("blocks tool calls that would exceed spend rules and audits thresholds", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-permission-spend-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "permissions.json"), JSON.stringify({
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "default",
       spendRules: [{ type: "spend", scope: "turn", max_usd: 0.05, action: "deny" }],

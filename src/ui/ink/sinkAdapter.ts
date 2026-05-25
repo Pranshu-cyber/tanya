@@ -1,7 +1,7 @@
 import type { Dispatch } from "react";
 import type { EventSink, TanyaEvent } from "../../events/types";
 import { estimateRunCost } from "../../memory/runLogs";
-import { formatClock, formatElapsed } from "../../utils/formatElapsed";
+import { formatElapsed } from "../../utils/formatElapsed";
 import type { InkAction } from "./state";
 
 export function createInkSink(dispatch: Dispatch<InkAction>, options: {
@@ -159,9 +159,7 @@ export function createInkSink(dispatch: Dispatch<InkAction>, options: {
         const streamedTokens = event.metrics?.completionTokens ?? streamedTokenChars;
         dispatch({
           type: "system_message",
-          content: `[${formatClock(new Date(now))}] · ran ${toolCount} tool${toolCount === 1 ? "" : "s"} · thought for ${formatElapsed(
-            reasoningStartedAt === null ? 0 : now - reasoningStartedAt,
-          )} · streamed ${streamedTokens} token${streamedTokens === 1 ? "" : "s"}`,
+          content: `ran ${toolCount} tool${toolCount === 1 ? "" : "s"} · took ${formatElapsed(now - options.startedAt)}${reasoningStartedAt === null ? "" : ` (thought ${formatElapsed(now - reasoningStartedAt)})`} · streamed ${streamedTokens} token${streamedTokens === 1 ? "" : "s"}`,
           timestampMs: now,
         });
         const metrics = event.metrics;

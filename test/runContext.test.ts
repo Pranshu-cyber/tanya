@@ -5,7 +5,7 @@ describe("run context", () => {
   it("normalizes generic caller context", () => {
     const context = normalizeRunContext({
       task: { kind: "coding", title: "Patch README" },
-      artifacts: [{ path: ".tania/artifacts/example.md", sourcePath: "artifacts/example.md", role: "source-pattern", status: "available" }],
+      artifacts: [{ path: ".tanya/artifacts/example.md", sourcePath: "artifacts/example.md", role: "source-pattern", status: "available" }],
       instructions: ["Read artifacts first."],
       verification: { commands: ["npm test"] },
       languages: ["swift"],
@@ -16,7 +16,7 @@ describe("run context", () => {
     });
 
     expect(context.task?.kind).toBe("coding");
-    expect(context.artifacts?.[0]?.path).toBe(".tania/artifacts/example.md");
+    expect(context.artifacts?.[0]?.path).toBe(".tanya/artifacts/example.md");
     expect(context.artifacts?.[0]?.sourcePath).toBe("artifacts/example.md");
     expect(context.verification?.commands).toEqual(["npm test"]);
     expect(context.languages).toEqual(["swift"]);

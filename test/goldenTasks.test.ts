@@ -33,7 +33,7 @@ describe("golden task memory", () => {
       validation: { passed: true, issues: [] },
     }, context);
 
-    expect(readFileSync(join(root, ".tania/memory/golden-tasks.jsonl"), "utf8")).toContain("Setup Environment - iOS");
+    expect(readFileSync(join(root, ".tanya/memory/golden-tasks.jsonl"), "utf8")).toContain("Setup Environment - iOS");
     const records = await readGoldenTaskMemory(root);
     const summary = buildGoldenTaskSummary(records);
     expect(summary.total).toBe(2);
@@ -106,9 +106,9 @@ describe("golden task memory", () => {
 
     const runLog = await runGoldenTask("tanya.medium.run-log-history");
     expect(runLog.passed).toBe(true);
-    const logFiles = readdirSync(join(runLog.workspace, ".tania", "runs")).filter((file) => file.endsWith(".json"));
+    const logFiles = readdirSync(join(runLog.workspace, ".tanya", "runs")).filter((file) => file.endsWith(".json"));
     expect(logFiles.length).toBe(1);
-    const log = JSON.parse(readFileSync(join(runLog.workspace, ".tania", "runs", logFiles[0] ?? ""), "utf8")) as {
+    const log = JSON.parse(readFileSync(join(runLog.workspace, ".tanya", "runs", logFiles[0] ?? ""), "utf8")) as {
       promptTokens: number;
       completionTokens: number;
       model: string;

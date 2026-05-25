@@ -3,6 +3,7 @@ import { join, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { Command, Option } from "commander";
 import { loadConfig } from "./config/env";
+import { migrateLegacyDotDir } from "./init/migrateDotDir";
 import { envValue } from "./config/envCompat";
 import { loadRunContextFile, type TanyaRunContext } from "./context/runContext";
 import { materializeCliArtifacts } from "./context/artifacts";
@@ -220,7 +221,7 @@ function buildCliProgram(onParsed: (args: ParsedArgs) => void): Command {
   configureCliCommand(program.command("ask").description("Run one prompt without tools"), "ask", onParsed);
   configureCliCommand(program.command("run").description("Run an agent task with tools"), "run", onParsed);
   configureCliCommand(program.command("review").description("Review uncommitted changes against a task"), "review", onParsed);
-  configureCliCommand(program.command("init").description("Create .tania/INSTRUCTIONS.md for this project"), "init", onParsed);
+  configureCliCommand(program.command("init").description("Create .tanya/INSTRUCTIONS.md for this project"), "init", onParsed);
   configureCliCommand(program.command("video").description("Generate Tanya video assets"), "video", onParsed);
   configureCliCommand(program.command("golden").description("Manage local golden task memory"), "golden", onParsed);
   configureCliCommand(program.command("benchmark").description("Run executable regression benchmarks"), "benchmark", onParsed);
@@ -351,7 +352,7 @@ Usage:
   tanya --continue              Continue the latest chat session for this project
   tanya --resume <id>           Resume a specific chat session
   tanya ask "prompt"            Run one prompt without tools
-  tanya init [--cwd path]       Create .tania/INSTRUCTIONS.md for this project
+  tanya init [--cwd path]       Create .tanya/INSTRUCTIONS.md for this project
   tanya run [--cwd path] [--profile reasoner] "task" Run an agent task with tools
   tanya run "task"                        Auto-detects ./artifacts if present
   tanya run --context-file /tmp/context.json --prompt-file /tmp/prompt.txt
@@ -646,6 +647,7 @@ async function testProvider(args: ParsedArgs): Promise<void> {
 
 async function runEvalCommand(args: ParsedArgs): Promise<void> {
   const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+  migrateLegacyDotDir(cwd);
   const action = args.positional[0];
   const format = flagStrings(args, "format").includes("markdown") ? "markdown" : "text";
   if (action === "report") {
@@ -716,6 +718,7 @@ async function runEvalCommand(args: ParsedArgs): Promise<void> {
 
 async function doctor(args?: ParsedArgs): Promise<void> {
   const cwd = resolve(args ? flagString(args, "cwd") ?? process.cwd() : process.cwd());
+  migrateLegacyDotDir(cwd);
   const config = loadConfig(cwd);
   const checks: Array<{ name: string; status: "ok" | "warn" | "fail"; detail: string }> = [];
   const ok = (name: string, detail: string) => checks.push({ name, status: "ok", detail });
@@ -744,7 +747,7 @@ async function doctor(args?: ParsedArgs): Promise<void> {
   else warn("workspace.artifacts", "no ./artifacts dir — pass --artifacts-root or run from a project that has one");
 
   // Project-level forbidden patterns
-  const fpPath = join(cwd, ".tania", "forbidden-patterns.json");
+  const fpPath = join(cwd, ".tanya", "forbidden-patterns.json");
   if (existsSync(fpPath)) {
     try {
       const raw = readFileSync(fpPath, "utf8");
@@ -759,7 +762,7 @@ async function doctor(args?: ParsedArgs): Promise<void> {
   }
 
   // Forbidden-pattern fire metrics (from accumulated runs)
-  const fpMetricsPath = join(cwd, ".tania", "memory", "forbidden-patterns-metrics.json");
+  const fpMetricsPath = join(cwd, ".tanya", "memory", "forbidden-patterns-metrics.json");
   if (existsSync(fpMetricsPath)) {
     try {
       const raw = readFileSync(fpMetricsPath, "utf8");
@@ -823,6 +826,7 @@ async function runVideoCommand(args: ParsedArgs): Promise<void> {
   }
   if (preset === "render-ad") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const input = flagString(args, "input");
     if (!input) {
       console.log("Usage: tanya video render-ad --input spec.json [--output-dir dir] [--basename name] [--format mp4] [--format poster]");
@@ -856,6 +860,7 @@ async function runVideoCommand(args: ParsedArgs): Promise<void> {
     return;
   }
   const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+  migrateLegacyDotDir(cwd);
   const formats = flagStrings(args, "format");
   const options: Parameters<typeof generateVideoAsset>[0] = { preset };
   const outputDir = flagString(args, "output-dir") ?? flagString(args, "outputDir");
@@ -902,7 +907,8 @@ async function main(): Promise<void> {
 
   if (args.command === "patterns") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
-    const metricsPath = join(cwd, ".tania", "memory", "forbidden-patterns-metrics.json");
+    migrateLegacyDotDir(cwd);
+    const metricsPath = join(cwd, ".tanya", "memory", "forbidden-patterns-metrics.json");
     if (!existsSync(metricsPath)) {
       console.log(`No metrics file at ${metricsPath}. Run a tanya task in this workspace first.`);
       return;
@@ -937,6 +943,7 @@ async function main(): Promise<void> {
 
   if (args.command === "sessions") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     await runSessionsCommand({
       action: args.positional[0] ?? "list",
       args: args.positional.slice(1),
@@ -964,6 +971,7 @@ async function main(): Promise<void> {
       return;
     }
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const limit = flagNumber(args, "limit") ?? 100;
     console.log(JSON.stringify(suggestPermissionsFromRuns(cwd, limit), null, 2));
     return;
@@ -985,6 +993,7 @@ async function main(): Promise<void> {
 
   if (args.command === "init") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const path = await initTanyaProject(cwd);
     console.log(path);
     return;
@@ -997,6 +1006,7 @@ async function main(): Promise<void> {
 
   if (args.command === "golden" || args.command === "benchmark") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const action = args.positional[0] ?? "summary";
     if (!["summary", "list", "profiles", "run", "validate"].includes(action)) {
       console.log(`Usage: tanya ${args.command} summary|list|profiles|run|validate [--cwd path] [--json] [--profile id] [--all]`);
@@ -1013,6 +1023,7 @@ async function main(): Promise<void> {
 
   if (args.command === "runs") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const logs = readRunLogs(cwd, 10);
     if (logs.length === 0) {
       process.stdout.write("No run logs found. Run tanya run first.\n");
@@ -1027,6 +1038,7 @@ async function main(): Promise<void> {
 
   if (args.command === "debug-prompt") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const task = readPrompt(args);
     if (!task) throw new Error("Missing task. Usage: tanya debug-prompt --cwd <path> \"task description\"");
 
@@ -1073,6 +1085,7 @@ async function main(): Promise<void> {
 
   if (args.command === "review") {
     const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+    migrateLegacyDotDir(cwd);
     const task = readPrompt(args);
     if (!task) throw new Error("Missing task description. Usage: tanya review --cwd <path> \"task description\"");
 
@@ -1094,6 +1107,7 @@ async function main(): Promise<void> {
   }
 
   const cwd = resolve(flagString(args, "cwd") ?? process.cwd());
+  migrateLegacyDotDir(cwd);
   const routing = buildRoutingOptions(config, cwd);
   const json = hasFlag(args, "json");
   if (shouldUseInkChat(args, json)) {
@@ -1257,12 +1271,12 @@ async function main(): Promise<void> {
         try {
           const { execFileSync } = await import("node:child_process");
           const label = `tanya-retry-${attempt}`;
-          // Exclude `.tania/` from the stash: those are runner-internal artifacts
+          // Exclude `.tanya/` from the stash: those are runner-internal artifacts
           // (history.json, runs/*, memory/*) regenerated each attempt, and
           // including them in the stash causes pop conflicts on retry-recovery.
           execFileSync(
             "git",
-            ["stash", "push", "--include-untracked", "-m", label, "--", ":(exclude).tania", ":!**/.tania/**"],
+            ["stash", "push", "--include-untracked", "-m", label, "--", ":(exclude).tanya", ":!**/.tanya/**"],
             { cwd, stdio: "ignore" },
           );
           stashedAttemptResult = lastResult;
@@ -1336,8 +1350,7 @@ async function main(): Promise<void> {
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err);
           if (/conflict|merge|CONFLICT/i.test(msg)) {
-            process.stderr.write(`[tanya] Stash pop conflicted with current tree; aborting pop and keeping current attempt. Conflict: ${msg.slice(0, 240)}\n`);
-            try { execFileSync("git", ["checkout", "."], { cwd, stdio: "ignore" }); } catch {}
+            process.stderr.write(`[tanya] Stash pop conflicted with current tree; leaving the conflicted files in place for manual recovery. Conflict: ${msg.slice(0, 240)}\n`);
           } else {
             process.stderr.write(`[tanya] Could not pop stash to recover previous attempt's work: ${msg.slice(0, 240)}\n`);
           }

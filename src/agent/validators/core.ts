@@ -240,7 +240,7 @@ export async function findWorkspaceFiles(
   const roots = options.roots?.length ? options.roots : ["."];
   const limit = options.limit ?? 200;
   const results: string[] = [];
-  const ignored = new Set([".git", ".gradle", ".tania", "build", "DerivedData", "node_modules"]);
+  const ignored = new Set([".git", ".gradle", ".tanya", "build", "DerivedData", "node_modules"]);
 
   async function walk(relativeDir: string) {
     if (results.length >= limit) return;
@@ -288,8 +288,8 @@ function isForbiddenFile(filePath: string): boolean {
   return base === "local.properties" ||
     /^\.env(?:\.|$)/.test(base) && base !== ".env.example" ||
     /\.(?:orig|bak|backup|tmp)$/i.test(base) ||
-    filePath.includes("/.tania/") ||
-    filePath.startsWith(".tania/");
+    filePath.includes("/.tanya/") ||
+    filePath.startsWith(".tanya/");
 }
 
 function isTextFile(filePath: string): boolean {

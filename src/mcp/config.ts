@@ -37,11 +37,11 @@ const TRANSPORTS = new Set<McpTransportKind>(["stdio", "sse", "http"]);
 export function loadMcpConfig(options: { cwd: string; home?: string }): LoadedMcpConfig {
   const home = options.home ?? homedir();
   const userCurrent = join(home, ".tanya", "mcp.json");
-  const userLegacy = join(home, ".tania", "mcp.json");
+  const userLegacy = join(home, ".tanya", "mcp.json");
   const userFile = existsSync(userCurrent) ? userCurrent : existsSync(userLegacy) ? userLegacy : null;
   const candidates = [
     ...(userFile ? [userFile] : []),
-    join(options.cwd, ".tania", "mcp.json"),
+    join(options.cwd, ".tanya", "mcp.json"),
   ];
 
   let config = cloneConfig(EMPTY_CONFIG);

@@ -1,9 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Box, Text, useInput } from "ink";
 import { formatClock } from "../../utils/formatElapsed";
-import { Spinner } from "./Spinner";
-
-const divider = "─".repeat(80);
 
 export function Input({ disabled = false, pendingStartedAt, now, onSubmit, onExit }: {
   disabled?: boolean;
@@ -51,13 +48,20 @@ export function Input({ disabled = false, pendingStartedAt, now, onSubmit, onExi
     }
   });
 
+  const borderColor = disabled ? "gray" : "cyan";
+
   return (
-    <Box flexDirection="column">
-      <Text dimColor>{divider}</Text>
+    <Box flexDirection="column" borderStyle="round" borderColor={borderColor} paddingX={1} marginX={1}>
       <Box>
-        <Text color="green">[{formatClock(new Date(now))}] &gt; </Text>
-        <Text>{disabled ? "" : value}</Text>
-        {!disabled ? <Text inverse> </Text> : pendingStartedAt ? <Spinner startedAt={pendingStartedAt} now={now} /> : <Text dimColor>streaming…</Text>}
+        <Text color={disabled ? "gray" : "green"}>[{formatClock(new Date(now))}] &gt; </Text>
+        {disabled ? (
+          pendingStartedAt ? <Text dimColor>…</Text> : <Text dimColor>streaming…</Text>
+        ) : (
+          <>
+            <Text>{value}</Text>
+            <Text inverse> </Text>
+          </>
+        )}
       </Box>
     </Box>
   );

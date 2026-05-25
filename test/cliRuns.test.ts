@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 describe("runs CLI", () => {
   it("prints recent run logs with status, cost, and prompt", () => {
     const root = mkdtempSync(join(tmpdir(), "tanya-cli-runs-"));
-    const runsDir = join(root, ".tania", "runs");
+    const runsDir = join(root, ".tanya", "runs");
     mkdirSync(runsDir, { recursive: true });
     writeFileSync(
       join(runsDir, "2026-04-30T10-00-00.json"),

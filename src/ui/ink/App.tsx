@@ -8,6 +8,8 @@ import type { HostPermissionAnswer, PermissionRequestHandler } from "../../safet
 import { dispatchInteractiveCommand } from "../../agent/chat";
 import { loadProjectCommands } from "../../commands/project";
 import { listCommands } from "../../commands/registry";
+import { loadPromptSkillPacks } from "../../agent/systemPrompt";
+import { migrateLegacyDotDir } from "../../init/migrateDotDir";
 import { formatElapsed } from "../../utils/formatElapsed";
 import { Footer } from "./Footer";
 import { History } from "./History";
@@ -106,9 +108,22 @@ export function App({
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      migrateLegacyDotDir(cwd);
+      dispatch({ type: "boot_progress", message: "Loading project commands…" });
       await loadProjectCommands(cwd);
       if (cancelled) return;
+
+      dispatch({ type: "boot_progress", message: "Warming skill packs…" });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      try {
+        loadPromptSkillPacks(cwd);
+      } catch {
+        // Skill-pack prewarm is best-effort; first turn will retry.
+      }
+      if (cancelled) return;
+
       const projectCommandCount = listCommands().filter((command) => command.category === "project").length;
+      dispatch({ type: "boot_complete" });
       dispatch({ type: "system_message", content: `Tanya · loaded ${projectCommandCount} project command${projectCommandCount === 1 ? "" : "s"} · ready.` });
     })();
     return () => {
@@ -222,10 +237,16 @@ export function App({
         pendingTurn={state.pendingTurn}
         liveAssistantId={state.liveAssistantId}
       />
-      <ActivityPanel items={state.activityItems} />
+      <ActivityPanel
+        items={state.activityItems}
+        {...(state.pendingTurn?.spinnerVisible ? { pendingStartedAt: state.pendingTurn.startedAt } : {})}
+        {...(state.bootStage === "loading"
+          ? { bootMessage: state.bootMessage, bootStartedAt: state.bootStartedAt }
+          : {})}
+      />
       <PermissionPrompt request={state.pendingPermission} onAnswer={answerPermission} />
       <Input
-        disabled={state.pendingTurn !== null || state.pendingPermission !== null}
+        disabled={state.bootStage !== "ready" || state.pendingTurn !== null || state.pendingPermission !== null}
         {...(state.pendingTurn?.spinnerVisible ? { pendingStartedAt: state.pendingTurn.startedAt } : {})}
         now={now}
         onSubmit={handleSubmit}
@@ -237,7 +258,7 @@ export function App({
         sessionStartMs={state.sessionStartMs}
         stats={state.stats}
         now={now}
-        showColdStartHint={state.turnCount === 0}
+        showColdStartHint={state.bootStage === "ready" && state.turnCount === 0}
       />
     </Box>
   );

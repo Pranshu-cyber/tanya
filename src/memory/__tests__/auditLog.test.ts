@@ -41,7 +41,7 @@ describe("permission audit log", () => {
     writeFileSync(auditPath(workspace), "x".repeat(20), "utf8");
     appendAuditDecision(workspace, entry({ runId: "run-2" }), { maxBytes: 10, now: new Date("2026-05-16T13:00:00.000Z") });
 
-    const archiveDir = join(workspace, ".tania", "audit", "archive");
+    const archiveDir = join(workspace, ".tanya", "audit", "archive");
     expect(readdirSync(archiveDir).some((name) => name.endsWith(".gz"))).toBe(true);
     expect(readFileSync(auditPath(workspace), "utf8")).toContain("\"runId\":\"run-2\"");
 
@@ -53,6 +53,6 @@ describe("permission audit log", () => {
       maxAgeMs: 1,
       now: new Date("2026-01-01T00:00:02.000Z"),
     });
-    expect(existsSync(join(oldWorkspace, ".tania", "audit", "archive"))).toBe(true);
+    expect(existsSync(join(oldWorkspace, ".tanya", "audit", "archive"))).toBe(true);
   });
 });

@@ -416,7 +416,7 @@ export async function generateVideoAsset(options: GenerateVideoAssetOptions, wor
 }> {
   const config = normalizeOptions(options, workspace);
   const outputAbs = resolveInsideWorkspace(workspace, config.outputDir);
-  const tmpDir = resolveInsideWorkspace(workspace, `.tania/video-tmp/${config.basename}-${Date.now()}`);
+  const tmpDir = resolveInsideWorkspace(workspace, `.tanya/video-tmp/${config.basename}-${Date.now()}`);
   const frameDir = join(tmpDir, "frames");
   const svgDir = join(tmpDir, "svg");
   const chromeProfile = join(tmpDir, "chrome-profile");

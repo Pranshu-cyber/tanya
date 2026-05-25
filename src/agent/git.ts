@@ -25,7 +25,7 @@ export function isIgnoredReportPath(filePath: string): boolean {
     /(?:^|\/)[^/]+\.xcresult(?:\/|$)/.test(filePath) ||
     /(?:^|\/)ModuleCache\.noindex(?:\/|$)/.test(filePath) ||
     /(?:^|\/)SDKStatCaches\.noindex(?:\/|$)/.test(filePath) ||
-    /(?:^|\/)\.(?:tania|tanya|cosmo)\//.test(filePath) ||
+    /(?:^|\/)\.(?:tanya|cosmo)\//.test(filePath) ||
     filePath.startsWith(".git/") ||
     filePath.startsWith("node_modules/") ||
     filePath.startsWith(".next/") ||

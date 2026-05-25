@@ -188,7 +188,7 @@ export async function validateIosFoundation(workspace: string, manifest: Validat
   const issues: ValidationIssue[] = [];
   const discoveredSwiftFiles = await findWorkspaceFiles(
     workspace,
-    (file) => /\.swift$/.test(file) && !/(?:^|\/)\.tania\//.test(file),
+    (file) => /\.swift$/.test(file) && !/(?:^|\/)\.tanya\//.test(file),
     { roots: ["."], limit: 160 },
   );
   const swiftFiles = uniqueSorted([
@@ -197,7 +197,7 @@ export async function validateIosFoundation(workspace: string, manifest: Validat
   ]);
   const fontFiles = await findWorkspaceFiles(
     workspace,
-    (file) => /\.(?:ttf|otf)$/i.test(file) && !/(?:^|\/)\.tania\//.test(file),
+    (file) => /\.(?:ttf|otf)$/i.test(file) && !/(?:^|\/)\.tanya\//.test(file),
     { roots: ["."], limit: 80 },
   );
   const fileTexts = new Map<string, string>();

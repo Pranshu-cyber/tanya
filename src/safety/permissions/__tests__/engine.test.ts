@@ -164,23 +164,18 @@ describe("permission engine", () => {
 });
 
 describe("permission rules loading", () => {
-  it("loads legacy user, new user, and project rules with project merge precedence", () => {
+  it("merges user and project rules with project precedence", () => {
     const home = mkdtempSync(join(tmpdir(), "tanya-permissions-home-"));
     const cwd = mkdtempSync(join(tmpdir(), "tanya-permissions-cwd-"));
-    mkdirSync(join(home, ".tania"), { recursive: true });
     mkdirSync(join(home, ".tanya"), { recursive: true });
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
-    writeFileSync(join(home, ".tania", "permissions.json"), JSON.stringify({
-      version: 1,
-      mode: "default",
-      alwaysAllow: ["read_file:.*"],
-    }));
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     writeFileSync(join(home, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "ask",
+      alwaysAllow: ["read_file:.*"],
       alwaysDeny: ["run_shell:.*rm -rf.*"],
     }));
-    writeFileSync(join(cwd, ".tania", "permissions.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "plan",
       alwaysAsk: ["write_file:.*"],
@@ -189,7 +184,7 @@ describe("permission rules loading", () => {
     const loaded = loadPermissionRules({ cwd, home });
 
     expect(loaded.issues).toEqual([]);
-    expect(loaded.sources).toHaveLength(3);
+    expect(loaded.sources).toHaveLength(2);
     expect(loaded.rules.mode).toBe("plan");
     expect(loaded.rules.alwaysAllow).toEqual(["read_file:.*"]);
     expect(loaded.rules.alwaysDeny).toEqual(["run_shell:.*rm -rf.*"]);

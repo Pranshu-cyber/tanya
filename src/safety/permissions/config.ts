@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { DEFAULT_PERMISSION_RULES, parsePermissionsJson, type PermissionMode, type PermissionRulesConfig, type SpendRule } from "./schema";
 
 export function writeProjectPermissionMode(cwd: string, mode: PermissionMode): string {
-  const path = join(cwd, ".tania", "permissions.json");
+  const path = join(cwd, ".tanya", "permissions.json");
   const current = readProjectPermissions(path);
   const next: PermissionRulesConfig = {
     ...current,
@@ -17,7 +17,7 @@ export function writeProjectPermissionMode(cwd: string, mode: PermissionMode): s
 }
 
 export function appendProjectSpendRule(cwd: string, rule: SpendRule): string {
-  const path = join(cwd, ".tania", "permissions.json");
+  const path = join(cwd, ".tanya", "permissions.json");
   const current = readProjectPermissions(path);
   const next: PermissionRulesConfig = {
     ...current,

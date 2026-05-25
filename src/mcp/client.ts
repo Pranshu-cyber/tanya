@@ -158,7 +158,7 @@ export class McpClientManager {
   private createTransport(config: McpServerConfig): Transport {
     if (config.transport === "stdio") {
       const logPath = mcpLogPath(this.workspace, config.name);
-      mkdirSync(join(this.workspace, ".tania", "mcp", "logs"), { recursive: true });
+      mkdirSync(join(this.workspace, ".tanya", "mcp", "logs"), { recursive: true });
       rotateMcpLogIfNeeded(logPath);
       const transport = new StdioClientTransport({
         command: config.command ?? "",
@@ -333,7 +333,7 @@ function mcpCallTimeoutMs(): number {
 }
 
 function mcpLogPath(workspace: string, serverName: string): string {
-  return join(workspace, ".tania", "mcp", "logs", `${serverName}.log`);
+  return join(workspace, ".tanya", "mcp", "logs", `${serverName}.log`);
 }
 
 function rotateMcpLogIfNeeded(path: string): void {

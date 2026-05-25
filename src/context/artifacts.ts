@@ -44,8 +44,8 @@ export function materializeCliArtifacts(input: MaterializeCliArtifactsInput): Ta
 
   const cwd = resolve(input.cwd);
   const root = input.root ? resolve(input.root) : undefined;
-  const targetRoot = resolve(cwd, ".tania", "artifacts");
-  const contextTargetRoot = resolve(cwd, ".tania", "context");
+  const targetRoot = resolve(cwd, ".tanya", "artifacts");
+  const contextTargetRoot = resolve(cwd, ".tanya", "context");
   const materialized: NonNullable<TanyaRunContext["artifacts"]> = [];
   const contextFiles: NonNullable<TanyaRunContext["contextFiles"]> = [];
 
@@ -55,7 +55,7 @@ export function materializeCliArtifacts(input: MaterializeCliArtifactsInput): Ta
       : resolve(root ?? cwd, artifact);
     const rel = relativeMaterializedPath(root, artifact, source);
     const target = resolve(targetRoot, rel);
-    const localPath = `.tania/artifacts/${normalizePath(rel)}`;
+    const localPath = `.tanya/artifacts/${normalizePath(rel)}`;
     const label = sourceLabel(root, artifact);
 
     if (!target.startsWith(`${targetRoot}/`) || !existsSync(source)) {
@@ -101,7 +101,7 @@ export function materializeCliArtifacts(input: MaterializeCliArtifactsInput): Ta
     const parentLabel = basename(dirname(source));
     const targetRel = parentLabel ? `${parentLabel}/${basename(source)}` : rel;
     const target = resolve(contextTargetRoot, targetRel);
-    const localPath = `.tania/context/${normalizePath(targetRel)}`;
+    const localPath = `.tanya/context/${normalizePath(targetRel)}`;
 
     if (!target.startsWith(`${contextTargetRoot}/`) || !existsSync(source)) {
       contextFiles.push({
@@ -143,15 +143,15 @@ export function materializeCliArtifacts(input: MaterializeCliArtifactsInput): Ta
     instructions: [
       ...(input.baseContext?.instructions ?? []),
       ...(materialized.length > 0 ? [
-        "Caller artifacts were provided through Tanya's artifact input contract and materialized under .tania/artifacts.",
+        "Caller artifacts were provided through Tanya's artifact input contract and materialized under .tanya/artifacts.",
         "Read relevant materialized artifact paths before implementing related code.",
       ] : []),
       ...(contextFiles.length > 0 ? [
-        "Caller context files were materialized under .tania/context.",
+        "Caller context files were materialized under .tanya/context.",
         "Read relevant materialized context paths before implementing safety, brand, architecture, or API contract requirements.",
       ] : []),
       ...(artifactOutputRoot ? [
-        "If you create a reusable artifact, write it inside .tania/artifact-output using the intended artifact-relative path and mention it as Artifact created.",
+        "If you create a reusable artifact, write it inside .tanya/artifact-output using the intended artifact-relative path and mention it as Artifact created.",
       ] : []),
       "When reporting artifact reuse, use the artifact sourcePath label when available.",
     ],

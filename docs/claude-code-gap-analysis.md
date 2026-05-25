@@ -132,7 +132,7 @@ of compacted turns.
 
 - Detect provider context-window failures around model calls.
 - Summarize or compact older messages more aggressively on retry.
-- Persist archived messages under `.tania/runs/<runId>/archive.jsonl`.
+- Persist archived messages under `.tanya/runs/<runId>/archive.jsonl`.
 - Emit a compaction event so users can see why the agent paused.
 
 **Files to touch.**

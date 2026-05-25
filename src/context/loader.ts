@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 const ignoredNames = new Set([".git", "node_modules", ".next", "dist", "build", ".turbo", ".cache"]);
 const artifactIgnoredNames = new Set([".DS_Store", ".git", "node_modules", "dist", "build"]);
 
-const instructionFiles = ["TANYA.md", "TANIA.md", "AGENTS.md", "CLAUDE.md", "README.md", ".tania/INSTRUCTIONS.md"];
+const instructionFiles = ["TANYA.md", "TANYA.md", "AGENTS.md", "CLAUDE.md", "README.md", ".tanya/INSTRUCTIONS.md"];
 const projectMarkers = [
   { file: "package.json", type: "node" },
   { file: "pyproject.toml", type: "python" },

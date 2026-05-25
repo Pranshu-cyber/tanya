@@ -191,7 +191,7 @@ export const GENERIC_BENCHMARK_PROFILES: GoldenTaskProfile[] = [
     id: "tanya.medium.run-log-history",
     title: "Medium - Usage Metrics Run Log",
     platform: "cross-platform",
-    purpose: "Complete a normal edit while emitting usage counts that should be persisted to .tania/runs.",
+    purpose: "Complete a normal edit while emitting usage counts that should be persisted to .tanya/runs.",
     requiredCapabilities: ["usage metrics", "run log persistence", "history visibility"],
   },
   {

@@ -90,7 +90,7 @@ describe("Obsidian search", () => {
       maxResults: 1,
     });
 
-    expect(materialized.contextFiles[0]?.path).toBe(".tania/context/obsidian/CosmoHQ/App_Creator_V2.md");
+    expect(materialized.contextFiles[0]?.path).toBe(".tanya/context/obsidian/CosmoHQ/App_Creator_V2.md");
     const content = readFileSync(join(workspace, materialized.contextFiles[0]?.path ?? ""), "utf8");
     expect(content).toContain("Source: CosmoHQ/App Creator V2.md");
     expect(content).toContain("[redacted possible secret]");

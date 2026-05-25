@@ -137,7 +137,7 @@ export function hasRequiredCodingReport(text: string): boolean {
 function sourceArtifactPath(localPath: string, runContext?: TanyaRunContext): string {
   const match = runContext?.artifacts?.find((artifact) => artifact.path === localPath || artifact.sourcePath === localPath);
   if (match?.sourcePath) return match.sourcePath;
-  if (localPath.startsWith(".tania/artifacts/")) return localPath.replace(/^\.tania\/artifacts\//, "artifacts/");
+  if (localPath.startsWith(".tanya/artifacts/")) return localPath.replace(/^\.tanya\/artifacts\//, "artifacts/");
   return localPath;
 }
 
@@ -409,7 +409,7 @@ function reclassifyExploratoryFailuresAsRecovered(verificationLines: string[]): 
 // Kept narrow so we don't blow up cost on large repos: just route handlers
 // for auth/billing/webhooks/email/notifications and the matching mobile
 // session/auth/payment files. Project-level overrides in
-// .tania/forbidden-patterns.json `alwaysScanGlobs` (future).
+// .tanya/forbidden-patterns.json `alwaysScanGlobs` (future).
 const SECURITY_CRITICAL_PATH_PATTERNS: RegExp[] = [
   /(?:^|\/)(?:app|src)\/api\/(?:auth|billing|webhooks|payment|email|notifications)\/.*\.(?:ts|tsx|js|mjs)$/i,
   /(?:^|\/)routes\/(?:auth|billing|webhooks|payment|email|notifications)\/.*\.(?:ts|tsx|js|mjs|py|rb|go)$/i,
@@ -674,82 +674,82 @@ function explicitArtifactReuseLinesForManifest(
 }
 
 function artifactTargetFiles(artifactPath: string, changedFiles: string[]): string[] {
-  if (/artifacts\/ios\/SplashScreenPattern\.swift$|\.tania\/artifacts\/ios\/SplashScreenPattern\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/SplashScreenPattern\.swift$|\.tanya\/artifacts\/ios\/SplashScreenPattern\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)SplashScreenView\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/OnboardingFlowPattern\.swift$|\.tania\/artifacts\/ios\/OnboardingFlowPattern\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/OnboardingFlowPattern\.swift$|\.tanya\/artifacts\/ios\/OnboardingFlowPattern\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:OnboardingView|OnboardingPageView)\.swift$|(?:^|\/)[^/]+App\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/ColorHex\.swift$|\.tania\/artifacts\/ios\/ColorHex\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/ColorHex\.swift$|\.tanya\/artifacts\/ios\/ColorHex\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:ColorHex|Colors|ThemeSystem)\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/ThemeSystem\.swift$|\.tania\/artifacts\/ios\/ThemeSystem\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/ThemeSystem\.swift$|\.tanya\/artifacts\/ios\/ThemeSystem\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:Theme\/)?(?:ThemeSystem|Colors|Typography|ViewModifiers)\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/NavigationSetup\.swift$|\.tania\/artifacts\/ios\/NavigationSetup\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/NavigationSetup\.swift$|\.tanya\/artifacts\/ios\/NavigationSetup\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:Navigation\/)?(?:NavigationSetup|AppNavigation|NavigationView)\.swift$|(?:^|\/)ContentView\.swift$|(?:^|\/)[^/]+App\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/SwiftDataSetup\.swift$|\.tania\/artifacts\/ios\/SwiftDataSetup\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/SwiftDataSetup\.swift$|\.tanya\/artifacts\/ios\/SwiftDataSetup\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:Models\/)?(?:SwiftDataSetup|Models|.*Model)\.swift$|(?:^|\/)[^/]+App\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/MultiPlatformAppleSetup\.swift$|\.tania\/artifacts\/ios\/MultiPlatformAppleSetup\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/MultiPlatformAppleSetup\.swift$|\.tanya\/artifacts\/ios\/MultiPlatformAppleSetup\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:ContentView|[^/]+App|Platform|Root)\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/DebugLogger\.swift$|\.tania\/artifacts\/ios\/DebugLogger\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/DebugLogger\.swift$|\.tanya\/artifacts\/ios\/DebugLogger\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:DebugLogger|Logger|Logging)\.swift$/.test(file));
   }
-  if (/artifacts\/ios\/Localization\.swift$|\.tania\/artifacts\/ios\/Localization\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/Localization\.swift$|\.tanya\/artifacts\/ios\/Localization\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:Localization|Localiz(?:able|ation)|Strings)\.swift$|(?:^|\/)[^/]+\.strings$/.test(file));
   }
-  if (/artifacts\/ios\/OfflineCachePatterns\.swift$|\.tania\/artifacts\/ios\/OfflineCachePatterns\.swift$/.test(artifactPath)) {
+  if (/artifacts\/ios\/OfflineCachePatterns\.swift$|\.tanya\/artifacts\/ios\/OfflineCachePatterns\.swift$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:Offline|Cache|Sync|Repository|Store)[^/]*\.swift$/.test(file));
   }
-  if (/artifacts\/android\/SplashScreenPattern\.kt$|\.tania\/artifacts\/android\/SplashScreenPattern\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/SplashScreenPattern\.kt$|\.tanya\/artifacts\/android\/SplashScreenPattern\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:SplashScreen|MainActivity)\.kt$/.test(file));
   }
-  if (/artifacts\/android\/OnboardingFlowPattern\.kt$|\.tania\/artifacts\/android\/OnboardingFlowPattern\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/OnboardingFlowPattern\.kt$|\.tanya\/artifacts\/android\/OnboardingFlowPattern\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:OnboardingScreen|OnboardingDataStore|MainActivity|AppNavigation)\.kt$|(?:^|\/)app\/build\.gradle\.kts$/.test(file));
   }
-  if (/artifacts\/android\/ThemeSystem\.kt$|\.tania\/artifacts\/android\/ThemeSystem\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/ThemeSystem\.kt$|\.tanya\/artifacts\/android\/ThemeSystem\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)ui\/theme\/(?:AppTheme|Color|Theme|Type)\.kt$/.test(file));
   }
-  if (/artifacts\/android\/NavigationSetup\.kt$|\.tania\/artifacts\/android\/NavigationSetup\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/NavigationSetup\.kt$|\.tanya\/artifacts\/android\/NavigationSetup\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)navigation\/[^/]+\.kt$|(?:^|\/)MainActivity\.kt$/.test(file));
   }
-  if (/artifacts\/android\/RoomSetup\.kt$|\.tania\/artifacts\/android\/RoomSetup\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/RoomSetup\.kt$|\.tanya\/artifacts\/android\/RoomSetup\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) =>
       /(?:^|\/)(?:app\/schemas\/|build\.gradle\.kts$|app\/build\.gradle\.kts$)/.test(file) ||
       /(?:^|\/)data\/.*(?:Database|Entity|Dao|Room|Migration|Repository)\.kt$/.test(file)
     );
   }
-  if (/artifacts\/android\/FeatureScreenPatterns\.kt$|\.tania\/artifacts\/android\/FeatureScreenPatterns\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/FeatureScreenPatterns\.kt$|\.tanya\/artifacts\/android\/FeatureScreenPatterns\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)ui\/components\/[^/]+\.kt$|(?:^|\/)ui\/screens\/[^/]+\.kt$/.test(file));
   }
-  if (/artifacts\/android\/OfflineCachePatterns\.kt$|\.tania\/artifacts\/android\/OfflineCachePatterns\.kt$/.test(artifactPath)) {
+  if (/artifacts\/android\/OfflineCachePatterns\.kt$|\.tanya\/artifacts\/android\/OfflineCachePatterns\.kt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:data\/.*(?:Cache|Sync|Offline)|work\/|network\/).*\.kt$/.test(file));
   }
-  if (artifactPath.endsWith("artifacts/ios/FastlaneSetup.md") || artifactPath.endsWith(".tania/artifacts/ios/FastlaneSetup.md")) {
+  if (artifactPath.endsWith("artifacts/ios/FastlaneSetup.md") || artifactPath.endsWith(".tanya/artifacts/ios/FastlaneSetup.md")) {
     return changedFiles.filter((file) => file === "fastlane/Fastfile" || file === "fastlane/Appfile" || /(?:^|\/)ExportOptions-[^/]+\.plist$/.test(file));
   }
-  if (/artifacts\/android\/FastlaneSetup\.md$|\.tania\/artifacts\/android\/FastlaneSetup\.md$/.test(artifactPath)) {
+  if (/artifacts\/android\/FastlaneSetup\.md$|\.tanya\/artifacts\/android\/FastlaneSetup\.md$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)fastlane\/Fastfile$|(?:^|\/)fastlane\/Appfile$/.test(file));
   }
-  if (/artifacts\/android\/PlayRelease_ManualSteps\.md$|\.tania\/artifacts\/android\/PlayRelease_ManualSteps\.md$/.test(artifactPath)) {
+  if (/artifacts\/android\/PlayRelease_ManualSteps\.md$|\.tanya\/artifacts\/android\/PlayRelease_ManualSteps\.md$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)fastlane\/Fastfile$|(?:^|\/)gradle\.properties$/.test(file));
   }
-  if (/artifacts\/backend\/JwtAuthRoutes\.ts$|\.tania\/artifacts\/backend\/JwtAuthRoutes\.ts$/.test(artifactPath)) {
+  if (/artifacts\/backend\/JwtAuthRoutes\.ts$|\.tanya\/artifacts\/backend\/JwtAuthRoutes\.ts$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)app\/api\/[^/]+(?:\/.*)?\/route\.ts$|(?:^|\/)(?:lib\/(?:auth|.*Auth|routeWrappers)\.ts|middleware\.ts)$/.test(file));
   }
-  if (/artifacts\/backend\/OpenApiSwaggerRoutes\.ts$|\.tania\/artifacts\/backend\/OpenApiSwaggerRoutes\.ts$/.test(artifactPath)) {
+  if (/artifacts\/backend\/OpenApiSwaggerRoutes\.ts$|\.tanya\/artifacts\/backend\/OpenApiSwaggerRoutes\.ts$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)(?:lib\/openapi\.ts|app\/api\/(?:docs|openapi\.json)\/route\.ts|API_FEATURES\.md|brand\/api_features\.md)$/.test(file));
   }
-  if (/artifacts\/backend\/PrismaBase\.prisma$|\.tania\/artifacts\/backend\/PrismaBase\.prisma$/.test(artifactPath)) {
+  if (/artifacts\/backend\/PrismaBase\.prisma$|\.tanya\/artifacts\/backend\/PrismaBase\.prisma$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)prisma\/schema\.prisma$/.test(file));
   }
-  if (/artifacts\/backend\/EnvExample\.txt$|\.tania\/artifacts\/backend\/EnvExample\.txt$/.test(artifactPath)) {
+  if (/artifacts\/backend\/EnvExample\.txt$|\.tanya\/artifacts\/backend\/EnvExample\.txt$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)\.env\.example$/.test(file));
   }
-  if (/artifacts\/testing\/MobileCIWorkflows\.md$|\.tania\/artifacts\/testing\/MobileCIWorkflows\.md$/.test(artifactPath)) {
+  if (/artifacts\/testing\/MobileCIWorkflows\.md$|\.tanya\/artifacts\/testing\/MobileCIWorkflows\.md$/.test(artifactPath)) {
     return changedFiles.filter((file) => /(?:^|\/)\.github\/workflows\/[^/]+\.ya?ml$/.test(file));
   }
   return [];
@@ -879,7 +879,7 @@ function buildStructuredReport(manifest: TanyaFinalManifest, runContext?: TanyaR
   const blocked = uniqueSorted([...manifest.blockers, ...validationBlockers]);
   const artifactsReused = structuredArtifactReuse(manifest, runContext, finalText);
   const hasStrictArtifactMapping = manifest.artifactsRead.some((artifactPath) =>
-    /artifacts\/(?:ios\/(?:FastlaneSetup\.md|SplashScreenPattern\.swift)|android\/(?:FastlaneSetup\.md|PlayRelease_ManualSteps\.md|SplashScreenPattern\.kt|ThemeSystem\.kt|NavigationSetup\.kt|RoomSetup\.kt|FeatureScreenPatterns\.kt|OfflineCachePatterns\.kt)|backend\/(?:JwtAuthRoutes\.ts|OpenApiSwaggerRoutes\.ts|PrismaBase\.prisma|EnvExample\.txt)|testing\/MobileCIWorkflows\.md)$|\.tania\/artifacts\/(?:ios\/(?:FastlaneSetup\.md|SplashScreenPattern\.swift)|android\/(?:FastlaneSetup\.md|PlayRelease_ManualSteps\.md|SplashScreenPattern\.kt|ThemeSystem\.kt|NavigationSetup\.kt|RoomSetup\.kt|FeatureScreenPatterns\.kt|OfflineCachePatterns\.kt)|backend\/(?:JwtAuthRoutes\.ts|OpenApiSwaggerRoutes\.ts|PrismaBase\.prisma|EnvExample\.txt)|testing\/MobileCIWorkflows\.md)$/.test(artifactPath)
+    /artifacts\/(?:ios\/(?:FastlaneSetup\.md|SplashScreenPattern\.swift)|android\/(?:FastlaneSetup\.md|PlayRelease_ManualSteps\.md|SplashScreenPattern\.kt|ThemeSystem\.kt|NavigationSetup\.kt|RoomSetup\.kt|FeatureScreenPatterns\.kt|OfflineCachePatterns\.kt)|backend\/(?:JwtAuthRoutes\.ts|OpenApiSwaggerRoutes\.ts|PrismaBase\.prisma|EnvExample\.txt)|testing\/MobileCIWorkflows\.md)$|\.tanya\/artifacts\/(?:ios\/(?:FastlaneSetup\.md|SplashScreenPattern\.swift)|android\/(?:FastlaneSetup\.md|PlayRelease_ManualSteps\.md|SplashScreenPattern\.kt|ThemeSystem\.kt|NavigationSetup\.kt|RoomSetup\.kt|FeatureScreenPatterns\.kt|OfflineCachePatterns\.kt)|backend\/(?:JwtAuthRoutes\.ts|OpenApiSwaggerRoutes\.ts|PrismaBase\.prisma|EnvExample\.txt)|testing\/MobileCIWorkflows\.md)$/.test(artifactPath)
   );
   const explicitNoneOnly = explicitArtifactReuseNoneWithRationale(finalText)
     && explicitArtifactReuseLines(finalText).length === 0
@@ -966,8 +966,8 @@ function appendTaniaResultLine(text: string, verdict: "PASSED" | "FAIL"): string
   const lines = text
     .trim()
     .split(/\r?\n/)
-    .filter((line) => !/^TANIA RESULT:\s*(?:PASSED|FAIL)\s*$/i.test(line.trim()));
-  return [...lines, `TANIA RESULT: ${verdict}`].join("\n").trim();
+    .filter((line) => !/^TANYA RESULT:\s*(?:PASSED|FAIL)\s*$/i.test(line.trim()));
+  return [...lines, `TANYA RESULT: ${verdict}`].join("\n").trim();
 }
 
 function manifestVerdict(manifest: TanyaFinalManifest): "PASSED" | "FAIL" {

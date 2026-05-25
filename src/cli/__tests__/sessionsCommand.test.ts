@@ -20,7 +20,7 @@ describe("sessions command formatting", () => {
         model: "deepseek-chat",
         label: "Add a /search endpoint to the notes API and run the tests",
         turnCount: 12,
-        path: "/tmp/project/.tania/sessions/20260517-214851-abc123.json",
+        path: "/tmp/project/.tanya/sessions/20260517-214851-abc123.json",
         scope: "project",
       },
     ];

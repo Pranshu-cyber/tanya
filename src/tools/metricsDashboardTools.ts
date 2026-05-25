@@ -65,7 +65,7 @@ export const recordMetricsDashboardHandoffTool: TanyaTool = {
             },
           },
           nextStep: { type: "string", description: "What the dashboard owner should do after this app-code run." },
-          outputPath: { type: "string", description: "Optional workspace-relative output path. Default .tania/metrics-dashboard-handoff.json." },
+          outputPath: { type: "string", description: "Optional workspace-relative output path. Default .tanya/metrics-dashboard-handoff.json." },
         },
         required: ["appName", "implementedEvents", "changedFiles", "verification"],
         additionalProperties: false,
@@ -73,7 +73,7 @@ export const recordMetricsDashboardHandoffTool: TanyaTool = {
     },
   },
   async run(input, context) {
-    const outputPath = asOptionalString(input, "outputPath") ?? ".tania/metrics-dashboard-handoff.json";
+    const outputPath = asOptionalString(input, "outputPath") ?? ".tanya/metrics-dashboard-handoff.json";
     const abs = resolveInsideWorkspace(context.workspace, outputPath);
     const payload = {
       appName: asOptionalString(input, "appName") ?? "unknown",

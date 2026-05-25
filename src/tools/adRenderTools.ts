@@ -467,7 +467,7 @@ export async function renderFullAd(options: RenderAdOptions, workspace: string):
   const basename = (options.basename ?? `full-ad-${Date.now()}`).replace(/[^a-zA-Z0-9._-]+/g, "-");
   const formats = options.formats?.length ? options.formats : ["mp4", "poster"];
   const ffmpegPath = findExecutable("ffmpeg", options.ffmpegPath ?? envValue({}, "TANYA_FFMPEG_PATH"));
-  const tmpRoot = resolveInsideWorkspace(workspace, ".tania/tmp");
+  const tmpRoot = resolveInsideWorkspace(workspace, ".tanya/tmp");
   const tmpDir = await fsMkdtemp(join(tmpRoot, "tanya-render-ad-"));
   const frameDir = join(tmpDir, "frames");
   const warnings: string[] = [];

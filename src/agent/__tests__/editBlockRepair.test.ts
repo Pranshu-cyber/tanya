@@ -67,8 +67,8 @@ describe("edit_block runner integration", () => {
 
   it("audits fuzzy candidate metadata when edit_block recovers a bounded match", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-edit-block-audit-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "permissions.json"), JSON.stringify({
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "default",
       alwaysAllow: ["edit_block:.*\"matchPolicy\":\"fuzzy\".*"],

@@ -93,5 +93,5 @@ export function reasoningArchivePath(workspace: string, runId: string): string {
 }
 
 function reasoningRunDir(workspace: string, runId: string): string {
-  return join(workspace, ".tania", "runs", runId);
+  return join(workspace, ".tanya", "runs", runId);
 }

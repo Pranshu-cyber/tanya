@@ -76,7 +76,7 @@ describe("route loading and resolution", () => {
     const home = mkdtempSync(join(tmpdir(), "tanya-routes-home-"));
     const cwd = mkdtempSync(join(tmpdir(), "tanya-routes-cwd-"));
     mkdirSync(join(home, ".tanya"), { recursive: true });
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     writeFileSync(join(home, ".tanya", "routes.json"), JSON.stringify({
       version: 1,
       routes: [
@@ -85,7 +85,7 @@ describe("route loading and resolution", () => {
       ],
       defaults: { provider: "openai", model: "gpt-4.1-mini" },
     }));
-    writeFileSync(join(cwd, ".tania", "routes.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "routes.json"), JSON.stringify({
       version: 1,
       routes: [
         { match: "planning", provider: "groq", model: "llama-3.3-70b-versatile" },
@@ -133,8 +133,8 @@ describe("route loading and resolution", () => {
   it("loads legacy default_model configs as a one-entry cascade", () => {
     const home = mkdtempSync(join(tmpdir(), "tanya-routes-home-"));
     const cwd = mkdtempSync(join(tmpdir(), "tanya-routes-cwd-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "routes.json"), JSON.stringify({
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "routes.json"), JSON.stringify({
       version: 1,
       routes: [],
       default_model: "deepseek-chat",

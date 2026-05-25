@@ -26,7 +26,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Full-screen Claude-Code-style TUI for the interactive `tanya` chat REPL
   (TTY only, opt out with `--no-tui` or `TANYA_TUI=off` /
-  `TANIA_TUI=off`).
+  `TANYA_TUI=off`).
 - TUI footer status bar shows model, session elapsed time, cumulative cost,
   session token count, and slash-command hint text.
 - Permission prompts now render as an Ink modal during chat sessions.
@@ -49,7 +49,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   (`deepseek-chat`, `deepseek-reasoner`) are used. They're V4-Flash
   compatibility aliases scheduled for deprecation by DeepSeek on 2026-07-24.
   Suppressible via `TANYA_SUPPRESS_DEPRECATION=1` (envCompat fallback
-  `TANIA_SUPPRESS_DEPRECATION=1`). Migration story in
+  `TANYA_SUPPRESS_DEPRECATION=1`). Migration story in
   `docs/providers.md#deepseek-v4-deprecation`. Proper thinking-mode config
   redesign tracked as M13.
 
@@ -135,7 +135,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   spend, active tools, child agents, permission prompts, escalations,
   compaction, and prompt-budget warnings without changing event semantics.
 - Added TTY-guarded rendering with `TANYA_LIVE_STATUS=0` /
-  `TANIA_LIVE_STATUS=0` opt-out, plus byte-invariance coverage for non-TTY,
+  `TANYA_LIVE_STATUS=0` opt-out, plus byte-invariance coverage for non-TTY,
   JSONL, and Cosmo bridge output.
 - Added [docs/live-status.md](./docs/live-status.md) with terminal behavior,
   streaming compatibility, and full-TUI tradeoffs.
@@ -156,7 +156,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Added
 
-- Added structural repo-map generation under `.tania/index/repo-map.json`,
+- Added structural repo-map generation under `.tanya/index/repo-map.json`,
   covering TypeScript/JavaScript, Python, Go, Swift, and Kotlin with parser
   provenance, symbol/import/export extraction, incremental cache invalidation,
   branch/schema rebuilds, and debug-prompt diagnostics.
@@ -170,7 +170,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Added first-class reasoning-model handling for DeepSeek-R, Qwen3-Thinking,
   and Grok reasoning-style outputs: reasoning chunks are split from assistant
-  history, archived to `.tania/runs/<runId>/reasoning.jsonl`, shown as separate
+  history, archived to `.tanya/runs/<runId>/reasoning.jsonl`, shown as separate
   events, and protected by reasoning-token caps.
 - Added reasoning token accounting in `/cost` and `/budget`, `/memory
   --reasoning`, opt-in advisory verifier annotations, and REPL/JSONL/Cosmo
@@ -184,7 +184,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   servers as `mcp:<server>:<tool>` tools, and `tanya mcp serve` exposes
   `tanya.verify`, `tanya.golden_task_search`, `tanya.run`, and
   `tanya.skills_list` over MCP stdio.
-- Added MCP config loading from `~/.tanya/mcp.json` and project `.tania/mcp.json`,
+- Added MCP config loading from `~/.tanya/mcp.json` and project `.tanya/mcp.json`,
   `/mcp` server status, MCP permission/audit integration, transport restart and
   timeout handling, recursion guard, schema validation, and MCP docs/examples.
 

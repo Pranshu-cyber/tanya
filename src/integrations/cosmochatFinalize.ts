@@ -99,7 +99,7 @@ async function patchCosmoChatRun(config: FinalizeConfig, status: RunStatus, erro
 function finalEventStatus(event: Extract<TanyaEvent, { type: "final" }>): RunStatus {
   const message = event.message || "";
   const blockers = Array.isArray(event.manifest?.blockers) ? event.manifest.blockers : [];
-  if (/TANIA RESULT:\s*FAIL/i.test(message) || blockers.length > 0) return "failed";
+  if (/TAN[IY]A RESULT:\s*FAIL/i.test(message) || blockers.length > 0) return "failed";
   return "succeeded";
 }
 

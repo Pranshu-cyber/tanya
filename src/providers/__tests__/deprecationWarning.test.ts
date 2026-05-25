@@ -57,12 +57,4 @@ describe("DeepSeek legacy model deprecation warning", () => {
     expect(stderr).not.toHaveBeenCalled();
   });
 
-  it("suppresses the warning with legacy TANIA_SUPPRESS_DEPRECATION=1", async () => {
-    vi.stubEnv("TANIA_SUPPRESS_DEPRECATION", "1");
-    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-
-    await instantiate("deepseek-chat");
-
-    expect(stderr).not.toHaveBeenCalled();
-  });
 });

@@ -1289,7 +1289,7 @@ export const applyArtifactTool: TanyaTool = {
       parameters: {
         type: "object",
         properties: {
-          artifactPath: { type: "string", description: "Materialized artifact path relative to the workspace, for example .tania/artifacts/ios/Foo.swift." },
+          artifactPath: { type: "string", description: "Materialized artifact path relative to the workspace, for example .tanya/artifacts/ios/Foo.swift." },
           targetPath: { type: "string", description: "Target file or directory path relative to the workspace." },
           overwrite: { type: "boolean", description: "Overwrite target if it exists. Default true." },
         },
@@ -1455,8 +1455,8 @@ export const createIosSplashTool: TanyaTool = {
       : await firstExistingWorkspacePath(context, [
         "brand/icons/icon-1024.png",
         "brand/icons/ios/AppStore-1024x1024.png",
-        ".tania/context/brand/icons/icon-1024.png",
-        ".tania/context/brand/icons/ios/AppStore-1024x1024.png",
+        ".tanya/context/brand/icons/icon-1024.png",
+        ".tanya/context/brand/icons/ios/AppStore-1024x1024.png",
       ]) ?? await findLargestAppIconPng(context, viewPath);
 
     if (resolvedSourceIcon) {

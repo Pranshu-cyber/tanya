@@ -4,7 +4,7 @@ import { noopShell, realShell } from "./shell";
 import { builtinVerifiers } from "./registry";
 
 function defaultShell() {
-  if (process.env.VITEST === "true" || process.env.TANIA_VERIFIER_SHELL === "noop") {
+  if (process.env.VITEST === "true" || process.env.TANYA_VERIFIER_SHELL === "noop") {
     return noopShell;
   }
   return realShell;

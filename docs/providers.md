@@ -10,7 +10,7 @@ Live provider tests are opt-in because they spend credits:
 TANYA_RUN_LIVE_PROVIDER_TESTS=1 tanya providers test --provider deepseek
 ```
 
-Legacy `TANIA_RUN_LIVE_PROVIDER_TESTS=1` is also accepted for compatibility.
+Legacy `TANYA_RUN_LIVE_PROVIDER_TESTS=1` is also accepted for compatibility.
 
 ## Supported Providers
 
@@ -45,7 +45,7 @@ TANYA_MODEL=qwen3-coder-plus
 TANYA_API_KEY=...
 ```
 
-The `TANIA_*` aliases remain supported as legacy fallbacks. `TANYA_*` wins when
+The `TANYA_*` aliases remain supported as legacy fallbacks. `TANYA_*` wins when
 both names are present.
 
 Tanya defaults to `deepseek-v4-pro` since v0.17. Set
@@ -84,7 +84,7 @@ work is tracked as M13.
 For now, users can keep explicit legacy names if they need exact alias behavior.
 Tanya prints a one-time warning per process when either legacy alias is used.
 Suppress that warning with `TANYA_SUPPRESS_DEPRECATION=1`; legacy
-`TANIA_SUPPRESS_DEPRECATION=1` is also accepted.
+`TANYA_SUPPRESS_DEPRECATION=1` is also accepted.
 
 After M13, `routes.json` will accept an explicit `thinking: boolean` field.
 The legacy `deepseek-chat` and `deepseek-reasoner` shortcuts will remain usable

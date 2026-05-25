@@ -84,7 +84,7 @@ function taskSignature(runContext: TanyaRunContext | undefined, manifest: Golden
 
 export async function recordGoldenTaskMemory(workspace: string, manifest: GoldenTaskManifest, runContext?: TanyaRunContext): Promise<void> {
   if (!enabled(runContext)) return;
-  const memoryPath = join(workspace, ".tania", "memory", "golden-tasks.jsonl");
+  const memoryPath = join(workspace, ".tanya", "memory", "golden-tasks.jsonl");
   const validationErrors = manifest.validation?.issues.filter((issue) => issue.severity === "error") ?? [];
   const record: GoldenTaskRecord = {
     schemaVersion: 1,
@@ -108,7 +108,7 @@ export async function recordGoldenTaskMemory(workspace: string, manifest: Golden
 }
 
 export async function readGoldenTaskMemory(workspace: string): Promise<GoldenTaskRecord[]> {
-  const memoryPath = join(workspace, ".tania", "memory", "golden-tasks.jsonl");
+  const memoryPath = join(workspace, ".tanya", "memory", "golden-tasks.jsonl");
   let raw = "";
   try {
     raw = await readFile(memoryPath, "utf8");

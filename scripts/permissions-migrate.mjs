@@ -15,7 +15,7 @@ const cwdFlag = process.argv.indexOf("--cwd");
 const limitFlag = process.argv.indexOf("--limit");
 const workspace = resolve(cwdFlag >= 0 && process.argv[cwdFlag + 1] ? process.argv[cwdFlag + 1] : process.cwd());
 const limit = limitFlag >= 0 && process.argv[limitFlag + 1] ? Number(process.argv[limitFlag + 1]) : 100;
-const runsDir = join(workspace, ".tania", "runs");
+const runsDir = join(workspace, ".tanya", "runs");
 const counts = new Map();
 
 if (existsSync(runsDir)) {
@@ -23,7 +23,7 @@ if (existsSync(runsDir)) {
     try {
       const log = JSON.parse(readFileSync(join(runsDir, file), "utf8"));
       for (const changed of Array.isArray(log.changedFiles) ? log.changedFiles : []) {
-        if (typeof changed !== "string" || changed.startsWith(".tania/") || changed.startsWith(".tanya/")) continue;
+        if (typeof changed !== "string" || changed.startsWith(".tanya/") || changed.startsWith(".tanya/")) continue;
         const pattern = `write_file:.*${escapeRegex(JSON.stringify(changed))}.*`;
         counts.set(pattern, (counts.get(pattern) ?? 0) + 1);
       }

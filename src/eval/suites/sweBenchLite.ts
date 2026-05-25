@@ -10,13 +10,13 @@ export function sweBenchLiteSuite(): EvalSuite {
       type: "git_clone",
       url: SWE_BENCH_LITE_REPO,
       commit: SWE_BENCH_LITE_COMMIT,
-      path: `.tania/eval/datasets/swe-bench-lite/${String(index + 1).padStart(2, "0")}`,
+      path: `.tanya/eval/datasets/swe-bench-lite/${String(index + 1).padStart(2, "0")}`,
     },
     prompt: `Run the pinned SWE-bench-Lite task ${index + 1} through Tanya's verifier-aware workflow.`,
     metadata: {
       dataset: "SWE-bench-Lite",
       pinnedCommit: SWE_BENCH_LITE_COMMIT,
-      cacheDir: ".tania/eval/datasets/swe-bench-lite",
+      cacheDir: ".tanya/eval/datasets/swe-bench-lite",
     },
   }));
   return { name: "swe-bench-lite", version: `pinned-${SWE_BENCH_LITE_COMMIT.slice(0, 12)}`, tasks };

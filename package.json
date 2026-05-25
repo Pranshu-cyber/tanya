@@ -4,8 +4,7 @@
   "description": "A live, tool-using AI CLI for DeepSeek and OpenAI-compatible providers.",
   "type": "module",
   "bin": {
-    "tanya": "dist/cli.js",
-    "tania": "dist/cli.js"
+    "tanya": "dist/cli.js"
   },
   "publishConfig": {
     "access": "public"

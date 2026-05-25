@@ -23,7 +23,7 @@ function tempRoot(name: string): string {
 
 function project(name = "tanya-session-project-"): string {
   const cwd = tempRoot(name);
-  mkdirSync(join(cwd, ".tania"), { recursive: true });
+  mkdirSync(join(cwd, ".tanya"), { recursive: true });
   return cwd;
 }
 
@@ -54,8 +54,8 @@ describe("session storage", () => {
     expect(normalize(loaded)).toEqual(normalize(materialized));
     expect(loaded.turns).toHaveLength(5);
     expect(loaded.sessionStats.turnCount).toBe(2);
-    expect(existsSync(join(cwd, ".tania", "sessions", ".gitignore"))).toBe(true);
-    expect(readFileSync(join(cwd, ".tania", "sessions", ".gitignore"), "utf8")).toBe("*\n");
+    expect(existsSync(join(cwd, ".tanya", "sessions", ".gitignore"))).toBe(true);
+    expect(readFileSync(join(cwd, ".tanya", "sessions", ".gitignore"), "utf8")).toBe("*\n");
   });
 
   it("recovers valid JSONL lines and warns about a corrupt tail", () => {
@@ -69,7 +69,7 @@ describe("session storage", () => {
     appendTurn(session.id, { role: "user", content: "one", timestampMs: 1, elapsedMs: null });
     appendTurn(session.id, { role: "assistant", content: "two", timestampMs: 2, elapsedMs: 10 });
     appendTurn(session.id, { role: "user", content: "three", timestampMs: 3, elapsedMs: null });
-    appendFileSync(join(cwd, ".tania", "sessions", `${session.id}.jsonl`), "{bad json\n", "utf8");
+    appendFileSync(join(cwd, ".tanya", "sessions", `${session.id}.jsonl`), "{bad json\n", "utf8");
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const loaded = loadSession(session.id, { cwd });
@@ -78,15 +78,15 @@ describe("session storage", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("ignored corrupt session JSONL line 4"));
   });
 
-  it("walks parent directories until it finds .tania", () => {
+  it("walks parent directories until it finds .tanya", () => {
     const cwd = project();
     const child = join(cwd, "packages", "app");
     mkdirSync(child, { recursive: true });
 
-    expect(resolveSessionsDir({ cwd: child }).dir).toBe(join(cwd, ".tania", "sessions"));
+    expect(resolveSessionsDir({ cwd: child }).dir).toBe(join(cwd, ".tanya", "sessions"));
   });
 
-  it("falls back to global sessions when no project .tania exists", () => {
+  it("falls back to global sessions when no project .tanya exists", () => {
     const cwd = tempRoot("tanya-session-no-project-");
     const homeDir = tempRoot("tanya-session-home-");
     const session = createSession({

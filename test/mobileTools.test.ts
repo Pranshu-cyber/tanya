@@ -23,17 +23,17 @@ describe("mobile-oriented tools", () => {
 
   it("copies files and directories inside the workspace", async () => {
     const root = makeProject();
-    mkdirSync(join(root, ".tania", "artifacts", "ios"), { recursive: true });
-    mkdirSync(join(root, ".tania", "artifacts", "Assets.xcassets", "SplashIcon.imageset"), { recursive: true });
-    writeFileSync(join(root, ".tania", "artifacts", "ios", "ThemeSystem.swift"), "theme\n");
-    writeFileSync(join(root, ".tania", "artifacts", "Assets.xcassets", "SplashIcon.imageset", "Contents.json"), "{}\n");
+    mkdirSync(join(root, ".tanya", "artifacts", "ios"), { recursive: true });
+    mkdirSync(join(root, ".tanya", "artifacts", "Assets.xcassets", "SplashIcon.imageset"), { recursive: true });
+    writeFileSync(join(root, ".tanya", "artifacts", "ios", "ThemeSystem.swift"), "theme\n");
+    writeFileSync(join(root, ".tanya", "artifacts", "Assets.xcassets", "SplashIcon.imageset", "Contents.json"), "{}\n");
 
     const fileResult = await copyFileTool.run(
-      { source: ".tania/artifacts/ios/ThemeSystem.swift", destination: "App/Theme/ThemeSystem.swift" },
+      { source: ".tanya/artifacts/ios/ThemeSystem.swift", destination: "App/Theme/ThemeSystem.swift" },
       { workspace: root },
     );
     const dirResult = await copyDirTool.run(
-      { source: ".tania/artifacts/Assets.xcassets/SplashIcon.imageset", destination: "App/Assets.xcassets/SplashIcon.imageset" },
+      { source: ".tanya/artifacts/Assets.xcassets/SplashIcon.imageset", destination: "App/Assets.xcassets/SplashIcon.imageset" },
       { workspace: root },
     );
 
@@ -45,11 +45,11 @@ describe("mobile-oriented tools", () => {
 
   it("applies materialized artifacts to target paths", async () => {
     const root = makeProject();
-    mkdirSync(join(root, ".tania", "artifacts", "ios"), { recursive: true });
-    writeFileSync(join(root, ".tania", "artifacts", "ios", "SplashScreenPattern.swift"), "pattern\n");
+    mkdirSync(join(root, ".tanya", "artifacts", "ios"), { recursive: true });
+    writeFileSync(join(root, ".tanya", "artifacts", "ios", "SplashScreenPattern.swift"), "pattern\n");
 
     const result = await applyArtifactTool.run(
-      { artifactPath: ".tania/artifacts/ios/SplashScreenPattern.swift", targetPath: "App/SplashScreenView.swift" },
+      { artifactPath: ".tanya/artifacts/ios/SplashScreenPattern.swift", targetPath: "App/SplashScreenView.swift" },
       { workspace: root },
     );
 

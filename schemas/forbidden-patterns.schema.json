@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tanya.local/schemas/forbidden-patterns.schema.json",
   "title": "Tanya project-level forbidden patterns",
-  "description": "Schema for .tania/forbidden-patterns.json. Each pattern is a regex that fails the post-write gate when matched in a file.",
+  "description": "Schema for .tanya/forbidden-patterns.json. Each pattern is a regex that fails the post-write gate when matched in a file.",
   "type": "object",
   "additionalProperties": false,
   "required": ["patterns"],

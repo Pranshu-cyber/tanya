@@ -9,10 +9,10 @@ function makeProject(): string {
 }
 
 describe("buildSystemPrompt", () => {
-  it("injects project-level .tania instructions when present", () => {
+  it("injects project-level .tanya instructions when present", () => {
     const root = makeProject();
-    mkdirSync(join(root, ".tania"), { recursive: true });
-    writeFileSync(join(root, ".tania", "INSTRUCTIONS.md"), "Always prefer deterministic project helpers.\n");
+    mkdirSync(join(root, ".tanya"), { recursive: true });
+    writeFileSync(join(root, ".tanya", "INSTRUCTIONS.md"), "Always prefer deterministic project helpers.\n");
 
     const prompt = buildSystemPrompt(root);
 

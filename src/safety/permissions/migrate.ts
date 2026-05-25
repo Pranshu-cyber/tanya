@@ -14,7 +14,7 @@ export function suggestPermissionsFromRuns(workspace: string, limit = 100): Perm
   const counts = new Map<string, number>();
   for (const log of readRunLogs(workspace, limit)) {
     for (const file of log.changedFiles) {
-      if (!file || file.startsWith(".tania/") || file.startsWith(".tanya/")) continue;
+      if (!file || file.startsWith(".tanya/") || file.startsWith(".tanya/")) continue;
       const escaped = escapeRegex(JSON.stringify(file));
       counts.set(`write_file:.*${escaped}.*`, (counts.get(`write_file:.*${escaped}.*`) ?? 0) + 1);
     }

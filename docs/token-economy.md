@@ -13,7 +13,7 @@ especially on cheaper providers with smaller or stricter context windows.
    TANYA_LITE_PROMPT=1 tanya run "Inspect this bug"
    ```
 
-   The legacy `TANIA_LITE_PROMPT` name is still accepted. Lite mode keeps
+   The legacy `TANYA_LITE_PROMPT` name is still accepted. Lite mode keeps
    workspace and stack facts, then drops unmatched skill packs, stale
    failure-mode packs, unused artifact indexes, and older history.
 
@@ -38,7 +38,7 @@ especially on cheaper providers with smaller or stricter context windows.
    ```
 
    The full output is cached under
-   `.tania/cache/results/<runId>/<toolCallId>.txt`. The model can recover it
+   `.tanya/cache/results/<runId>/<toolCallId>.txt`. The model can recover it
    with:
 
    ```json
@@ -71,7 +71,7 @@ especially on cheaper providers with smaller or stricter context windows.
    /budget --enforce --max-usd 0.50
    ```
 
-   `--enforce` writes a session-scoped spend rule to `.tania/permissions.json`
+   `--enforce` writes a session-scoped spend rule to `.tanya/permissions.json`
    through the M3 permission engine.
 
 ## Tool Definition Knobs

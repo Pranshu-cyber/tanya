@@ -44,7 +44,7 @@ TANYA_LIVE_STATUS=0 tanya chat
 The legacy alias is also accepted:
 
 ```bash
-TANIA_LIVE_STATUS=0 tanya chat
+TANYA_LIVE_STATUS=0 tanya chat
 ```
 
 ## Streaming Compatibility

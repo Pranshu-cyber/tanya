@@ -207,11 +207,11 @@ function materializedContextCleanupEnabled(manifest: TanyaFinalManifest, runCont
 
 async function cleanupMaterializedContext(workspace: string, manifest: TanyaFinalManifest, runContext?: TanyaRunContext): Promise<void> {
   if (!materializedContextCleanupEnabled(manifest, runContext)) return;
-  const taniaDir = resolve(workspace, ".tania");
-  if (!existsSync(taniaDir)) return;
-  if (await hasTrackedPathUnder(workspace, ".tania")) return;
+  const tanyaDir = resolve(workspace, ".tanya");
+  if (!existsSync(tanyaDir)) return;
+  if (await hasTrackedPathUnder(workspace, ".tanya")) return;
   try {
-    await rm(taniaDir, { recursive: true, force: true });
+    await rm(tanyaDir, { recursive: true, force: true });
   } catch {
     // Best-effort cleanup; successful task output should not fail because temp cleanup failed.
   }
@@ -284,7 +284,7 @@ function logRunSummarySilently(params: {
   manifest: TanyaFinalManifest;
 }): void {
   try {
-    const runsDir = join(params.workspace, ".tania", "runs");
+    const runsDir = join(params.workspace, ".tanya", "runs");
     const outputDir = params.parentRunId ? join(runsDir, params.parentRunId) : runsDir;
     mkdirSync(outputDir, { recursive: true });
     const ts = new Date().toISOString();
@@ -380,7 +380,7 @@ function buildValidationRepairReminder(manifest: TanyaFinalManifest, attempt: nu
     repairHints.push("Run every missing requested verification command exactly as named in the issue message. Do not substitute file-existence probes, package-lock checks, or equivalent commands for required commands such as `npm install`.");
   }
   if (issueIds.has("core-artifact-provenance-missing")) {
-    repairHints.push("READ at least one caller-provided artifact NOW using read_file on a path under .tania/artifacts/, then report it as `Artifact reused: <artifact-path> -> <target-file-or-verification-only>`. This applies even when the existing setup is already complete: pick one artifact under .tania/artifacts/ and read it to confirm the canonical pattern, then report the line.");
+    repairHints.push("READ at least one caller-provided artifact NOW using read_file on a path under .tanya/artifacts/, then report it as `Artifact reused: <artifact-path> -> <target-file-or-verification-only>`. This applies even when the existing setup is already complete: pick one artifact under .tanya/artifacts/ and read it to confirm the canonical pattern, then report the line.");
   }
   if (issueIds.has("android-gradle-assembledebug-missing")) {
     repairHints.push("For Android Gradle verification, run `./gradlew assembleDebug --no-daemon` from the Android workspace root and report it only after it exits successfully.");
@@ -589,7 +589,7 @@ function artifactPathFromRead(toolName: string, input: unknown): string | null {
   const record = input && typeof input === "object" ? input as Record<string, unknown> : {};
   const path = typeof record.path === "string" ? record.path.trim() : "";
   if (!path) return null;
-  if (path.startsWith(".tania/artifacts/")) return path;
+  if (path.startsWith(".tanya/artifacts/")) return path;
   if (path.startsWith("artifacts/")) return path;
   return null;
 }
@@ -599,7 +599,7 @@ function contextPathFromRead(toolName: string, input: unknown, runContext?: Tany
   const record = input && typeof input === "object" ? input as Record<string, unknown> : {};
   const path = typeof record.path === "string" ? record.path.trim() : "";
   if (!path) return null;
-  if (path.startsWith(".tania/context/")) return path;
+  if (path.startsWith(".tanya/context/")) return path;
   if ((runContext?.contextFiles ?? []).some((contextFile) => contextFile.path === path)) return path;
   return null;
 }
@@ -1293,7 +1293,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
   async function syncArtifactOutput(): Promise<string[]> {
     const outputRootValue = options.runContext?.metadata?.artifactOutputRoot;
     if (typeof outputRootValue !== "string" || !outputRootValue.trim()) return [];
-    const localOutputRoot = resolve(workspace, ".tania", "artifact-output");
+    const localOutputRoot = resolve(workspace, ".tanya", "artifact-output");
     if (!existsSync(localOutputRoot)) return [];
     const localFiles = await listFilesRecursive(localOutputRoot);
     if (localFiles.length === 0) return [];

@@ -13,7 +13,7 @@ from influencing later turns or verifier authority.
 | Grok | `grok-3-reasoning` and reasoning model names | `<think>...</think>` wrappers | archived only |
 | Groq, Together, Ollama, OpenAI-compatible chat | adapter capability stays false unless routed to a reasoning-style model | normal assistant text | unchanged |
 
-Reasoning chunks are appended to `.tania/runs/<runId>/reasoning.jsonl` with
+Reasoning chunks are appended to `.tanya/runs/<runId>/reasoning.jsonl` with
 provider, model, turn, timestamp, content, and estimated token count.
 
 ## Billing And Budgets
@@ -46,7 +46,7 @@ its cap Tanya emits `reasoning_truncated` and injects a synthetic user message:
 
 Human REPL output shows reasoning dimmed and italic with a `thinking...` prefix,
 then collapses to `thinking for Ns...` when the assistant response starts or the
-turn ends. Set `TANYA_HIDE_REASONING=1` (or legacy `TANIA_HIDE_REASONING=1`) to
+turn ends. Set `TANYA_HIDE_REASONING=1` (or legacy `TANYA_HIDE_REASONING=1`) to
 suppress reasoning from the human UI. JSONL output still receives full reasoning
 events.
 

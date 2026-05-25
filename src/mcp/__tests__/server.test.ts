@@ -10,8 +10,8 @@ import { createTanyaMcpServer } from "../server";
 describe("Tanya MCP server", () => {
   it("exposes verify, golden task search, run, and skills tools", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-server-"));
-    mkdirSync(join(cwd, ".tania", "memory"), { recursive: true });
-    writeFileSync(join(cwd, ".tania", "memory", "golden-tasks.jsonl"), `${JSON.stringify({
+    mkdirSync(join(cwd, ".tanya", "memory"), { recursive: true });
+    writeFileSync(join(cwd, ".tanya", "memory", "golden-tasks.jsonl"), `${JSON.stringify({
       schemaVersion: 1,
       recordedAt: "2026-05-16T12:00:00.000Z",
       signature: "task-alpha",

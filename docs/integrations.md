@@ -12,7 +12,7 @@ By default, Tanya looks for `integrations/` at the package root. Set
 TANYA_INTEGRATIONS_DIR=/path/to/integrations tanya eval --suite acme --dry-run
 ```
 
-The legacy `TANIA_INTEGRATIONS_DIR` alias is accepted for compatibility, but new
+The legacy `TANYA_INTEGRATIONS_DIR` alias is accepted for compatibility, but new
 callers should use `TANYA_INTEGRATIONS_DIR`.
 
 ## Layout

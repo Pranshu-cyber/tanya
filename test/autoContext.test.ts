@@ -45,7 +45,7 @@ describe("automatic run context", () => {
     }));
     expect(context?.metadata?.autoBriefEnforceArtifacts).toBe(true);
     expect(context?.metadata?.tanyaMaterializedContext).toBe(true);
-    expect(context?.contextFiles?.some((file) => file.path.startsWith(".tania/context/obsidian/"))).toBe(true);
+    expect(context?.contextFiles?.some((file) => file.path.startsWith(".tanya/context/obsidian/"))).toBe(true);
   });
 
   it("keeps non-coding prompts out of coding validation when only a brief is generated", async () => {

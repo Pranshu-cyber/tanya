@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, join, relative, resolve } from "node:path";
 
-const ignoredNames = new Set([".obsidian", ".trash", ".git", "node_modules", ".tania"]);
+const ignoredNames = new Set([".obsidian", ".trash", ".git", "node_modules", ".tanya"]);
 
 const stopwords = new Set([
   "a",
@@ -191,12 +191,12 @@ export async function materializeObsidianContext(input: {
     query: input.query,
     maxResults: input.maxResults ?? 5,
   });
-  const contextRoot = resolve(input.workspace, ".tania", "context", "obsidian");
+  const contextRoot = resolve(input.workspace, ".tanya", "context", "obsidian");
   const contextFiles: MaterializedObsidianContext["contextFiles"] = [];
   for (const note of notes) {
     const targetRel = safeMaterializedPath(note.path);
     const targetPath = resolve(contextRoot, targetRel);
-    const localPath = `.tania/context/obsidian/${normalizePath(targetRel)}`;
+    const localPath = `.tanya/context/obsidian/${normalizePath(targetRel)}`;
     const content = [
       `# ${note.title}`,
       "",

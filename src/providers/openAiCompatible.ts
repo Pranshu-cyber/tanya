@@ -79,7 +79,7 @@ function warnDeprecatedDeepSeekModel(providerId: string, model: string): void {
     "Tanya will migrate to V4 thinking-mode config in a future release (tracked as M13).",
     "Until then, you can keep using the legacy name with no behavior change.",
     "See docs/providers.md#deepseek-v4-deprecation for the migration story.",
-    "Suppress this warning with TANYA_SUPPRESS_DEPRECATION=1 (or legacy TANIA_SUPPRESS_DEPRECATION=1).",
+    "Suppress this warning with TANYA_SUPPRESS_DEPRECATION=1.",
     "",
   ].join("\n"));
 }

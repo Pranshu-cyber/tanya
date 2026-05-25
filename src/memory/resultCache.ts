@@ -14,7 +14,7 @@ function safeSegment(value: string): string {
 }
 
 export function resultCacheDir(workspace: string, runId: string): string {
-  return join(workspace, ".tania", "cache", "results", safeSegment(runId));
+  return join(workspace, ".tanya", "cache", "results", safeSegment(runId));
 }
 
 export function resultCachePath(workspace: string, runId: string, toolCallId: string): string {

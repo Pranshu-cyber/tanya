@@ -23,7 +23,7 @@ describe("/mode command", () => {
       sink: () => {},
     })).resolves.toBe(true);
 
-    const parsed = JSON.parse(readFileSync(join(workspace, ".tania", "permissions.json"), "utf8")) as { mode?: string };
+    const parsed = JSON.parse(readFileSync(join(workspace, ".tanya", "permissions.json"), "utf8")) as { mode?: string };
     expect(parsed.mode).toBe("ask");
     expect(output.chunks.join("")).toContain("Permission mode set to ask");
   });

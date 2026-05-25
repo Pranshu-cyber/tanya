@@ -34,7 +34,7 @@ type RepairManifest = {
 };
 
 function memoryRoot(): string {
-  return envValue({}, "TANYA_MEMORY_HOME").trim() || join(homedir(), ".tania", "memory");
+  return envValue({}, "TANYA_MEMORY_HOME").trim() || join(homedir(), ".tanya", "memory");
 }
 
 function taskSignature(runContext: TanyaRunContext | undefined, attempts: RepairAttemptSnapshot[]): string {

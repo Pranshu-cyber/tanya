@@ -17,7 +17,7 @@ export async function appendTaskHistory(
   manifest: TanyaFinalManifest,
   _runContext?: TanyaRunContext,
 ): Promise<void> {
-  const historyPath = join(workspace, ".tania", "history.json");
+  const historyPath = join(workspace, ".tanya", "history.json");
   await mkdir(dirname(historyPath), { recursive: true });
   let entries: TaskHistoryEntry[] = [];
   try {
@@ -42,7 +42,7 @@ export async function appendTaskHistory(
 
 export async function readRecentTaskHistory(workspace: string, count = 3): Promise<TaskHistoryEntry[]> {
   try {
-    const raw = await readFile(join(workspace, ".tania", "history.json"), "utf8");
+    const raw = await readFile(join(workspace, ".tanya", "history.json"), "utf8");
     const entries = JSON.parse(raw) as unknown;
     if (!Array.isArray(entries)) return [];
     return entries.slice(-count) as TaskHistoryEntry[];

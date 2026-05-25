@@ -29,7 +29,7 @@ describe("initTanyaProject", () => {
 
     const path = await initTanyaProject(root);
 
-    expect(path).toBe(join(root, ".tania", "INSTRUCTIONS.md"));
+    expect(path).toBe(join(root, ".tanya", "INSTRUCTIONS.md"));
     expect(existsSync(path)).toBe(true);
     const content = readFileSync(path, "utf8");
     expect(content).toContain("Project type: Next.js");
@@ -61,8 +61,8 @@ describe("initTanyaProject", () => {
 
   it("does not overwrite existing project instructions", async () => {
     const root = makeProject();
-    await mkdir(join(root, ".tania"));
-    const path = join(root, ".tania", "INSTRUCTIONS.md");
+    await mkdir(join(root, ".tanya"));
+    const path = join(root, ".tanya", "INSTRUCTIONS.md");
     writeFileSync(path, "existing\n");
 
     await expect(initTanyaProject(root)).rejects.toThrow("already exists");

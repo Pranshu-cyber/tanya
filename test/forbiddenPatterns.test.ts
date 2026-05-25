@@ -150,11 +150,11 @@ describe("scanForbiddenPatterns", () => {
     expect(issuesWhenScanned.some((i) => i.id === "android-http-logging-body")).toBe(true);
   });
 
-  it("records fire-counter metrics to .tania/memory/forbidden-patterns-metrics.json", async () => {
+  it("records fire-counter metrics to .tanya/memory/forbidden-patterns-metrics.json", async () => {
     const apiClient = "android/app/src/main/java/com/cosmohq/data/ApiClient.kt";
     write(apiClient, `level = HttpLoggingInterceptor.Level.BODY\n`);
     await scanForbiddenPatterns(workspace, [apiClient]);
-    const metricsPath = join(workspace, ".tania", "memory", "forbidden-patterns-metrics.json");
+    const metricsPath = join(workspace, ".tanya", "memory", "forbidden-patterns-metrics.json");
     expect(existsSync(metricsPath)).toBe(true);
     const parsed = JSON.parse(readFileSync(metricsPath, "utf8"));
     expect(parsed.totals["android-http-logging-body"]).toBe(1);
@@ -171,7 +171,7 @@ describe("scanForbiddenPatterns", () => {
   it("does not write metrics file when no patterns fire", async () => {
     write("android/app/src/main/java/Clean.kt", `level = HttpLoggingInterceptor.Level.NONE\n`);
     await scanForbiddenPatterns(workspace, ["android/app/src/main/java/Clean.kt"]);
-    const metricsPath = join(workspace, ".tania", "memory", "forbidden-patterns-metrics.json");
+    const metricsPath = join(workspace, ".tanya", "memory", "forbidden-patterns-metrics.json");
     expect(existsSync(metricsPath)).toBe(false);
   });
 
@@ -377,9 +377,9 @@ describe("scanForbiddenPatterns", () => {
     expect(issues.some((i) => i.id === "backend-from-email-rfc822-passed-to-provider")).toBe(true);
   });
 
-  it("loads project-level forbidden patterns from .tania/forbidden-patterns.json", async () => {
+  it("loads project-level forbidden patterns from .tanya/forbidden-patterns.json", async () => {
     write(
-      ".tania/forbidden-patterns.json",
+      ".tanya/forbidden-patterns.json",
       JSON.stringify({
         patterns: [
           {

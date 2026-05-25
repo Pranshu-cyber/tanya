@@ -36,7 +36,7 @@ export function appendAuditDecision(workspace: string, entry: AuditDecisionEntry
   now?: Date;
 } = {}): void {
   const path = auditPath(workspace);
-  mkdirSync(join(workspace, ".tania"), { recursive: true });
+  mkdirSync(join(workspace, ".tanya"), { recursive: true });
   rotateAuditIfNeeded(workspace, options);
   writeFileSync(path, `${JSON.stringify(entry)}\n`, { encoding: "utf8", flag: "a" });
 }
@@ -64,7 +64,7 @@ export function readAuditDecisions(workspace: string, filters: AuditReadFilters 
 }
 
 export function auditPath(workspace: string): string {
-  return join(workspace, ".tania", "audit.jsonl");
+  return join(workspace, ".tanya", "audit.jsonl");
 }
 
 function rotateAuditIfNeeded(workspace: string, options: {
@@ -80,7 +80,7 @@ function rotateAuditIfNeeded(workspace: string, options: {
   const now = options.now ?? new Date();
   if (stats.size < maxBytes && now.getTime() - stats.mtimeMs < maxAgeMs) return;
 
-  const archiveDir = join(workspace, ".tania", "audit", "archive");
+  const archiveDir = join(workspace, ".tanya", "audit", "archive");
   mkdirSync(archiveDir, { recursive: true });
   const stamp = now.toISOString().replace(/[:.]/g, "-");
   const archivePath = join(archiveDir, `audit-${stamp}-${basename(path)}.gz`);

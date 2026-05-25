@@ -42,7 +42,7 @@ function writeGoBackend(workspace: string, options: { withMain?: boolean; withTe
 
 describe("verifyFinalState — result aggregation", () => {
   it("passes with warnings when only non-authoritative checks fail", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-warn-pass-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-warn-pass-"));
     try {
       const verifier: Verifier = {
         id: "aggregate-test",
@@ -71,7 +71,7 @@ describe("verifyFinalState — result aggregation", () => {
   });
 
   it("fails with blockers when an authoritative check fails", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-auth-fail-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-auth-fail-"));
     try {
       const verifier: Verifier = {
         id: "aggregate-test",
@@ -101,7 +101,7 @@ describe("verifyFinalState — result aggregation", () => {
 
 describe("buildFinalManifest — probe failures at turn-budget termination", () => {
   it("does not keep the last failed probe command as a blocker when final-state Verify passed", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-probe-termination-pass-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-probe-termination-pass-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const verificationLines = [
@@ -131,7 +131,7 @@ describe("buildFinalManifest — probe failures at turn-budget termination", () 
   });
 
   it("keeps the last failed probe command as a blocker when final-state Verify failed", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-probe-termination-fail-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-probe-termination-fail-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const verificationLines = [
@@ -164,7 +164,7 @@ describe("buildFinalManifest — probe failures at turn-budget termination", () 
   });
 
   it("keeps non-probe failures as blockers even when final-state Verify passed", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-probe-termination-nonprobe-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-probe-termination-nonprobe-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const verificationLines = [
@@ -196,7 +196,7 @@ describe("buildFinalManifest — probe failures at turn-budget termination", () 
 
 describe("verifyFinalState — go-backend platform", () => {
   it("passes when go.mod, entrypoint, build and test all hold", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-pass-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-pass-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const shell = makeFakeShell(({ command, args }) => {
@@ -226,7 +226,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("authoritativePassed=true when build+test pass even without dep hints", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-clean-pass-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-clean-pass-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       const shell = makeFakeShell(({ command, args }) => {
@@ -249,7 +249,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("authoritativePassed=false when go test fails", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-test-fail-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-test-fail-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const shell = makeFakeShell(({ command, args }) => {
@@ -273,7 +273,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("flags missing cmd/server/main.go when prompt asks for REST server", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-no-main-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-no-main-"));
     try {
       writeGoBackend(workspace, { withMain: false });
       const shell = makeFakeShell(({ command, args }) => {
@@ -298,7 +298,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("flags missing huma/v2 dep when prompt mentions huma", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-missing-huma-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-missing-huma-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       const shell = makeFakeShell(({ command, args }) => {
@@ -323,7 +323,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("warns about missing sqlc-generated dirs when referenced query files exist", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-sqlc-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-sqlc-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       writeFileSync(join(workspace, "queries.sql"), "-- name: ListWidgets :many\nSELECT 1;\n");
@@ -351,7 +351,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("skips sqlc output checks when sqlc.yaml references no existing query files", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-sqlc-skipped-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-sqlc-skipped-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       writeFileSync(
@@ -384,7 +384,7 @@ describe("verifyFinalState — go-backend platform", () => {
   });
 
   it("skips toolchain checks when go binary is missing", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-verifier-go-no-toolchain-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-verifier-go-no-toolchain-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       const shell = makeFakeShell(() => ({ binaryMissing: true }));
@@ -419,7 +419,7 @@ function makeProvider(responses: string[]): ChatProvider & { requests: ChatReque
 
 describe("runAgent final-state recovery", () => {
   it("downgrades probe + bootstrap + generator failures to recovered when verifier authoritatively passes", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-runner-recover-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-runner-recover-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       const provider: ChatProvider & { requests: ChatRequest[] } = {
@@ -491,14 +491,14 @@ describe("runAgent final-state recovery", () => {
       expect(manifest.finalStateVerification?.authoritativePassed).toBe(true);
       expect(manifest.blockers).toEqual([]);
       expect(manifest.verification.join("\n")).toMatch(/recovered \(final-state verifier authoritative checks passed\)/);
-      expect(message.trim()).toMatch(/TANIA RESULT: PASSED$/);
+      expect(message.trim()).toMatch(/TANYA RESULT: PASSED$/);
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }
   });
 
   it("does not keep stale blockers when the same check later passes with exit echo", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-runner-exit-echo-recover-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-runner-exit-echo-recover-"));
     const check = `cd ${workspace} && test "$(cat marker 2>/dev/null)" = ok`;
     const checkWithExitEcho = `${check} 2>&1; echo "EXIT=$?"`;
     try {
@@ -582,14 +582,14 @@ describe("runAgent final-state recovery", () => {
       expect(manifest.blockers).toEqual([]);
       expect(manifest.verification.join("\n")).not.toMatch(/->\s*failed\b/i);
       expect(message).not.toContain("failed verification:");
-      expect(message.trim()).toMatch(/TANIA RESULT: PASSED$/);
+      expect(message.trim()).toMatch(/TANYA RESULT: PASSED$/);
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }
   });
 
   it("emits FAIL when go test fails on the final state", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-runner-go-test-fail-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-runner-go-test-fail-"));
     try {
       writeGoBackend(workspace, { withMain: true, withTest: true });
       const provider = makeProvider([
@@ -622,14 +622,14 @@ describe("runAgent final-state recovery", () => {
 
       expect(manifest.finalStateVerification?.authoritativePassed).toBe(false);
       expect(manifest.blockers.some((b) => b.includes("go test"))).toBe(true);
-      expect(message.trim()).toMatch(/TANIA RESULT: FAIL$/);
+      expect(message.trim()).toMatch(/TANYA RESULT: FAIL$/);
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }
   });
 
   it("emits PASS with a warning when a non-authoritative dependency check fails", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-runner-missing-dep-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-runner-missing-dep-"));
     try {
       writeGoBackend(workspace, { withMain: true });
       const provider = makeProvider([
@@ -661,14 +661,14 @@ describe("runAgent final-state recovery", () => {
 
       expect(manifest.blockers).toEqual([]);
       expect(manifest.finalStateVerification?.warnings.some((b) => b.includes("huma/v2"))).toBe(true);
-      expect(message.trim()).toMatch(/TANIA RESULT: PASSED$/);
+      expect(message.trim()).toMatch(/TANYA RESULT: PASSED$/);
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }
   });
 
   it("emits PASS with a warning when a non-authoritative file check fails", async () => {
-    const workspace = mkdtempSync(join(tmpdir(), "tania-runner-missing-main-"));
+    const workspace = mkdtempSync(join(tmpdir(), "tanya-runner-missing-main-"));
     try {
       writeGoBackend(workspace, { withMain: false });
       const provider = makeProvider([
@@ -700,7 +700,7 @@ describe("runAgent final-state recovery", () => {
 
       expect(manifest.blockers).toEqual([]);
       expect(manifest.finalStateVerification?.warnings.some((b) => b.includes("cmd/server/main.go"))).toBe(true);
-      expect(message.trim()).toMatch(/TANIA RESULT: PASSED$/);
+      expect(message.trim()).toMatch(/TANYA RESULT: PASSED$/);
     } finally {
       await rm(workspace, { recursive: true, force: true });
     }

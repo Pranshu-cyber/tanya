@@ -47,7 +47,7 @@ not relax inherited rules.
   default. Set `TANYA_SUBTASK_CYCLE_CHECK=0` only when the caller intentionally
   wants to disable that guard.
 
-The legacy `TANIA_*` aliases remain accepted for these variables.
+The legacy `TANYA_*` aliases remain accepted for these variables.
 
 ## Cancellation
 
@@ -74,12 +74,12 @@ by default:
 - `warning` — verdict remains visible in `childWarnings` without blocking the
   parent.
 - `ignore` — child is omitted from the parent report, but the verdict still
-  remains in `.tania/audit.jsonl`.
+  remains in `.tanya/audit.jsonl`.
 
 ## Memory rollup
 
 Golden-task memory is recorded at the parent level only: one user intent, one
 golden-task record. Child run IDs are linked from that parent record, and child
-run summaries remain available under `.tania/runs/` for replay and
+run summaries remain available under `.tanya/runs/` for replay and
 diagnostics. `/memory --full <id>` renders linked child summaries indented
 beneath the parent record.

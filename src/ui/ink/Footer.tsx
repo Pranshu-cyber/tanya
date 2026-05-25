@@ -4,8 +4,6 @@ import { formatUsd } from "../../memory/runLogs";
 import { formatElapsed } from "../../utils/formatElapsed";
 import type { InkSessionStats } from "./types";
 
-const divider = "─".repeat(80);
-
 function formatTokens(tokens: number | null): string {
   if (tokens === null) return "— tokens";
   if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(1)}M tokens`;
@@ -29,8 +27,7 @@ export function Footer({ provider, model, sessionStartMs, stats, now, showColdSt
 }) {
   const cost = formatFooterCost(stats.costUsd);
   return (
-    <Box flexDirection="column">
-      <Text dimColor>{divider}</Text>
+    <Box paddingX={2}>
       <Text dimColor>
         {showColdStartHint
           ? "First turn may take ~30-60s on DeepSeek V4-Pro (cold-start + skill loading)."

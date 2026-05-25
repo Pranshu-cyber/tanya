@@ -22,7 +22,7 @@ export type PromptBudgetExceeded = {
 };
 
 function readProjectInstructions(workspace: string): string {
-  const path = join(workspace, ".tania", "INSTRUCTIONS.md");
+  const path = join(workspace, ".tanya", "INSTRUCTIONS.md");
   if (!existsSync(path)) return "";
   try {
     const content = readFileSync(path, "utf8").trim();

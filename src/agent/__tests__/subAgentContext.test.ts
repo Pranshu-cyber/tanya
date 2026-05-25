@@ -58,6 +58,6 @@ describe("sub-agent run context propagation", () => {
       parentRunId: "r-parent",
       tool: "read_file",
     }));
-    expect(existsSync(join(cwd, ".tania", "runs", "r-parent", "r-parent.t-1.json"))).toBe(true);
+    expect(existsSync(join(cwd, ".tanya", "runs", "r-parent", "r-parent.t-1.json"))).toBe(true);
   });
 });

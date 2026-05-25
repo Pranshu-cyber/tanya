@@ -40,7 +40,7 @@ const deepSeekPricingByModel: Record<string, Pricing> = {
 };
 
 export function readRunLogs(workspace: string, limit?: number): RunLog[] {
-  const runsDir = join(workspace, ".tania", "runs");
+  const runsDir = join(workspace, ".tanya", "runs");
   if (!existsSync(runsDir)) return [];
 
   const files = readdirSync(runsDir)

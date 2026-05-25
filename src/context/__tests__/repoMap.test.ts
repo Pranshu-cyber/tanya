@@ -83,9 +83,9 @@ describe("repo-map indexer", () => {
     expect(map.files.find((file) => file.lang === "kt")?.symbols.map((symbol) => symbol.name)).toEqual(["MainActivity", "launch"]);
   });
 
-  it("honors the max file bytes env with TANIA fallback", async () => {
+  it("honors the max file bytes env with TANYA env", async () => {
     const root = fixture();
-    vi.stubEnv("TANIA_REPO_MAP_MAX_FILE_BYTES", "10");
+    vi.stubEnv("TANYA_REPO_MAP_MAX_FILE_BYTES", "10");
     const map = await buildRepoMap(root, { now: new Date("2026-05-16T12:00:00.000Z") });
 
     expect(map.files).toEqual([]);

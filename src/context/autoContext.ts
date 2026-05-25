@@ -87,7 +87,7 @@ export async function buildAutoRunContext(options: AutoRunContextOptions): Promi
         })),
       };
       instructions.push(
-        "Relevant Obsidian note excerpts were materialized under .tania/context/obsidian.",
+        "Relevant Obsidian note excerpts were materialized under .tanya/context/obsidian.",
         "Read relevant Obsidian context paths before implementing if the task depends on prior decisions, project memory, or historical fixes.",
       );
     } else {

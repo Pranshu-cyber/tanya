@@ -16,7 +16,7 @@ class MemoryStream {
 describe("/cost command", () => {
   it("prints tokens, known pricing, unknown pricing, and a session total", async () => {
     const workspace = mkdtempSync(join(tmpdir(), "tanya-cost-command-"));
-    const runsDir = join(workspace, ".tania", "runs");
+    const runsDir = join(workspace, ".tanya", "runs");
     mkdirSync(runsDir, { recursive: true });
     writeFileSync(join(runsDir, "2026-05-15T12-00-00.json"), JSON.stringify({
       ts: "2026-05-15T12:00:00.000Z",
@@ -76,7 +76,7 @@ describe("/cost command", () => {
       sink: () => {},
     })).resolves.toBe(true);
 
-    const parsed = JSON.parse(readFileSync(join(workspace, ".tania", "permissions.json"), "utf8")) as {
+    const parsed = JSON.parse(readFileSync(join(workspace, ".tanya", "permissions.json"), "utf8")) as {
       spendRules?: Array<{ scope?: string; max_usd?: number; max_tokens?: number; action?: string }>;
     };
     expect(parsed.spendRules?.[0]).toMatchObject({

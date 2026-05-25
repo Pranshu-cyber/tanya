@@ -5,8 +5,6 @@ import { reasoningCapForTurn } from "../runner";
 const ENV_KEYS = [
   "TANYA_REASONING_CAP_SHORT",
   "TANYA_REASONING_CAP_LONG",
-  "TANIA_REASONING_CAP_SHORT",
-  "TANIA_REASONING_CAP_LONG",
 ];
 
 afterEach(() => {
@@ -29,11 +27,6 @@ describe("reasoningCapForTurn", () => {
     expect(reasoningCapForTurn("planning")).toBe(8_000);
     expect(reasoningCapForTurn("unknown")).toBe(8_000);
     expect(reasoningCapForTurn("synthesis")).toBe(16_000);
-  });
-
-  it("accepts the legacy TANIA_ prefix", () => {
-    process.env.TANIA_REASONING_CAP_SHORT = "5000";
-    expect(reasoningCapForTurn("planning")).toBe(5_000);
   });
 
   it("lets an explicit per-route reasoningCap win over env and defaults", () => {

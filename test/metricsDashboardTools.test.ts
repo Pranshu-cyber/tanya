@@ -6,12 +6,12 @@ import { defaultTools } from "../src/tools/fsTools";
 import { recordMetricsDashboardHandoffTool } from "../src/tools/metricsDashboardTools";
 
 describe("record_metrics_dashboard_handoff", () => {
-  it("is exposed through the default Tania tool registry", () => {
+  it("is exposed through the default Tanya tool registry", () => {
     expect(defaultTools().some((tool) => tool.name === "record_metrics_dashboard_handoff")).toBe(true);
   });
 
   it("writes a structured handoff inside the workspace", async () => {
-    const workspace = await mkdtemp(join(tmpdir(), "tania-metrics-handoff-"));
+    const workspace = await mkdtemp(join(tmpdir(), "tanya-metrics-handoff-"));
     const result = await recordMetricsDashboardHandoffTool.run({
       appName: "DemoApp",
       implementedEvents: [
@@ -29,9 +29,9 @@ describe("record_metrics_dashboard_handoff", () => {
     }, { workspace });
 
     expect(result.ok).toBe(true);
-    expect(result.files).toEqual([".tania/metrics-dashboard-handoff.json"]);
+    expect(result.files).toEqual([".tanya/metrics-dashboard-handoff.json"]);
 
-    const raw = await readFile(join(workspace, ".tania/metrics-dashboard-handoff.json"), "utf8");
+    const raw = await readFile(join(workspace, ".tanya/metrics-dashboard-handoff.json"), "utf8");
     const payload = JSON.parse(raw);
     expect(payload.appName).toBe("DemoApp");
     expect(payload.implementedEvents).toHaveLength(1);

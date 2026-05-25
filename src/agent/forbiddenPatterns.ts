@@ -251,7 +251,7 @@ type ForbiddenPatternConfig = {
 };
 
 async function loadProjectForbiddenPatterns(workspace: string): Promise<ForbiddenPattern[]> {
-  const candidate = join(workspace, ".tania", "forbidden-patterns.json");
+  const candidate = join(workspace, ".tanya", "forbidden-patterns.json");
   if (!existsSync(candidate)) return [];
   try {
     const raw = await readFile(candidate, "utf8");
@@ -317,7 +317,7 @@ type FireMetricsFile = {
 
 async function recordFireMetrics(workspace: string, fireCounts: Map<string, number>): Promise<void> {
   try {
-    const metricsDir = join(workspace, ".tania", "memory");
+    const metricsDir = join(workspace, ".tanya", "memory");
     const metricsPath = join(metricsDir, "forbidden-patterns-metrics.json");
     let existing: FireMetricsFile = { totals: {}, lastFiredAt: {} };
     if (existsSync(metricsPath)) {

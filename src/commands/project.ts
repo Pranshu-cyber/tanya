@@ -20,7 +20,7 @@ export async function loadProjectCommands(workspace: string): Promise<void> {
   loadedWorkspace = workspace;
   removeCommandsByCategory("project");
 
-  const commandsDir = join(workspace, ".tania", "commands");
+  const commandsDir = join(workspace, ".tanya", "commands");
   if (!existsSync(commandsDir)) return;
 
   let files: string[] = [];

@@ -34,7 +34,7 @@ What happened instead?
 
 ## Logs
 
-- Run log path under `.tania/`:
+- Run log path under `.tanya/`:
 - Relevant stderr/stdout excerpt:
 
 ## Additional context

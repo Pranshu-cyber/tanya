@@ -1,6 +1,6 @@
 # Structural Repo-Map
 
-Tanya writes a generated structural index to `.tania/index/repo-map.json`.
+Tanya writes a generated structural index to `.tanya/index/repo-map.json`.
 The map is context, not authority: it helps the model choose what to read, but
 edits still require normal file reads and final-state verification.
 
@@ -45,7 +45,7 @@ language grammar set would exceed the install-footprint target for a beta CLI.
 
 If the source file cannot be read, the entry falls back to `parser: "path"` and
 contains no symbols. Generated files, binaries, `node_modules/`, `dist/`,
-`build/`, `.next/`, `.git/`, `.tania/`, and files over 500 KB are skipped. The
+`build/`, `.next/`, `.git/`, `.tanya/`, and files over 500 KB are skipped. The
 size cap can be changed with `TANYA_REPO_MAP_MAX_FILE_BYTES`.
 
 ## Prompt Integration
@@ -84,7 +84,7 @@ file before editing.
 
 ## Invalidation
 
-Tanya stores cache metadata at `.tania/index/repo-map-meta.json`.
+Tanya stores cache metadata at `.tanya/index/repo-map-meta.json`.
 
 - File changes: unchanged entries are reused by `path + size + mtime`; changed
   files are re-indexed.

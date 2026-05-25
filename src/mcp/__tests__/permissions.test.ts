@@ -23,13 +23,13 @@ describe("MCP permission integration", () => {
 
   it("denies MCP tools via mcp:<server>:* rules and records the MCP audit source", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "tanya-mcp-permissions-"));
-    mkdirSync(join(cwd, ".tania"), { recursive: true });
+    mkdirSync(join(cwd, ".tanya"), { recursive: true });
     const serverPath = writeMockServer(cwd);
-    writeFileSync(join(cwd, ".tania", "mcp.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "mcp.json"), JSON.stringify({
       version: 1,
       servers: [{ name: "github", transport: "stdio", command: process.execPath, args: [serverPath] }],
     }));
-    writeFileSync(join(cwd, ".tania", "permissions.json"), JSON.stringify({
+    writeFileSync(join(cwd, ".tanya", "permissions.json"), JSON.stringify({
       version: 1,
       mode: "default",
       alwaysDeny: ["mcp:github:.*"],

@@ -15,27 +15,24 @@ class MemoryStream {
 }
 
 const originalTanyaMode = process.env.TANYA_MODE;
-const originalTaniaMode = process.env.TANIA_MODE;
 
 afterEach(() => {
   resetProjectCommandsForTests();
   vi.restoreAllMocks();
   if (originalTanyaMode === undefined) delete process.env.TANYA_MODE;
   else process.env.TANYA_MODE = originalTanyaMode;
-  if (originalTaniaMode === undefined) delete process.env.TANIA_MODE;
-  else process.env.TANIA_MODE = originalTaniaMode;
 });
 
 describe("project commands", () => {
   it("discovers shell commands, lists them in /help, and runs them", async () => {
     const workspace = makeWorkspace();
-    writeFileSync(join(workspace, ".tania", "commands", "say-hi.sh"), "printf 'hello %s' \"$1\"\n");
+    writeFileSync(join(workspace, ".tanya", "commands", "say-hi.sh"), "printf 'hello %s' \"$1\"\n");
     const helpOutput = new MemoryStream();
 
     await runCommand("/help", ctx(workspace, helpOutput));
 
     expect(helpOutput.chunks.join("")).toContain("Project commands:");
-    expect(helpOutput.chunks.join("")).toContain("/project:say-hi — Run .tania/commands/say-hi.sh.");
+    expect(helpOutput.chunks.join("")).toContain("/project:say-hi — Run .tanya/commands/say-hi.sh.");
 
     const runOutput = new MemoryStream();
     await expect(runCommand("/project:say-hi Ada", ctx(workspace, runOutput))).resolves.toBe(true);
@@ -44,7 +41,7 @@ describe("project commands", () => {
 
   it("skips malformed module commands without breaking command loading", async () => {
     const workspace = makeWorkspace();
-    writeFileSync(join(workspace, ".tania", "commands", "bad.js"), "export default { nope: true };\n");
+    writeFileSync(join(workspace, ".tanya", "commands", "bad.js"), "export default { nope: true };\n");
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const output = new MemoryStream();
 
@@ -56,7 +53,7 @@ describe("project commands", () => {
 
   it("loads TypeScript module commands with a default CommandDefinition export", async () => {
     const workspace = makeWorkspace();
-    writeFileSync(join(workspace, ".tania", "commands", "wave.ts"), [
+    writeFileSync(join(workspace, ".tanya", "commands", "wave.ts"), [
       "export default {",
       "  name: 'wave',",
       "  description: 'Wave from TypeScript.',",
@@ -76,7 +73,7 @@ describe("project commands", () => {
   it("gates project commands through the permission engine", async () => {
     process.env.TANYA_MODE = "ask";
     const workspace = makeWorkspace();
-    writeFileSync(join(workspace, ".tania", "commands", "say-hi.sh"), "printf 'hello'\n");
+    writeFileSync(join(workspace, ".tanya", "commands", "say-hi.sh"), "printf 'hello'\n");
     const output = new MemoryStream();
     const events: TanyaEvent[] = [];
 
@@ -97,7 +94,7 @@ describe("project commands", () => {
 
 function makeWorkspace(): string {
   const workspace = mkdtempSync(join(tmpdir(), "tanya-project-command-"));
-  mkdirSync(join(workspace, ".tania", "commands"), { recursive: true });
+  mkdirSync(join(workspace, ".tanya", "commands"), { recursive: true });
   return workspace;
 }
 

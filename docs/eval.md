@@ -3,7 +3,7 @@
 Run an eval suite:
 
 ```bash
-tanya eval --suite tanya-native --out .tania/eval/results/tanya-native.json
+tanya eval --suite tanya-native --out .tanya/eval/results/tanya-native.json
 ```
 
 Dry-run a suite without provider calls:
@@ -15,8 +15,8 @@ tanya eval --suite eco-30 --dry-run
 Report and compare:
 
 ```bash
-tanya eval report .tania/eval/results/tanya-native.json
-tanya eval compare docs/benchmarks/tanya-native-latest.json .tania/eval/results/tanya-native.json --format markdown
+tanya eval report .tanya/eval/results/tanya-native.json
+tanya eval compare docs/benchmarks/tanya-native-latest.json .tanya/eval/results/tanya-native.json --format markdown
 ```
 
 ## Isolation
@@ -30,9 +30,9 @@ baseline before the task runs so the result can include a final diff.
 
 The runner uses env-compatible caps:
 
-- `TANYA_EVAL_TASK_TIMEOUT_MS` / `TANIA_EVAL_TASK_TIMEOUT_MS`, default `600000`.
-- `TANYA_EVAL_TASK_TOKEN_CAP` / `TANIA_EVAL_TASK_TOKEN_CAP`, default `500000`.
-- `TANYA_EVAL_PARALLEL` / `TANIA_EVAL_PARALLEL`, default `4`.
+- `TANYA_EVAL_TASK_TIMEOUT_MS` / `TANYA_EVAL_TASK_TIMEOUT_MS`, default `600000`.
+- `TANYA_EVAL_TASK_TOKEN_CAP` / `TANYA_EVAL_TASK_TOKEN_CAP`, default `500000`.
+- `TANYA_EVAL_PARALLEL` / `TANYA_EVAL_PARALLEL`, default `4`.
 
 Execution is conservative and deterministic by default. The current runner keeps
 tasks sequential while preserving the `--parallel` surface for CI tuning after

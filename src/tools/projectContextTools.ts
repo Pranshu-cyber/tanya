@@ -71,7 +71,7 @@ const instructionNames = new Set([
   "AGENTS.md",
   "CLAUDE.md",
   "TANYA.md",
-  "TANIA.md",
+  "TANYA.md",
   "README.md",
   "PROJECT.md",
   "CONTRIBUTING.md",
@@ -203,7 +203,7 @@ async function collectFiles(root: string, maxFiles: number, current = root, out:
     const fullPath = join(current, entry.name);
     const rel = normalizePath(relative(root, fullPath));
     if (entry.isDirectory()) {
-      if (entry.name === ".tania") {
+      if (entry.name === ".tanya") {
         out.push(`${rel}/`);
         await collectTanyaFiles(root, fullPath, maxFiles, out);
         continue;
@@ -218,17 +218,17 @@ async function collectFiles(root: string, maxFiles: number, current = root, out:
   return out;
 }
 
-async function collectTanyaFiles(root: string, taniaDir: string, maxFiles: number, out: string[]): Promise<void> {
+async function collectTanyaFiles(root: string, tanyaDir: string, maxFiles: number, out: string[]): Promise<void> {
   for (const rel of ["INSTRUCTIONS.md", "artifacts/manifest.json"]) {
     if (out.length >= maxFiles) return;
-    const abs = join(taniaDir, rel);
+    const abs = join(tanyaDir, rel);
     try {
       if ((await stat(abs)).isFile()) out.push(normalizePath(relative(root, abs)));
     } catch {
       // Optional local Tanya files are often absent.
     }
   }
-  const contextDir = join(taniaDir, "context");
+  const contextDir = join(tanyaDir, "context");
   try {
     if ((await stat(contextDir)).isDirectory()) {
       out.push(normalizePath(relative(root, contextDir)) + "/");
@@ -264,9 +264,9 @@ function classifyContextFile(relPath: string): string | null {
   const normalized = normalizePath(relPath);
   const name = basename(normalized);
   const lower = normalized.toLowerCase();
-  if (normalized === ".tania/INSTRUCTIONS.md" || instructionNames.has(name)) return "instruction";
-  if (lower === "artifacts/description.md" || lower === "artifacts/readme.md" || lower === ".tania/artifacts/manifest.json") return "artifact-index";
-  if (lower.startsWith(".tania/context/")) return "materialized-context";
+  if (normalized === ".tanya/INSTRUCTIONS.md" || instructionNames.has(name)) return "instruction";
+  if (lower === "artifacts/description.md" || lower === "artifacts/readme.md" || lower === ".tanya/artifacts/manifest.json") return "artifact-index";
+  if (lower.startsWith(".tanya/context/")) return "materialized-context";
   if (lower.startsWith("brand/") && /\.(md|json|txt)$/i.test(lower)) return "project-contract";
   if (/(^|\/)(api_features\.md|api-features\.md|openapi\.json|openapi\.yaml|openapi\.yml)$/i.test(normalized)) return "api-contract";
   if (/(^|\/)(schema\.prisma|prisma\.schema)$/i.test(normalized)) return "data-contract";
@@ -336,7 +336,7 @@ async function artifactMetadataByPath(workspace: string, rootRel: string): Promi
 async function artifactRoots(workspace: string, preferredRoot?: string): Promise<Array<{ rel: string; abs: string }>> {
   const candidates = preferredRoot
     ? [preferredRoot]
-    : ["artifacts", ".tania/artifacts"];
+    : ["artifacts", ".tanya/artifacts"];
   const roots: Array<{ rel: string; abs: string }> = [];
   for (const candidate of candidates) {
     const rel = normalizePath(candidate);
@@ -745,7 +745,7 @@ export const inspectProjectContextTool: TanyaTool = {
     const verification = recommendedVerificationCommands(files, packageScripts, { platforms, domains: [] });
     let artifactsCatalog: { hint: string; head: string } | null = null;
     try {
-      const candidates = ["artifacts/description.md", ".tania/artifacts/description.md"];
+      const candidates = ["artifacts/description.md", ".tanya/artifacts/description.md"];
       for (const rel of candidates) {
         const abs = resolve(root, rel);
         if (existsSync(abs)) {
@@ -783,13 +783,13 @@ export const findReusableArtifactsTool: TanyaTool = {
     type: "function",
     function: {
       name: "find_reusable_artifacts",
-      description: "Search local artifacts directories for reusable patterns matching a task, platform, or keyword. Works with artifacts/ and .tania/artifacts.",
+      description: "Search local artifacts directories for reusable patterns matching a task, platform, or keyword. Works with artifacts/ and .tanya/artifacts.",
       parameters: {
         type: "object",
         properties: {
           query: { type: "string", description: "Task text or search keywords." },
           platform: { type: "string", description: "Optional platform/category filter such as ios, android, backend, web, landing, testing, resources, apple." },
-          artifactRoot: { type: "string", description: "Optional artifact root relative to the workspace. Default searches artifacts and .tania/artifacts." },
+          artifactRoot: { type: "string", description: "Optional artifact root relative to the workspace. Default searches artifacts and .tanya/artifacts." },
           maxResults: { type: "number", description: "Maximum results. Default 12." },
         },
         additionalProperties: false,

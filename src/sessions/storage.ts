@@ -44,13 +44,13 @@ function defaultHome(homeDir?: string): string {
 }
 
 function globalSessionsDir(homeDir?: string): string {
-  return join(defaultHome(homeDir), ".tania", "sessions", "global");
+  return join(defaultHome(homeDir), ".tanya", "sessions", "global");
 }
 
 function findProjectTaniaDir(cwd: string): string | null {
   let current = resolve(cwd);
   while (true) {
-    const candidate = join(current, ".tania");
+    const candidate = join(current, ".tanya");
     if (existsSync(candidate) && statSync(candidate).isDirectory()) return candidate;
     const parent = dirname(current);
     if (parent === current) return null;

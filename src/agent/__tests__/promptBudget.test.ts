@@ -37,7 +37,7 @@ describe("runner prompt budget events", () => {
     });
 
     expect(events.some((event) => event.type === "prompt_budget_exceeded")).toBe(true);
-    const audit = readFileSync(join(cwd, ".tania", "audit.jsonl"), "utf8");
+    const audit = readFileSync(join(cwd, ".tanya", "audit.jsonl"), "utf8");
     expect(audit).toContain("\"tool\":\"system_prompt\"");
     expect(audit).toContain("prompt-budget-enforced");
   });

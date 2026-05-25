@@ -119,27 +119,13 @@ Optional Obsidian logging:
 TANYA_OBSIDIAN_VAULT=/path/to/Obsidian/Vault
 ```
 
-When set, Tanya appends a summary of completed tasks to the vault daily note. `tanya run` also searches the vault for task-relevant notes and materializes safe excerpts into `.tania/context/obsidian` so they can be read as normal workspace context.
+When set, Tanya appends a summary of completed tasks to the vault daily note. `tanya run` also searches the vault for task-relevant notes and materializes safe excerpts into `.tanya/context/obsidian` so they can be read as normal workspace context.
 
 DeepSeek documents its API as OpenAI-compatible for chat completions:
 https://api-docs.deepseek.com/
 
 - Tracks the DeepSeek API roadmap: warns when legacy model names approach
   deprecation, with a documented migration path in `docs/providers.md`.
-
-## Backward compatibility
-
-The old `tania` command remains as a binary alias for `tanya`, so existing
-automation that runs `tania run --json` keeps working.
-
-Configuration reads `TANYA_*` variables first and falls back to legacy
-`TANIA_*` names when the new variable is absent. When only a legacy variable is
-used, Tanya prints a one-line deprecation warning. If both names are set,
-`TANYA_*` wins.
-
-The workspace state directory remains `.tania/` for historical compatibility.
-Existing run logs, context files, artifact materialization, and memory files are
-not moved or renamed.
 
 ## Permissions
 
@@ -155,7 +141,7 @@ Modes:
 - `plan` denies all tool execution so the model must respond with text only.
 
 Rules live in `~/.tanya/permissions.json` for user scope and
-`.tania/permissions.json` for project scope. Project rules merge over user
+`.tanya/permissions.json` for project scope. Project rules merge over user
 rules. A minimal deny rule:
 
 ```json
@@ -169,7 +155,7 @@ rules. A minimal deny rule:
 Generate a starter config from recent runs:
 
 ```bash
-tanya permissions migrate --cwd . > .tania/permissions.suggested.json
+tanya permissions migrate --cwd . > .tanya/permissions.suggested.json
 ```
 
 Spend rules can gate projected token or USD budgets before a tool runs. For
@@ -219,7 +205,7 @@ model:
 /mcp              # list connected MCP servers and tools
 ```
 
-Project-local commands live in `.tania/commands/*.{js,ts,sh}` and appear in
+Project-local commands live in `.tanya/commands/*.{js,ts,sh}` and appear in
 `/help` with a `project:` prefix, for example `/project:say-hi`. Shell commands
 run directly; JavaScript and TypeScript commands export a default
 `CommandDefinition`.
@@ -262,8 +248,8 @@ Tanya can consume external Model Context Protocol servers and expose Tanya's own
 verifier and memory primitives to MCP-speaking clients.
 
 Client configuration is allowlist-only. User-global servers are read from
-`~/.tanya/mcp.json` with a fallback read of `~/.tania/mcp.json`; project servers
-live in `.tania/mcp.json` and override same-named user servers. Connected tools
+`~/.tanya/mcp.json` with a fallback read of `~/.tanya/mcp.json`; project servers
+live in `.tanya/mcp.json` and override same-named user servers. Connected tools
 are registered as normal Tanya tools named `mcp:<server>:<tool>`, so permission
 rules, audit logging, truncation, and verifier visibility apply exactly as they
 do for native tools.
@@ -288,7 +274,7 @@ start Tanya's MCP server over stdio; it exposes `tanya.verify`,
 
 MCP servers are untrusted code. Tanya refuses undeclared servers, gates every
 MCP tool call through the permission engine, captures stdio server stderr under
-`.tania/mcp/logs/`, restarts crashed servers up to three times, and rejects
+`.tanya/mcp/logs/`, restarts crashed servers up to three times, and rejects
 schema-invalid tool responses before they reach model history.
 
 See [docs/mcp.md](./docs/mcp.md) for the full schema, transports, server tools,
@@ -310,8 +296,8 @@ Default route profile:
 | `verification` | `deepseek/deepseek-reasoner` | `openai/gpt-4.1-mini` |
 | `reasoning` | `deepseek/deepseek-reasoner` | `qwen/qwen3-coder-plus` |
 
-Project routes live in `.tania/routes.json`; user-global routes live in
-`~/.tanya/routes.json` with a legacy read fallback from `~/.tania/routes.json`.
+Project routes live in `.tanya/routes.json`; user-global routes live in
+`~/.tanya/routes.json` with a legacy read fallback from `~/.tanya/routes.json`.
 Use `/route` in the REPL to inspect the effective table, `/route show
 <stepType>` to inspect one step, `/route set <stepType> <provider>/<model>` for
 a session-only patch, and `/route reset` to clear session patches.
@@ -340,7 +326,7 @@ same events already sent to the human sink:
 
 The footer is TTY-only. Piped output and JSONL output stay byte-stable and
 receive no ANSI cursor control bytes. Disable it with
-`TANYA_LIVE_STATUS=0` or the legacy `TANIA_LIVE_STATUS=0` alias.
+`TANYA_LIVE_STATUS=0` or the legacy `TANYA_LIVE_STATUS=0` alias.
 
 See [docs/live-status.md](./docs/live-status.md) for the surfaced fields,
 streaming strategy, and TTY fallback behavior.
@@ -349,7 +335,7 @@ streaming strategy, and TTY fallback behavior.
 
 Reasoning routes such as `deepseek-reasoner`, `qwen3-thinking-*`, and
 `grok-3-reasoning` are handled as a separate stream. Tanya archives reasoning to
-`.tania/runs/<runId>/reasoning.jsonl`, emits `reasoning_chunk` events, and keeps
+`.tanya/runs/<runId>/reasoning.jsonl`, emits `reasoning_chunk` events, and keeps
 assistant history reasoning-free so replay and verifier inputs stay stable.
 
 Reasoning tokens appear separately in `/cost` and `/budget`. Route rules can set
@@ -373,7 +359,7 @@ By default, `tanya run` also performs an independent post-check after the agent 
 
 By default, `tanya run` builds a generic task brief from local instructions, contracts, artifact indexes, project shape, and package scripts. Coding-shaped tasks get verification/report expectations automatically. If reusable artifact candidates are found, Tanya must read a relevant artifact or create a reusable one before changing code.
 
-Per-project persistent instructions can be stored in `.tania/INSTRUCTIONS.md`. Tanya injects this file into the system prompt for runs started inside that workspace. Create a starter file with:
+Per-project persistent instructions can be stored in `.tanya/INSTRUCTIONS.md`. Tanya injects this file into the system prompt for runs started inside that workspace. Create a starter file with:
 
 ```bash
 tanya init
@@ -412,7 +398,7 @@ Tanya handles context pressure as a cascade instead of truncating abruptly:
 1. Microcompact folds empty/no-op tool-call pairs in place.
 2. Snip removes low-signal history such as duplicate file reads and empty read-only tool results.
 3. Auto-compact reacts to provider `413` / context-window errors by summarizing older turns into a `[compaction summary: ...]` system message and retrying once normally, then once more aggressively.
-4. Archive writes compacted messages to `.tania/runs/<runId>/archive.jsonl` before they leave live history, so verifier scans and future memory tools can still inspect them.
+4. Archive writes compacted messages to `.tanya/runs/<runId>/archive.jsonl` before they leave live history, so verifier scans and future memory tools can still inspect them.
 
 Runs are capped at three total auto-compactions. If the provider still rejects the context, Tanya raises `CompactionExhaustedError` and asks the user to narrow the task, clear the session, or split the work.
 
@@ -422,7 +408,7 @@ See [docs/long-sessions.md](./docs/long-sessions.md) for details.
 
 Tanya trims model-visible tokens while keeping state reversible and auditable.
 
-- Lite prompts can be enabled with `TANYA_LITE_PROMPT=1` for cheap-provider exploration turns. The legacy `TANIA_LITE_PROMPT` alias is still accepted.
+- Lite prompts can be enabled with `TANYA_LITE_PROMPT=1` for cheap-provider exploration turns. The legacy `TANYA_LITE_PROMPT` alias is still accepted.
 - System prompts are automatically capped to the active provider context window. Tune the default 25% cap with `TANYA_PROMPT_BUDGET_RATIO`.
 - Large shell/tool outputs are shortened for the model with a visible `<truncated ...>` marker. Use `expand_result` with the marker's `tool_call_id` to fetch the full output or a byte range.
 - Repeated unchanged `read_file` calls return a reference marker instead of resending the same content. Pass `force: true` when the agent genuinely needs the full file again.
@@ -437,9 +423,9 @@ adapters, integration-provided suites, and the `eco-30` token-economy bench.
 
 ```bash
 tanya eval --suite tanya-native --dry-run
-tanya eval --suite tanya-native --out .tania/eval/results/tanya-native.json
-tanya eval report .tania/eval/results/tanya-native.json
-tanya eval compare docs/benchmarks/tanya-native-latest.json .tania/eval/results/tanya-native.json --format markdown
+tanya eval --suite tanya-native --out .tanya/eval/results/tanya-native.json
+tanya eval report .tanya/eval/results/tanya-native.json
+tanya eval compare docs/benchmarks/tanya-native-latest.json .tanya/eval/results/tanya-native.json --format markdown
 ```
 
 Public snapshots live in [docs/benchmarks](./docs/benchmarks/). The eval result
@@ -485,7 +471,7 @@ permission model, confidence threshold, and failure modes.
 ## Structural repo-map
 
 Lite prompts can include a generated structural map from
-`.tania/index/repo-map.json`. The map lists workspace-relative files, language,
+`.tanya/index/repo-map.json`. The map lists workspace-relative files, language,
 parser provenance, top-level symbols, imports, and exports so cheap providers
 can target likely files before spending turns on blind reads.
 
@@ -497,7 +483,7 @@ before editing, and the verifier remains the final authority.
 
 Use `TANYA_LITE_PROMPT=1` to inject a ranked repo-map excerpt. Tune the default
 1000-token section budget with `TANYA_REPO_MAP_PROMPT_BUDGET`; the legacy
-`TANIA_*` alias is also accepted. If the prompt budget is tight, the repo-map
+`TANYA_*` alias is also accepted. If the prompt budget is tight, the repo-map
 drops before skill packs because it is generated and recoverable.
 
 Use `inspect_repo_map` when the model needs more structural detail by file,

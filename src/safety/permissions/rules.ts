@@ -29,9 +29,8 @@ export interface InheritedPermissionRules {
 export function loadPermissionRules(options: LoadPermissionRulesOptions): LoadedPermissionRules {
   const home = options.home ?? homedir();
   const candidates = [
-    join(home, ".tania", "permissions.json"),
     join(home, ".tanya", "permissions.json"),
-    join(options.cwd, ".tania", "permissions.json"),
+    join(options.cwd, ".tanya", "permissions.json"),
   ];
 
   let rules = cloneRules(DEFAULT_PERMISSION_RULES);
