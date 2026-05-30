@@ -69,6 +69,7 @@ import {
 } from "./subAgentContext";
 import { AsyncSemaphore, BudgetLedger } from "./budgetLedger";
 import { isLikelySubtaskCycle } from "./cycleDetect";
+import { resolveProgressBudget, shouldStopAfterBudget } from "./progressBudget";
 import type { ChildVerdict, ReasoningAnnotation } from "./verifier/types";
 import { existsSync, mkdirSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { cp, mkdir, rm, stat } from "node:fs/promises";
@@ -134,6 +135,15 @@ export interface RunAgentOptions {
   cwd: string;
   sink: EventSink;
   maxTurns?: number;
+  // Opt in to progress-aware budget extension: a productive run may continue
+  // past maxTurns up to a hard ceiling while it keeps making progress. Off by
+  // default so explicit caps (eval, sub-agents, --max-turns) stay exact.
+  extendBudgetOnProgress?: boolean;
+  // Interactive chat mode. Verification, validation-repair, and the
+  // forbidden-pattern scan still run, but the CLI-batch surface is suppressed:
+  // no commit-required gating, no machine `Verification: -> ` report format on
+  // the user-facing reply, and a friendly (not alarming) budget-reached message.
+  interactive?: boolean;
   history?: ChatMessage[];
   runContext?: TanyaRunContext;
   parentContext?: RunAgentParentContext;
@@ -1099,7 +1109,11 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
     ...(options.history ?? []),
     { role: "user", content: options.prompt },
   ];
-  const maxTurns = options.maxTurns ?? 12;
+  // Default floor for callers that pass no budget (e.g. interactive chat without
+  // an inferred coding context). 12 was far too low for any multi-step build and
+  // caused runs to stop mid-task; 40 is a safe floor. Coding runs get a larger
+  // phase-aware budget via phaseAwareMaxTurns/inferInteractiveRun.
+  const maxTurns = options.maxTurns ?? 40;
   let finalText = "";
   let requestedFinalReport = false;
   let requestedCommitRepair = false;
@@ -1532,7 +1546,16 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
   let compactionsThisRun = 0;
   const COMPACTION_LIMIT = 3;
 
-  for (let turn = 0; turn < maxTurns; turn += 1) {
+  // Progress-aware budget: opt-in extension of a productive run past maxTurns up
+  // to a hard ceiling. Never early-stops within the soft budget. See
+  // progressBudget.ts. Disabled unless the caller opts in (interactive coding
+  // runs), so eval/sub-agents/explicit --max-turns keep an exact cap.
+  const progressBudget = resolveProgressBudget(maxTurns, { extendOnProgress: options.extendBudgetOnProgress ?? false });
+  const hardCeiling = progressBudget.hardCeiling;
+  const interactive = options.interactive ?? false;
+  let lastProgressTurn = 0;
+
+  for (let turn = 0; turn < hardCeiling; turn += 1) {
     if (parentContext && options.signal?.aborted) {
       const manifest = await buildFinalManifest({
         workspace,
@@ -1552,6 +1575,9 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       });
       const metrics = await finishRun("Run cancelled.", manifest);
       return { message: "Run cancelled.", manifest, metrics };
+    }
+    if (shouldStopAfterBudget(turn, maxTurns, lastProgressTurn, progressBudget)) {
+      break;
     }
     let turnSpendTokens = 0;
     let turnSpendUsd = 0;
@@ -1827,7 +1853,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       return message;
     };
 
-    if (reasoningBudgetExceeded && turn < maxTurns - 1) {
+    if (reasoningBudgetExceeded && turn < hardCeiling - 1) {
       messages.push(assistantHistoryMessage());
       messages.push({
         role: "user",
@@ -1866,7 +1892,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       parsedToolCalls.failures.length > 0 &&
       !parseEscalationUsed &&
       toolCallCorrectionAttempts + 1 >= TOOL_CALL_CORRECTION_LIMIT &&
-      turn < maxTurns - 1
+      turn < hardCeiling - 1
     ) {
       const escalated = await scheduleEscalation({
         from: turnProvider,
@@ -1886,7 +1912,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       }
     }
 
-    if (parsedToolCalls.failures.length > 0 && toolCallCorrectionAttempts < TOOL_CALL_CORRECTION_LIMIT && turn < maxTurns - 1) {
+    if (parsedToolCalls.failures.length > 0 && toolCallCorrectionAttempts < TOOL_CALL_CORRECTION_LIMIT && turn < hardCeiling - 1) {
       toolCallCorrectionAttempts += 1;
       messages.push(assistantHistoryMessage());
       messages.push({
@@ -1925,11 +1951,12 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
 
     if (
       toolCalls.length === 0 &&
+      !interactive &&
       isCodingTask(options.runContext) &&
       !hasRequiredCodingReport(assistantText || finalText)
     ) {
       consecutiveNoToolNoReportTurns += 1;
-      if (!requestedFinalReport && consecutiveNoToolNoReportTurns < MAX_NO_TOOL_NO_REPORT_TURNS && turn < maxTurns - 1) {
+      if (!requestedFinalReport && consecutiveNoToolNoReportTurns < MAX_NO_TOOL_NO_REPORT_TURNS && turn < hardCeiling - 1) {
         requestedFinalReport = true;
         messages.push({
           role: "user",
@@ -1960,10 +1987,11 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         verifierShell: options.verifierShell,
       });
       if (
+        !interactive &&
         isCodingTask(options.runContext) &&
         !requestedCommitRepair &&
         commitStillRequired(manifest, beforeGitSnapshot, options.runContext) &&
-        turn < maxTurns - 1
+        turn < hardCeiling - 1
       ) {
         requestedCommitRepair = true;
         messages.push({
@@ -1977,7 +2005,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         ((manifest.validation && !manifest.validation.passed) || manifest.blockers.length > 0) &&
         validationRepairAttempts < maxRepairAttempts &&
         !seenValidationRepairSignatures.has(validationRepairSignature(manifest)) &&
-        turn < maxTurns - 1
+        turn < hardCeiling - 1
       ) {
         validationRepairAttempts += 1;
         const signature = validationRepairSignature(manifest);
@@ -1991,7 +2019,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         });
         continue;
       }
-      const finalMessage = isCodingTask(options.runContext)
+      const finalMessage = isCodingTask(options.runContext) && !interactive
         ? ensureCodingReport(assistantText || finalText || "Done.", manifest, options.runContext)
         : assistantText || finalText || "Done.";
       await recordGoldenTaskMemory(workspace, manifest, options.runContext);
@@ -2255,6 +2283,8 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         if (result.ok) {
           changed = collectChangedFiles(changed, result.files);
           if (toolName === requiredTool) requiredToolUsed = true;
+          // Any successful tool counts as progress and resets the stall budget.
+          lastProgressTurn = turn;
         }
         if (looksLikeNetworkOrDependencyFailure(toolName, callInput, result)) {
           consecutiveNetworkFailures += 1;
@@ -2329,7 +2359,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
       }
     }
 
-    if (networkFallbackReminderPending && !networkFallbackReminderSent && turn < maxTurns - 1) {
+    if (networkFallbackReminderPending && !networkFallbackReminderSent && turn < hardCeiling - 1) {
       networkFallbackReminderPending = false;
       networkFallbackReminderSent = true;
       messages.push({ role: "user", content: buildNetworkFallbackReminder() });
@@ -2355,7 +2385,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         runId,
         verifierShell: options.verifierShell,
       });
-      if (!requestedCommitRepair && commitStillRequired(manifest, beforeGitSnapshot, options.runContext)) {
+      if (!interactive && !requestedCommitRepair && commitStillRequired(manifest, beforeGitSnapshot, options.runContext)) {
         requestedCommitRepair = true;
         skippedDuplicateKeys.clear();
         messages.push({
@@ -2364,12 +2394,16 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
         });
         continue;
       }
-      const finalMessage = [
-        "Finalized after repeated duplicate verification requests.",
-        "",
-        buildFallbackCodingReport(manifest.changedFiles, verificationLines, toolErrorCount, readArtifactPaths, createdArtifactPaths, options.runContext, manifest.blockers, finalText),
-      ].join("\n");
-      const finalMessageWithFooter = ensureCodingReport(finalMessage, manifest, options.runContext);
+      const finalMessage = interactive
+        ? assistantText || finalText || "Done."
+        : [
+            "Finalized after repeated duplicate verification requests.",
+            "",
+            buildFallbackCodingReport(manifest.changedFiles, verificationLines, toolErrorCount, readArtifactPaths, createdArtifactPaths, options.runContext, manifest.blockers, finalText),
+          ].join("\n");
+      const finalMessageWithFooter = interactive
+        ? finalMessage
+        : ensureCodingReport(finalMessage, manifest, options.runContext);
       await recordGoldenTaskMemory(workspace, manifest, options.runContext);
       await appendTaskHistorySilently(workspace, options.prompt, manifest, options.runContext);
       await appendObsidianTaskIfConfigured(manifest, options.runContext);
@@ -2379,7 +2413,12 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
     }
   }
 
-  const message = `Stopped after reaching the tool-turn limit. (Max dialog turn budget = ${maxTurns}; the agent did not produce a final coding report and may have stalled in a tool-call loop. Inspect the verification log and rerun with --retries if appropriate.)`;
+  // Report the actual limit reached (the hard ceiling when extension was active),
+  // not the soft maxTurns which understates it.
+  const reachedLimit = progressBudget.enabled ? hardCeiling : maxTurns;
+  const message = interactive
+    ? `I hit the step limit for this turn (${reachedLimit} steps) and stopped here so I don't loop. Say "continue" and I'll pick up where I left off.`
+    : `Stopped after reaching the tool-turn limit. (Max dialog turn budget = ${reachedLimit}; the agent did not produce a final coding report and may have stalled in a tool-call loop. Inspect the verification log and rerun with --retries if appropriate.)`;
   createdArtifactPaths = uniqueSorted([...createdArtifactPaths, ...await syncArtifactOutput()]);
   const manifest = await buildFinalManifest({
     workspace,
@@ -2401,17 +2440,18 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
     runId,
     verifierShell: options.verifierShell,
   });
-  const fallbackReport = isCodingTask(options.runContext)
+  const emitCodingReport = isCodingTask(options.runContext) && !interactive;
+  const fallbackReport = emitCodingReport
     ? buildFallbackCodingReport(manifest.changedFiles, verificationLines, toolErrorCount, readArtifactPaths, createdArtifactPaths, options.runContext, manifest.blockers, finalText)
     : "";
-  const finalMessage = isCodingTask(options.runContext)
+  const finalMessage = emitCodingReport
     ? [
         message,
         "",
         fallbackReport,
       ].join("\n")
     : message;
-  const finalMessageWithFooter = isCodingTask(options.runContext)
+  const finalMessageWithFooter = emitCodingReport
     ? ensureCodingReport(finalMessage, manifest, options.runContext)
     : finalMessage;
   await recordGoldenTaskMemory(workspace, manifest, options.runContext);

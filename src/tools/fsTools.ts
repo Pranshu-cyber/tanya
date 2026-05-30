@@ -18,6 +18,7 @@ import { buildTaskBriefTool, findReusableArtifactsTool, inspectProjectContextToo
 import { searchObsidianNotesTool } from "./obsidianTools";
 import { expandResultTool } from "./expandResult";
 import { taskTool } from "./task";
+import { updatePlanTool } from "./planTool";
 import { editBlockTool } from "./editBlock";
 import { inspectRepoMapTool } from "./repoMapTools";
 import { recordMetricsDashboardHandoffTool } from "./metricsDashboardTools";
@@ -2129,6 +2130,7 @@ export function defaultTools(): TanyaTool[] {
     findReusableArtifactsTool,
     buildTaskBriefTool,
     searchObsidianNotesTool,
+    updatePlanTool,
     writeFileTool,
     applyPatchTool,
     editBlockTool,

@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import { Box, useApp } from "ink";
 import { runAgent } from "../../agent/runner";
+import { inferInteractiveRun } from "../../agent/interactiveBudget";
 import type { ChatProvider } from "../../providers/types";
 import type { ChatMessage } from "../../providers/types";
 import type { RunAgentOptions } from "../../agent/runner";
@@ -209,6 +210,7 @@ export function App({
           model: provider.model,
           startedAt,
         });
+        const inferred = inferInteractiveRun(prompt);
         const result = await runAgent({
           provider,
           prompt,
@@ -217,7 +219,10 @@ export function App({
           history: historyRef.current,
           signal: abortController.signal,
           onPermissionRequest: handlePermissionRequest,
+          interactive: true,
           ...(routing ? { routing } : {}),
+          ...(inferred.runContext ? { runContext: inferred.runContext, extendBudgetOnProgress: true } : {}),
+          ...(inferred.maxTurns !== undefined ? { maxTurns: inferred.maxTurns } : {}),
         });
         historyRef.current.push({ role: "user", content: prompt });
         historyRef.current.push({ role: "assistant", content: result.message });
@@ -229,6 +234,14 @@ export function App({
       }
     })();
   };
+
+  // Stable identities for the Input callbacks so React.memo(Input) holds: these
+  // never change but always call the latest handler (refs updated every render).
+  const handlersRef = useRef({ submit: handleSubmit, exit: handleExit });
+  handlersRef.current.submit = handleSubmit;
+  handlersRef.current.exit = handleExit;
+  const stableSubmit = useCallback((value: string) => handlersRef.current.submit(value), []);
+  const stableExit = useCallback(() => handlersRef.current.exit(), []);
 
   return (
     <Box flexDirection="column" height="100%" minHeight={8}>
@@ -249,8 +262,8 @@ export function App({
         disabled={state.bootStage !== "ready" || state.pendingTurn !== null || state.pendingPermission !== null}
         {...(state.pendingTurn?.spinnerVisible ? { pendingStartedAt: state.pendingTurn.startedAt } : {})}
         now={now}
-        onSubmit={handleSubmit}
-        onExit={handleExit}
+        onSubmit={stableSubmit}
+        onExit={stableExit}
       />
       <Footer
         provider={provider.id}

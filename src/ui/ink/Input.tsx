@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Box, Text, useInput } from "ink";
 import { formatClock } from "../../utils/formatElapsed";
 
-export function Input({ disabled = false, pendingStartedAt, now, onSubmit, onExit }: {
+function InputView({ disabled = false, pendingStartedAt, now, onSubmit, onExit }: {
   disabled?: boolean;
   pendingStartedAt?: number;
   now: number;
@@ -66,3 +66,8 @@ export function Input({ disabled = false, pendingStartedAt, now, onSubmit, onExi
     </Box>
   );
 }
+
+// Memoized so token/activity-driven App re-renders don't repaint the input row;
+// with stable onSubmit/onExit refs from App it re-renders only when its own props
+// change — the once-per-second clock (now), disabled, or pendingStartedAt.
+export const Input = React.memo(InputView);

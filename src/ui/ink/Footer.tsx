@@ -17,7 +17,7 @@ function formatFooterCost(costUsd: number | null): string {
   return formatUsd(costUsd);
 }
 
-export function Footer({ provider, model, sessionStartMs, stats, now, showColdStartHint = false }: {
+function FooterView({ provider, model, sessionStartMs, stats, now, showColdStartHint = false }: {
   provider: string;
   model: string;
   sessionStartMs: number;
@@ -36,3 +36,8 @@ export function Footer({ provider, model, sessionStartMs, stats, now, showColdSt
     </Box>
   );
 }
+
+// Memoized so unrelated App re-renders (activity items, message list, permission
+// state changing during a build) don't repaint the footer; it updates only when
+// its own props change — the once-per-second elapsed clock (now) and stats.
+export const Footer = React.memo(FooterView);

@@ -4,6 +4,13 @@ import { formatClock, formatElapsed } from "../../utils/formatElapsed";
 import type { InkMessage } from "./types";
 import type { PendingTurn } from "./state";
 import { MarkdownText } from "./markdown";
+import { clampToLastLines } from "./clampLines";
+
+// While a message is still streaming (live), show only its last N lines so a
+// long single reply can't grow the live region past the terminal height and
+// trigger Ink's full-screen repaint. The full text renders once the message
+// finalizes into <Static>.
+const MAX_LIVE_MESSAGE_LINES = 14;
 
 function messagePrefix(message: InkMessage): string {
   const clock = `[${formatClock(new Date(message.timestampMs))}]`;
@@ -16,15 +23,16 @@ function messagePrefix(message: InkMessage): string {
 }
 
 const MessageBlock = React.memo(function MessageBlock({ message, live = false }: { message: InkMessage; live?: boolean }) {
+  const content = live ? clampToLastLines(message.content, MAX_LIVE_MESSAGE_LINES) : message.content;
   return (
     <Box flexDirection="column" marginBottom={1}>
       <Text color={message.role === "user" ? "green" : message.role === "assistant" ? "cyan" : "gray"}>
         {messagePrefix(message)}
       </Text>
-      {message.content
+      {content
         ? message.role === "assistant"
-          ? <MarkdownText source={message.content} formatPartialLine={!live} />
-          : <Text wrap="wrap">{message.content}</Text>
+          ? <MarkdownText source={content} formatPartialLine={!live} />
+          : <Text wrap="wrap">{content}</Text>
         : null}
     </Box>
   );

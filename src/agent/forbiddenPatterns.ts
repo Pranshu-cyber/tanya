@@ -45,6 +45,22 @@ export const DEFAULT_FORBIDDEN_PATTERNS: ForbiddenPattern[] = [
     severity: "error",
   },
   {
+    id: "swift-escaped-string-interpolation",
+    // A Swift string interpolation that got double-escaped: the file literally
+    // contains TWO backslashes before `(value)`, so SwiftUI renders the literal
+    // text "\(value)" instead of substituting the value. This is the classic
+    // agent/JSON round-trip over-escape (backslash is the escape char in both
+    // Swift AND the JSON tool-call transport). It COMPILES CLEANLY and ships
+    // visibly broken — e.g. calculator digit buttons labeled "\(n)" instead of
+    // the number. Single-backslash `\(value)` (correct) does not match; `\\d`
+    // style escapes (no paren) do not match.
+    pattern: /\\\\\([A-Za-z_][\w.]*\)/,
+    filePattern: /\.swift$/,
+    excludeFilePattern: TEST_DIR_EXCLUSIONS,
+    message: "Escaped Swift string interpolation: the source has a doubled backslash before \\(...), so it renders as literal text instead of the value (e.g. a button labeled \"\\(n)\" instead of the number). Remove the extra backslash — write \"\\(value)\", not \"\\\\(value)\".",
+    severity: "error",
+  },
+  {
     id: "android-missing-google-client-id-literal",
     // Match every realistic placeholder shape we've seen ship: the fully-qualified
     // YOUR_WEB_CLIENT_ID.apps.googleusercontent.com, the bare YOUR_WEB_CLIENT_ID_HERE
