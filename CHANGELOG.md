@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.17.1-beta.1] - 2026-05-31
+
+### Changes
+
+- feat(ui): live token/cost counter with configurable DeepSeek pricing (#15)
+- fix(tools): make run_shell progress throttle env-tunable for tests (#14)
+- fix: app-build reliability — stop mid-task, full-screen blink, compiled≠correct (#12)
+- [Audit] production-readiness batch + Tania→Tanya rename (2026-05-25) (#11)
+
+
 ## [0.17.1-beta.0] - 2026-05-24
 
 ### Changes

@@ -1,6 +1,6 @@
 {
   "name": "@matheuskrumenauer/tanya",
-  "version": "0.17.1-beta.0",
+  "version": "0.17.1-beta.1",
   "description": "A live, tool-using AI CLI for DeepSeek and OpenAI-compatible providers.",
   "type": "module",
   "bin": {
