@@ -24,7 +24,18 @@ import { inspectRepoMapTool } from "./repoMapTools";
 import { recordMetricsDashboardHandoffTool } from "./metricsDashboardTools";
 
 const ignoredNames = new Set([".git", "node_modules", ".next", "dist", "build", ".turbo", ".cache"]);
-export const PROGRESS_THROTTLE_MS = 2_000;
+// Throttle for run_shell stdout/stderr → onProgress emits. Default 2s keeps
+// the ink renderer responsive without spamming. Override via
+// TANYA_PROGRESS_THROTTLE_MS so tests can use a smaller value and not flake
+// under CI/publish-pipeline load. Read lazily because ES-module hoisting
+// would otherwise capture the value before any test setup runs.
+export function getProgressThrottleMs(): number {
+  const raw = Number(process.env.TANYA_PROGRESS_THROTTLE_MS);
+  return Number.isFinite(raw) && raw >= 0 ? raw : 2_000;
+}
+// Back-compat re-export — most call sites import the constant. Keep it but
+// flag the deprecation via the comment so future readers reach for the fn.
+export const PROGRESS_THROTTLE_MS = getProgressThrottleMs();
 export const MAX_WRITE_FILE_BYTES = 8 * 1024 * 1024;
 export const MAX_PROCESS_BUFFER_BYTES = 16 * 1024 * 1024;
 
@@ -238,7 +249,7 @@ function runShell(script: string, context: ToolContext, timeoutMs: number, cwd =
       if (!context.onProgress || !chunk) return;
       progressBuffers[stream] += chunk;
       if (progressTimers[stream]) return;
-      progressTimers[stream] = setTimeout(() => flushProgress(stream), PROGRESS_THROTTLE_MS);
+      progressTimers[stream] = setTimeout(() => flushProgress(stream), getProgressThrottleMs());
       progressTimers[stream]?.unref?.();
     };
     const outputSoFar = () => {

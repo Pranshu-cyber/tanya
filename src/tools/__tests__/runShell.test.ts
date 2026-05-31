@@ -1,9 +1,20 @@
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { runShellTool } from "../fsTools";
+import { describe, expect, it, beforeAll } from "vitest";
+
+import { runShellTool, getProgressThrottleMs } from "../fsTools";
 import type { ToolProgressEvent } from "../types";
+
+// 500ms throttle = small enough that the streaming test sees "first" well
+// before its 2.6s deadline even under load, big enough that the throttling
+// test still batches the "a"+"b" (100ms apart) emits into one "ab" chunk.
+beforeAll(() => {
+  process.env.TANYA_PROGRESS_THROTTLE_MS = "500";
+  if (getProgressThrottleMs() !== 500) {
+    throw new Error(`expected getProgressThrottleMs()=500, got ${getProgressThrottleMs()}`);
+  }
+});
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
