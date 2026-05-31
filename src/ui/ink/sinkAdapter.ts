@@ -19,8 +19,23 @@ export function createInkSink(dispatch: Dispatch<InkAction>, options: {
   let reasoningFlushHandle: ReturnType<typeof setTimeout> | null = null;
   let reasoningStartedAt: number | null = null;
   let streamedTokenChars = 0;
+  let streamedReasoningChars = 0;
+  let lastProgressCompletionTokens = 0;
+  let lastProgressReasoningTokens = 0;
   let toolCount = 0;
   const flushIntervalMs = options.flushIntervalMs ?? 30;
+
+  // Estimate completion/reasoning tokens from streamed characters (~4 chars/token)
+  // and push a live turn_progress so the footer updates in real time. De-duped so
+  // a burst of tiny deltas that doesn't move the ~4-char bucket dispatches once.
+  const dispatchProgressEstimate = () => {
+    const completionTokens = Math.ceil(streamedTokenChars / 4);
+    const reasoningTokens = Math.ceil(streamedReasoningChars / 4);
+    if (completionTokens === lastProgressCompletionTokens && reasoningTokens === lastProgressReasoningTokens) return;
+    lastProgressCompletionTokens = completionTokens;
+    lastProgressReasoningTokens = reasoningTokens;
+    dispatch({ type: "turn_progress", completionTokens, reasoningTokens });
+  };
 
   const ensureAssistant = () => {
     if (assistantId) return assistantId;
@@ -98,6 +113,7 @@ export function createInkSink(dispatch: Dispatch<InkAction>, options: {
         ensureAssistant();
         buffer += event.text;
         streamedTokenChars += event.text.length;
+        dispatchProgressEstimate();
         scheduleFlush();
         break;
       }
@@ -106,6 +122,8 @@ export function createInkSink(dispatch: Dispatch<InkAction>, options: {
         break;
       case "reasoning_chunk":
         reasoningBuffer += event.content;
+        streamedReasoningChars += event.content.length;
+        dispatchProgressEstimate();
         scheduleReasoningFlush();
         break;
       case "tool_call": {

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import { Box, useApp } from "ink";
 import { runAgent } from "../../agent/runner";
 import { inferInteractiveRun } from "../../agent/interactiveBudget";
+import { estimateTokens } from "../../agent/compression";
 import type { ChatProvider } from "../../providers/types";
 import type { ChatMessage } from "../../providers/types";
 import type { RunAgentOptions } from "../../agent/runner";
@@ -202,6 +203,12 @@ export function App({
       dispatch({ type: "user_message", content: prompt, timestampMs });
       const startedAt = Date.now();
       dispatch({ type: "turn_start", startedAt });
+      // Seed the live counter with an estimate of the prompt (history + new
+      // message) tokens; completion/reasoning accrue from the stream.
+      dispatch({
+        type: "turn_progress",
+        promptTokens: estimateTokens([...historyRef.current, { role: "user", content: prompt }]),
+      });
       const abortController = new AbortController();
       activeAbortController.current = abortController;
       try {
@@ -270,6 +277,7 @@ export function App({
         model={provider.model}
         sessionStartMs={state.sessionStartMs}
         stats={state.stats}
+        inflight={state.inflight}
         now={now}
         showColdStartHint={state.bootStage === "ready" && state.turnCount === 0}
       />

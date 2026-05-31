@@ -34,10 +34,41 @@ type Pricing = {
 
 export const CACHE_MISS_ESTIMATE_TAG = "[cache-miss estimate]";
 
+// Per-1M-token prices in USD. Input is the cache-MISS rate (the conservative
+// estimate — cache hits are ~10x cheaper, and we don't track the hit/miss split).
+// V4-Pro reflects DeepSeek's discounted "forever" rate (75% off the original list
+// price); V4-Flash is the standard rate. Verified against api-docs.deepseek.com
+// pricing, May 2026. deepseek-chat / deepseek-reasoner are the deprecated legacy
+// aliases (sunset 2026-07-24) kept at their historical prices. Any model can be
+// overridden at runtime with TANYA_PRICE_INPUT_PER_MTOK / TANYA_PRICE_OUTPUT_PER_MTOK.
 const deepSeekPricingByModel: Record<string, Pricing> = {
+  "deepseek-v4-pro": { inputPerMillion: 0.435, outputPerMillion: 0.87 },
+  "deepseek-v4-flash": { inputPerMillion: 0.14, outputPerMillion: 0.28 },
   "deepseek-chat": { inputPerMillion: 0.27, outputPerMillion: 1.10 },
   "deepseek-reasoner": { inputPerMillion: 0.55, outputPerMillion: 2.19 },
 };
+
+function priceEnvOverride(name: string): number | undefined {
+  const raw = process.env[name];
+  if (raw === undefined || raw.trim() === "") return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : undefined;
+}
+
+// Resolve pricing for a provider/model, applying TANYA_PRICE_* env overrides on
+// top of the built-in table. Returns undefined when the model is unknown and no
+// override is set.
+export function resolvePricing(provider: string, model: string): Pricing | undefined {
+  const base = provider === "deepseek" ? deepSeekPricingByModel[model] : undefined;
+  const inputOverride = priceEnvOverride("TANYA_PRICE_INPUT_PER_MTOK");
+  const outputOverride = priceEnvOverride("TANYA_PRICE_OUTPUT_PER_MTOK");
+  if (inputOverride === undefined && outputOverride === undefined) return base;
+  return {
+    inputPerMillion: inputOverride ?? base?.inputPerMillion ?? 0,
+    outputPerMillion: outputOverride ?? base?.outputPerMillion ?? 0,
+    ...(base?.cacheModelKnown !== undefined ? { cacheModelKnown: base.cacheModelKnown } : {}),
+  };
+}
 
 export function readRunLogs(workspace: string, limit?: number): RunLog[] {
   const runsDir = join(workspace, ".tanya", "runs");
@@ -78,7 +109,7 @@ export function readRunLogs(workspace: string, limit?: number): RunLog[] {
 
 export function estimateRunCost(log: Pick<RunLog, "provider" | "model" | "promptTokens" | "completionTokens"> & { reasoningTokens?: number }): RunCostEstimate {
   const provider = normalizeProvider(log.provider, log.model);
-  const pricing = provider === "deepseek" ? deepSeekPricingByModel[log.model] : undefined;
+  const pricing = resolvePricing(provider, log.model);
   if (!pricing) {
     return { provider, usd: null, display: "pricing unknown", cacheModelKnown: false };
   }

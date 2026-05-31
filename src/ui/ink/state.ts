@@ -1,9 +1,21 @@
 import type { ActivityItem, InkMessage, InkSessionStats } from "./types";
 import type { PermissionRequest } from "../../safety/permissions/host";
+import { estimateRunCost } from "../../memory/runLogs";
 
 export interface PendingTurn {
   startedAt: number;
   spinnerVisible: boolean;
+}
+
+// Live, in-flight token + cost estimate for the turn currently running. Prompt
+// tokens are estimated at turn start; completion/reasoning tokens are estimated
+// from streamed characters during the turn; cost is recomputed each tick from
+// the configured per-model pricing (see runLogs.resolvePricing).
+export interface InflightTurn {
+  promptTokens: number;
+  completionTokens: number;
+  reasoningTokens: number;
+  costUsd: number | null;
 }
 
 export type BootStage = "loading" | "ready";
@@ -18,10 +30,38 @@ export interface InkState {
   sessionGenerateMs: number;
   turnCount: number;
   stats: InkSessionStats;
+  inflight: InflightTurn;
+  provider: string;
+  model: string;
   pendingPermission: PermissionRequest | null;
   bootStage: BootStage;
   bootMessage: string;
   bootStartedAt: number;
+}
+
+const EMPTY_INFLIGHT: InflightTurn = { promptTokens: 0, completionTokens: 0, reasoningTokens: 0, costUsd: 0 };
+
+function computeInflight(
+  state: { provider: string; model: string },
+  partial: { promptTokens?: number; completionTokens?: number; reasoningTokens?: number },
+  previous: InflightTurn,
+): InflightTurn {
+  const next: InflightTurn = {
+    promptTokens: partial.promptTokens ?? previous.promptTokens,
+    completionTokens: partial.completionTokens ?? previous.completionTokens,
+    reasoningTokens: partial.reasoningTokens ?? previous.reasoningTokens,
+    costUsd: previous.costUsd,
+  };
+  if (state.provider && state.model) {
+    next.costUsd = estimateRunCost({
+      provider: state.provider,
+      model: state.model,
+      promptTokens: next.promptTokens,
+      completionTokens: next.completionTokens,
+      reasoningTokens: next.reasoningTokens,
+    }).usd;
+  }
+  return next;
 }
 
 export interface InitialInkStateOptions {
@@ -40,6 +80,7 @@ export type InkAction =
   | { type: "assistant_start"; id: string; timestampMs: number; elapsedMs: number }
   | { type: "assistant_delta"; id: string; text: string }
   | { type: "turn_start"; startedAt: number }
+  | { type: "turn_progress"; promptTokens?: number; completionTokens?: number; reasoningTokens?: number }
   | { type: "turn_complete"; elapsedMs: number; promptTokens?: number; completionTokens?: number; reasoningTokens?: number; costUsd?: number | null }
   | { type: "turn_error"; message: string }
   | { type: "activity_start"; item: ActivityItem }
@@ -73,6 +114,9 @@ export function createInitialInkState(options: InitialInkStateOptions = {}): Ink
     sessionGenerateMs: options.initialGenerateMs ?? 0,
     turnCount: options.initialTurnCount ?? 0,
     stats: options.initialStats ?? { costUsd: 0, totalTokens: 0 },
+    inflight: { ...EMPTY_INFLIGHT },
+    provider: options.provider ?? "",
+    model: options.model ?? "",
     pendingPermission: null,
     bootStage: "loading",
     bootMessage: "Preparing Tanya…",
@@ -141,7 +185,9 @@ export function inkReducer(state: InkState, action: InkAction): InkState {
       };
     }
     case "turn_start":
-      return { ...state, pendingTurn: { startedAt: action.startedAt, spinnerVisible: true }, activityItems: [] };
+      return { ...state, pendingTurn: { startedAt: action.startedAt, spinnerVisible: true }, activityItems: [], inflight: { ...EMPTY_INFLIGHT } };
+    case "turn_progress":
+      return { ...state, inflight: computeInflight(state, action, state.inflight) };
     case "turn_complete": {
       const turnTokens = (action.promptTokens ?? 0) + (action.completionTokens ?? 0) + (action.reasoningTokens ?? 0);
       const currentCost = state.stats.costUsd ?? 0;
@@ -157,6 +203,7 @@ export function inkReducer(state: InkState, action: InkAction): InkState {
           costUsd: action.costUsd === null || action.costUsd === undefined ? state.stats.costUsd : currentCost + action.costUsd,
           totalTokens: turnTokens > 0 ? currentTokens + turnTokens : state.stats.totalTokens,
         },
+        inflight: { ...EMPTY_INFLIGHT },
       };
     }
     case "turn_error":
@@ -165,6 +212,7 @@ export function inkReducer(state: InkState, action: InkAction): InkState {
         liveAssistantId: null,
         pendingTurn: null,
         activityItems: [],
+        inflight: { ...EMPTY_INFLIGHT },
         messages: [...state.messages, {
           id: `error-${Date.now()}-${state.messages.length}`,
           role: "system",
@@ -210,6 +258,7 @@ export function inkReducer(state: InkState, action: InkAction): InkState {
         sessionGenerateMs: action.generateMs,
         turnCount: action.turnCount,
         stats: action.stats,
+        inflight: { ...EMPTY_INFLIGHT },
       };
     case "clear":
       return { ...state, messages: [], assistantMessageIndexes: {}, liveAssistantId: null, activityItems: [] };
