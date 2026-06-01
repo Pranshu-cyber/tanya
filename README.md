@@ -72,6 +72,63 @@ tanya providers test --provider deepseek
 - The verifier checks changed files, expected artifacts, validation output, and blockers after the model acts, so cheap-model drift has to pass deterministic review.
 - Defaults to `deepseek-v4-pro` and tracks DeepSeek's API roadmap; legacy aliases still work but warn before their scheduled deprecation.
 
+## Roadmap
+
+Tanya already covers a lot of Claude-Code-style ground; this is the plan for the
+rest. Every item below is specified from public documentation, observable
+behavior, and general agent-design best practices — Tanya is its own
+implementation. See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) for how the
+pieces fit together and
+[docs/ROADMAP-claude-parity.md](./docs/ROADMAP-claude-parity.md) for the full
+capability matrix.
+
+**Working today:** interactive REPL + one-shot modes · streaming with live
+token/cost counter · the turn loop · extended thinking · context compaction ·
+persistent task checklist · file/shell/edit tools · `task` sub-agents ·
+permission modes & rules · MCP client + server · slash commands · skill packs ·
+`TANYA.md` memory · session resume · deterministic verifier + validators.
+
+**Phase 1 — extensibility core** (highest leverage)
+
+- [ ] **Hooks** — user-defined lifecycle hooks (`PreToolUse`, `PostToolUse`,
+  `UserPromptSubmit`, `Stop`, `SubagentStop`, `SessionStart`, `SessionEnd`,
+  `PreCompact`) that can block, warn, or inject context.
+- [ ] **Named sub-agents** — `.tanya/agents/*.md` with frontmatter, surfaced in
+  an `/agents` picker and targetable by the `task` tool.
+- [ ] **Slash-command templating** — `$ARGUMENTS` / `$1`, `!`-bash expansion,
+  `@file` inclusion, and frontmatter (allowed-tools, model) for project commands.
+
+**Phase 2 — daily-feel parity**
+
+- [ ] **First-class plan mode** — propose a plan, render it, approve, then
+  execute (normal → auto-accept → plan toggle).
+- [ ] **Hierarchical memory + `@imports`** — walk up the tree for `TANYA.md`,
+  support `@path` imports, add `/memory` to view and edit.
+- [ ] **Web tools** — `web_fetch` (URL → markdown) and `web_search`.
+- [ ] **Background shells** — `run_shell` background mode with output polling and
+  kill.
+
+**Phase 3 — power-user & trust**
+
+- [ ] **Checkpoint / rewind** — per-turn workspace + conversation snapshots with
+  `/rewind` restore.
+- [ ] **Unified `settings.json`** — one schema merging permissions, routes, MCP,
+  hooks, and model with enterprise → user → project → local precedence.
+- [ ] **`/context` + configurable statusline** — context-usage breakdown and a
+  user-templated footer.
+- [ ] **Output styles** — concise / explanatory / teaching presets.
+
+**Phase 4 — ecosystem**
+
+- [ ] Git/PR automation · OS sandbox for `run_shell` · image input · SDK / IDE /
+  Vim (demand-driven).
+
+**Where Tanya already goes further:** per-step multi-provider routing with a
+token-fit cost cascade · cost-aware spend budgets as permission rules ·
+`forbiddenPatterns` shipping-bug gate · platform validators + final-state
+verifier · eval / golden-task harness · Obsidian knowledge integration ·
+provider-agnostic (DeepSeek-first).
+
 ## Contributing
 
 Start with [CONTRIBUTING.md](./CONTRIBUTING.md) for local setup, tool and
@@ -79,7 +136,8 @@ skill-pack conventions, tests, and PR expectations.
 
 Beginner-friendly tasks are tagged
 [`good first issue`](https://github.com/matheusjkweber/tanya/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22).
-For roadmap context, read [docs/claude-code-gap-analysis.md](./docs/claude-code-gap-analysis.md).
+For roadmap context, read the [Roadmap](#roadmap) above plus
+[docs/claude-code-gap-analysis.md](./docs/claude-code-gap-analysis.md).
 
 ## Configuration
 
