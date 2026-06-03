@@ -133,6 +133,51 @@ describe("loadSkillPacks", () => {
       }),
     ]);
   });
+  it("loads Python packs from pyproject.toml workspace probes", () => {
+    const workspace = makeTempRoot("tanya-skills-python-workspace-");
+    const skillsRoot = makeTempRoot("tanya-skills-root-");
+
+    write(workspace, "pyproject.toml", [
+      "[project]",
+      'name = "example"',
+      'version = "0.1.0"',
+    ].join("\n"));
+
+    write(skillsRoot, "lang/python.md", pack("Python", "lang/python", {
+      loadWhen: "  - kind: workspace.has\n    path: pyproject.toml",
+    }));
+
+    const loaded = loadSkillPacksFromRoot(
+      baseContext(workspace),
+      skillsRoot,
+    );
+
+    expect(loaded).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        slug: "lang/python",
+        reason: "workspace",
+      }),
+    ]));
+  });
+
+  it("does not load Python packs without Python hints or workspace markers", () => {
+    const workspace = makeTempRoot("tanya-skills-python-negative-");
+    const skillsRoot = makeTempRoot("tanya-skills-root-");
+
+    write(skillsRoot, "lang/python.md", pack("Python", "lang/python", {
+      loadWhen: "  - kind: workspace.has\n    path: pyproject.toml",
+    }));
+
+    const loaded = loadSkillPacksFromRoot(
+      baseContext(workspace),
+      skillsRoot,
+    );
+
+    expect(
+      loaded.find((skill) => skill.slug === "lang/python")
+    ).toBeUndefined();
+  });
+
 
   it("strips frontmatter from loaded pack content", () => {
     const workspace = makeTempRoot("tanya-skills-strip-");
@@ -581,6 +626,28 @@ describe("loadSkillPacks", () => {
     ]));
   });
 
+  it("adds Python packs from a Python language hint without requiring workspace probes", () => {
+    const workspace = makeTempRoot("tanya-skills-python-hints-");
+    const skillsRoot = makeTempRoot("tanya-skills-root-");
+
+    write(skillsRoot, "lang/python.md", pack("Python", "lang/python", {
+      loadWhen: "  - kind: hint.language\n    value: python",
+    }));
+
+    const loaded = loadSkillPacksFromRoot(baseContext(workspace, {
+      hints: {
+        languages: ["python"],
+      },
+    }), skillsRoot);
+
+    expect(loaded).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        slug: "lang/python",
+        reason: "hint",
+      }),
+    ]));
+  });
+  
   it("keeps failure-mode and stack packs when trimming to the token budget", () => {
     const workspace = makeTempRoot("tanya-skills-budget-");
     const skillsRoot = makeTempRoot("tanya-skills-root-");
