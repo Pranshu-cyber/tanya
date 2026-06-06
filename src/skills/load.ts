@@ -436,7 +436,7 @@ function activeStackReason(
   signals: WorkspaceSignals,
 ): MatchReason {
   if (
-    languageHintMatches(languages, ["go", "swift", "kotlin", "typescript", "ts", "python", "py"]) ||
+    languageHintMatches(languages, ["go", "swift", "kotlin", "typescript", "ts"]) ||
     stackHintMatches(stack, [
       "backend-go-huma",
       "backend-go-house",
@@ -502,9 +502,6 @@ function implicitReason(packPath: string, ctx: SkillPackContext, signals: Worksp
       return signals.android ? "workspace" : null;
     case "lang/typescript":
       if (languages.includes("typescript") || languages.includes("ts")) return "hint";
-      return signals.next ? "workspace" : null;
-    case "lang/python":
-      if (languages.includes("python") || languages.includes("py")) return "hint";
       return signals.next ? "workspace" : null;
     case "framework/chi-pgx":
       if (frameworkHintMatches(frameworks, ["chi-pgx", "chi", "pgx"])) return "hint";
